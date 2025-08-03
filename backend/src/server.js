@@ -10,7 +10,12 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT;
 
+//need this to parse JSON bodies - Postman sends JSON
+app.use(express.json())
 app.use("/api/auth", authRoutes);
+
+
+
 
 (async () => {
   try {
@@ -22,8 +27,6 @@ app.use("/api/auth", authRoutes);
 
   } catch (err) {
     console.error('DB connection error:', err);
-  } finally {
-    await pool.end();
   }
 })();
 
