@@ -21,13 +21,13 @@ export const signup = async (req, res) => {
 
         if (result.rows.length > 0) {
             // User exists, return error
-            return res.status(500).json({ error: "That username already exists" });
+            return res.status(400).json({ error: "That username already exists" });
         } 
         else {
             //Inserting data
             await pool.query('INSERT INTO "Users" (username, password) VALUES ($1, $2) RETURNING *', [username, password]);
 
-            return null; // No user found
+            return res.status(200).json({ message: "New User Created" });
         }
     } 
     catch (err) {
