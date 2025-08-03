@@ -4,7 +4,7 @@ import authRoutes from "./routes/authRoutes.js";
 
 import dotenv from "dotenv"
 
-import pool from './DB/db.js';
+import pool from './lib/db.js';
 dotenv.config();
 
 const app = express();
