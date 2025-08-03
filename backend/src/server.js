@@ -1,5 +1,7 @@
 import express from "express"
 
+import authRoutes from "./routes/authRoutes.js";
+
 import dotenv from "dotenv"
 
 import pool from './DB/db.js';
@@ -7,6 +9,8 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT;
+
+app.use("/api/auth", authRoutes);
 
 (async () => {
   try {
@@ -23,18 +27,6 @@ const PORT = process.env.PORT;
   }
 })();
 
-// async function getUsers() {
-//   try {
-//     const result = await pool.query('SELECT * FROM Users');
-//     console.log(result.rows); // [{ id: 1, username: 'alice', ...}, ...]
-//   } catch (err) {
-//     console.error('Database error:', err);
-//   } finally {
-//     await pool.end(); // Close connection when done
-//   }
-// }
-
-// getUsers();
 
 app.listen(PORT, () => {
     console.log("Server is Listening on port: " + PORT)
