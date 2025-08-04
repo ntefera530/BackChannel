@@ -17,18 +17,18 @@ app.use("/api/auth", authRoutes);
 
 
 
-(async () => {
-  try {
-    const res = await pool.query('SELECT current_database()');
-    console.log('Connected! Time:', res.rows[0]);
+// (async () => {
+//   try {
+//     const res = await pool.query('SELECT current_database()');
+//     console.log('Connected! Time:', res.rows[0]);
 
-    const user = await pool.query('SELECT * FROM "Users"');
-    console.log('Users:', user.rows);
+//     const user = await pool.query('SELECT * FROM "Users"');
+//     console.log('Users:', user.rows);
 
-  } catch (err) {
-    console.error('DB connection error:', err);
-  }
-})();
+//   } catch (err) {
+//     console.error('DB connection error:', err);
+//   }
+// })();
 
 
 app.listen(PORT, () => {

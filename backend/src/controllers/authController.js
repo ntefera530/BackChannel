@@ -3,30 +3,32 @@ import pool from '../lib/db.js';
 import { createJWT } from '../lib/utils.js';
 
 export const signup = async (req, res) => {
-   console.log("Signup controller called");
-   const { username, password } = req.body;
-   //Check for valid Username and Password;
-   if(!username || !password) {
-       return res.status(400).json({ message: "Username and password are required" });
-   }
-   if (username.length < 3 || password.length < 6) {
-       return res.status(400).json({ message: "Username must be at least 3 characters and password at least 6 characters" });
-   }
+    console.log("Signup controller called");
+    const { username, password } = req.body;
 
-    //TODO Check if user already exists, return error if it does
-    //If not, create a new user
+    //Check for valid Username and Password;
+    if(!username || !password) {
+        return res.status(400).json({ message: "Username and password are required" });
+    }
+    if (username.length < 3 || password.length < 6) {
+        return res.status(400).json({ message: "Username must be at least 3 characters and password at least 6 characters" });
+    }
+
+    // Encrypt Password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
     try {
-        const result = await pool.query('SELECT id FROM "Users" WHERE  username = $1 AND password = $2', [username, password]);
+        const result = await pool.query('SELECT id FROM "Users" WHERE  username = $1 AND password = $2', [username, hashedPassword]);
 
         if (result.rows.length > 0) {
-            // User exists, return error
+            // User already exists, return error
             return res.status(400).json({ error: "That username already exists" });
         } 
         else {
             //Inserting data
-            await pool.query('INSERT INTO "Users" (username, password) VALUES ($1, $2) RETURNING *', [username, password]);
-
+            await pool.query('INSERT INTO "Users" (username, password) VALUES ($1, $2) RETURNING *', [username, hashedPassword]);
+            createJWT(username,res);
             return res.status(200).json({ message: "New User Created" });
         }
     } 
@@ -34,47 +36,49 @@ export const signup = async (req, res) => {
       console.error('DB connection error:', err);
     }
 
-    //Create JWT Token od new user after successful signup
-
-
-
-
-   // Encrypt Password
-   const salt = await bcrypt.genSalt(10);
-   const hashedPassword = await bcrypt.hash(password, salt);
-   console.log("Hashed Password:", hashedPassword);
-
-   //Generate JWT Token
-    //const token = createJWT(username, hashedPassword);
-
-
-   //Store User in DB
-    // try {
-    //     // Inserting data
-    //     await pool.query('INSERT INTO "Users" (username, password) VALUES ($1, $2) RETURNING *', [username, password]);
-  
-    //     const user = await pool.query('SELECT * FROM "Users"');
-    //     console.log('Users:', user.rows);
-  
-    // } 
-    // catch (err) {
-    //   console.error('DB connection error:', err);
-    // }
-
-
-   console.log("Request body:", req.body);
-   return res.status(200).json({ message: "sign up endpoint" });
+    return res.status(200).json({ message: "sign up endpoint" });
 };
 
 export const login = async (req, res) => {
     console.log("Login controller called");
-    const { username, password } = req.body;
+    try{
+        const { username, password } = req.body;
 
-    console.log("Request body:", username, password);
-    return  res.status(200).json({ message: "login endpoint" });
+        if(!username || !password){
+            return res.status(400).json({ error: "Username and Password required" });
+        }
+
+        const result = await pool.query('SELECT * FROM "Users" WHERE  username = $1', [username]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "No user with that username" });
+        }
+
+        const isPasswordCorrect = await bcrypt.compare(password, result.rows[0].password);
+
+        if(!isPasswordCorrect){
+            return res.status(404).json({ error: "Username or Password is Incorect" });
+        }
+
+        createJWT(username, res);   
+
+        return  res.status(200).json({ username: username, });
+        
+    }catch(error){
+        console.log("error in login controller", error.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
 };
 
 export const logout = async (req, res) => {
     console.log("Logout controller called");
-    return  res.status(200).json({ message: "logout endpoint" });
+
+    try {
+        //Clear All Cookies
+		res.cookie("jwt", "", { maxAge: 0 });
+		res.status(200).json({ message: "Logged out successfully" });
+	} catch (error) {
+		console.log("Error in logout controller", error.message);
+		res.status(500).json({ error: "Internal Server Error" });
+	}
 };
