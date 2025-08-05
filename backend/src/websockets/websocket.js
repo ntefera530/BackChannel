@@ -4,6 +4,10 @@ import { sendMessageToUser } from "./userToUserMessage.js";
 import jwt from "jsonwebtoken"
 
 export const setUpWebSocket = (wss) => {
+
+    //Map of clients conected to server (id, websocet object);
+    const clientsMap = new Map();
+
     wss.on('connection', (ws, req) => {
       console.log('Client connected');
 
@@ -15,10 +19,15 @@ export const setUpWebSocket = (wss) => {
     console.log(decoded);
     console.log(clientId);
 
+    clientsMap.set(clientId, ws);
+
+    
+
       ws.on('message', (message) => {
         console.log(`Received: ${message}`);
         const { type, data, sender, recipient } = JSON.parse(message);
         console.log(type);
+        console.log(clientsMap.get(clientId).readyState);
 
         switch(type){
             case "sendMessageToUser":
@@ -39,6 +48,7 @@ export const setUpWebSocket = (wss) => {
     
       ws.on('close', () => {
         console.log('Client disconnected');
+        clientsMap.delete(clientId);
       });
     });
 }
