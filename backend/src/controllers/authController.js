@@ -28,10 +28,11 @@ export const signup = async (req, res) => {
         else {
             //Inserting data
             
+            //TODO Fix this timing issue please
             await pool.query('INSERT INTO "Users" (username, password) VALUES ($1, $2) RETURNING *', [username, hashedPassword]);
             result = await pool.query('SELECT * FROM "Users" WHERE  username = $1', [username]);
             const userId = result.rows[0].id;
-            //console.log(result);
+            console.log(userId);
             createJWT(username,userId,res);
             return res.status(200).json({ message: "New User Created" });
         }

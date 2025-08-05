@@ -1,18 +1,24 @@
 import WebSocket from "ws"
 import { sendMessageToGroup } from "./userToGroupMessage.js";
 import { sendMessageToUser } from "./userToUserMessage.js";
+import jwt from "jsonwebtoken"
 
 export const setUpWebSocket = (wss) => {
-    wss.on('connection', (ws) => {
+    wss.on('connection', (ws, req) => {
       console.log('Client connected');
-    
+
+    //Need to get JWT from cookie -- currently hard coded into websocekt header. TODO remove hard coding
+    const token = req.headers.cookie;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const clientId = decoded.userId;
+    console.log(decoded);
+    console.log(clientId);
 
       ws.on('message', (message) => {
         console.log(`Received: ${message}`);
         const { type, data, sender, recipient } = JSON.parse(message);
         console.log(type);
-
-
 
         switch(type){
             case "sendMessageToUser":
