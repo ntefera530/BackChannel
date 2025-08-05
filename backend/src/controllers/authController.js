@@ -19,16 +19,20 @@ export const signup = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     try {
-        const result = await pool.query('SELECT id FROM "Users" WHERE  username = $1 AND password = $2', [username, hashedPassword]);
-
+        let result = await pool.query('SELECT * FROM "Users" WHERE  username = $1', [username]);
+        
         if (result.rows.length > 0) {
             // User already exists, return error
             return res.status(400).json({ error: "That username already exists" });
         } 
         else {
             //Inserting data
+            
             await pool.query('INSERT INTO "Users" (username, password) VALUES ($1, $2) RETURNING *', [username, hashedPassword]);
-            createJWT(username,res);
+            result = await pool.query('SELECT * FROM "Users" WHERE  username = $1', [username]);
+            const userId = result.rows[0].id;
+            //console.log(result);
+            createJWT(username,userId,res);
             return res.status(200).json({ message: "New User Created" });
         }
     } 
@@ -55,12 +59,13 @@ export const login = async (req, res) => {
         }
 
         const isPasswordCorrect = await bcrypt.compare(password, result.rows[0].password);
+        const userId = result.rows[0].id;
 
         if(!isPasswordCorrect){
             return res.status(404).json({ error: "Username or Password is Incorect" });
         }
 
-        createJWT(username, res);   
+        createJWT(username, userId, res);   
 
         return  res.status(200).json({ username: username, });
         

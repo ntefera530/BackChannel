@@ -4,9 +4,10 @@ import cookieParser from "cookie-parser";
 
 
 // Create JWT
-export const createJWT = (username, res) => {
+export const createJWT = (username, userId, res) => {
     const token = jwt.sign(
         { username: username },
+        { userId: userId },
         process.env.JWT_SECRET,
         { expiresIn: process.env.JWT_EXPIRES_IN }
     )
