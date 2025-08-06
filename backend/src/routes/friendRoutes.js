@@ -13,8 +13,8 @@ const router = express.Router();
 
 //Unprotected for Testing
 router.get("/", getAllFriends);
-router.post("/:id", addFriend);     //logic to add multple friends at a time?
-router.delete("/:id", deleteFriend);
+router.post("/:friendId", addFriend);     //logic to add multple friends at a time?
+router.delete("/:friendId", deleteFriend);
 
 
 export default router;

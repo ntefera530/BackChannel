@@ -5,7 +5,11 @@ export const addFriend = async (req, res) => {
     console.log("Add Friend")
 
     try{
-        const userId = req.userId;
+        //passed in from protectRoute
+        //const userId = req.userId;
+
+        //test user
+        const userId = 3;
         const friendId = req.params.friendId;
         
         console.log(`User ${userId} wants to add ${friendId}`);
@@ -27,14 +31,18 @@ export const deleteFriend = async (req, res) => {
     console.log("Add Friend")
 
     try{
-        const userId = req.userId;
+        //passed in from protectRoute
+        //const userId = req.userId;
+
+        //test user
+        const userId = 3;
         const friendId = req.params.friendId;
         
         console.log(`User ${userId} wants to delete ${friendId}`);
 
         //2 Way Relationship
-        //await pool.query('INSERT INTO "Friendships" (user_id, friend_id) VALUES ($1, $2)', [userId, friendId]);
-        //await pool.query('INSERT INTO "Friendships" (user_id, friend_id) VALUES ($2, $1)', [userId, friendId]);
+        await pool.query('DELETE FROM "Friendships" WHERE user_id = $1 AND friend_id = $2', [userId, friendId]);
+        await pool.query('DELETE FROM "Friendships" WHERE user_id = $1 AND friend_id = $2', [friendId, userId]);
 
         return res.status(200).json({ message: "Friend Deleted" });
     }
