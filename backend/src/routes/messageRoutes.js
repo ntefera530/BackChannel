@@ -7,8 +7,11 @@ const router = express.Router();
 
 //TODO Protect all of these
 
-//get messages + pagination
-router.get("/messages/:chatId", protectRoute, getMessages);
+//get messages + pagination - for page initial loadup and scroll up for more  messages
+//router.get("/messages/:chatId", protectRoute, getMessages);
+
+//UNprotected to Test
+router.get("/messages/:chatId", getMessages);
 
 
 export default router;
