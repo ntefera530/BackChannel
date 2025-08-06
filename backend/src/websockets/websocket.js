@@ -22,12 +22,11 @@ export const setUpWebSocket = (wss) => {
     const clientId = decoded.userId;
 
     if(clientId){
-      console.log(clientId);
+
       //store the userId with their websoccket connection - manage diffrent users
       clientsMap.set(clientId, ws);
 
       ws.on('message', (message) => {
-        console.log(`Received: ${message}`);
         const { type, content, sender_id, recipient_id} = JSON.parse(message);
 
         switch(type){
@@ -39,13 +38,6 @@ export const setUpWebSocket = (wss) => {
                 sendMessageToGroup(ws, content, sender_id, recipient_id);
             break;
         }
-        
-        // Echo the message back to all connected clients
-        // wss.clients.forEach((client) => {
-        //   if (client.readyState === WebSocket.OPEN) {
-        //     client.send(`Server received: ${message}`);
-        //   }
-        // });
 
       });
     
@@ -53,14 +45,11 @@ export const setUpWebSocket = (wss) => {
         console.log('Client disconnected');
         clientsMap.delete(clientId);
       });
-
-
     }
     else{
-      //if no userId  - close the connection
       ws.close();
     }
-
-    });
+    
+  });
 }
 

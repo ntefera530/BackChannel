@@ -7,21 +7,26 @@ export const sendMessageToUser = async (content, sender_id, recipient_id, client
     // Need to parse string id to userID, fix this??
     const client = clientsMap.get(parseInt(recipient_id));
 
+    //Json message to send over websocket idea
+    // const dataToSend = {
+    //     message: "User update",
+    //     userId: 123,
+    //     status: "online"
+    // };
+    // websocket.send(JSON.stringify(dataToSend));
+
+    //If Other user is connected, send to them
     if(client && client.readyState === WebSocket.OPEN){
         client.send(content);
         try{
-            await pool.query('INSERT INTO "Messages"' + 
-            '(sender_id, recipient_id, content) VALUES ($1, $2, $3)', 
-            [sender_id, recipient_id, content]);
+            await pool.query('INSERT INTO "Messages" (sender_id, recipient_id, content) VALUES ($1, $2, $3)', [sender_id, recipient_id, content]);
         }
         catch(error){
             console.log("DB ERROR");
-        }
-        
+        }   
     }
+    //If not then store to be sent later
     else{
-        console.log(`${recipient} is not connected`);
+        console.log(`${recipient_id} is not connected`);
     }
-    //If Other user is connected, send to them
-    //If not then store to be sent later.
 }
