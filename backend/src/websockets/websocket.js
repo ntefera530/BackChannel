@@ -28,15 +28,15 @@ export const setUpWebSocket = (wss) => {
 
       ws.on('message', (message) => {
         console.log(`Received: ${message}`);
-        const { type, data, sender, recipient } = JSON.parse(message);
+        const { type, content, sender_id, recipient_id} = JSON.parse(message);
 
         switch(type){
             case "sendMessageToUser":
-                sendMessageToUser(ws, sender, recipient, data, clientsMap);
+                sendMessageToUser(content, sender_id, recipient_id, clientsMap);
             break;
 
             case "sendMessageToGroup": 
-                sendMessageToGroup(ws, sender, recipient, data);
+                sendMessageToGroup(ws, content, sender_id, recipient_id);
             break;
         }
         

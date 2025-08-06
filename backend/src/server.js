@@ -3,6 +3,7 @@ import WebSocket from 'ws'
 import { WebSocketServer } from 'ws';
 import { setUpWebSocket } from "./websockets/websocket.js";
 import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 import dotenv from "dotenv"
 import cookieParser from "cookie-parser";
 import http from "http"
@@ -25,6 +26,7 @@ const wss = new WebSocketServer({port: 6000});
 setUpWebSocket(wss);
 
 app.use("/api/auth", authRoutes);
+app.use("/api/user", userRoutes);
 
 app.listen(PORT, () => {
     console.log("Server is Listening on port: " + PORT)
