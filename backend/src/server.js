@@ -7,7 +7,7 @@ import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
 import friendRoutes from "./routes/friendRoutes.js";
-import groupRoutes from "./routes/groupRoutes.js";
+import chatRoutes from "./routes/chatRoutes.js";
 
 import dotenv from "dotenv"
 import cookieParser from "cookie-parser";
@@ -31,8 +31,8 @@ setUpWebSocket(wss);
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);
-app.use("/api/v1/message", messageRoutes);
-app.use("/api/v1/groups", groupRoutes);
+app.use("/api/v1/messages", messageRoutes);
+app.use("/api/v1/chats", chatRoutes);
 app.use("/api/v1/friends", friendRoutes);
 
 
