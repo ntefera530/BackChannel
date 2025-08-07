@@ -1,6 +1,6 @@
 import express from "express";
 import protectRoute from "../middleware/protectRoute.js";
-import { getAllGroups, addGroup, deleteGroup} from "../controllers/groupController.js";
+import { getAllGroups, createGroup, deleteGroup, leaveGroup, inviteToGroup, kickFromGroup} from "../controllers/groupController.js";
 
 
 const router = express.Router();
@@ -13,9 +13,11 @@ const router = express.Router();
 
 //Unprotected for testing
 router.get("/", getAllGroups);
-router.post("/", addGroup);
+router.post("/", createGroup);
 router.delete("/:id", deleteGroup);
-
+router.delete("/:id", leaveGroup);
+router.delete("/:id", kickFromGroup);
+router.post("/:id", inviteToGroup);
 
 
 export default router;

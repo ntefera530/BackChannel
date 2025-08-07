@@ -1,6 +1,6 @@
 import express from "express";
 import protectRoute from "../middleware/protectRoute.js";
-import { getMessages } from "../controllers/messageController.js";
+import { getMessages, deleteMessage, deleteAllMessages } from "../controllers/messageController.js";
 
 
 const router = express.Router();
@@ -12,6 +12,8 @@ const router = express.Router();
 
 //UNprotected to Test
 router.get("/messages/:chatId", getMessages);
+router.delete("/messages/:messageId", deleteMessage);
+router.delete("/messages", deleteAllMessages);
 
 
 export default router;
