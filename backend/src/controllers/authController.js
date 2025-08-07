@@ -3,50 +3,52 @@ import pool from '../lib/db.js';
 import { createJWT } from '../lib/utils.js';
 
 export const signup = async (req, res) => {
-    console.log("Signup controller called");
-    const { username, password } = req.body;
-
-    //Check for valid Username and Password;
-    if(!username || !password) {
-        return res.status(400).json({ message: "Username and password are required" });
-    }
-    if (username.length < 3 || password.length < 6) {
-        return res.status(400).json({ message: "Username must be at least 3 characters and password at least 6 characters" });
-    }
-
-    // Encrypt Password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
     try {
-        let result = await pool.query('SELECT * FROM "Users" WHERE  username = $1', [username]);
         
-        if (result.rows.length > 0) {
-            // User already exists, return error
-            return res.status(400).json({ error: "That username already exists" });
-        } 
-        else {
-            //Inserting data
-            
-            //TODO Fix this timing issue please
-            await pool.query('INSERT INTO "Users" (username, password) VALUES ($1, $2) RETURNING *', [username, hashedPassword]);
-            result = await pool.query('SELECT * FROM "Users" WHERE  username = $1', [username]);
-            const userId = result.rows[0].id;
-            console.log(userId);
-            createJWT(username,userId,res);
-            return res.status(200).json({ message: "New User Created" });
-        }
-    } 
-    catch (err) {
-      console.error('DB connection error:', err);
-    }
+        console.log("Signup controller called");
+        const { username, password } = req.body;
 
-    return res.status(200).json({ message: "sign up endpoint" });
+        //Check for valid Username and Password;
+        if(!username || !password) {
+            return res.status(400).json({ message: "Username and password are required" });
+        }
+        if (username.length < 3 || password.length < 6) {
+            return res.status(400).json({ message: "Username must be at least 3 characters and password at least 6 characters" });
+        }
+
+        // Encrypt Password
+         const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+    
+            let result = await pool.query('SELECT * FROM "Users" WHERE  username = $1', [username]);
+        
+            if (result.rows.length > 0) {
+                // User already exists, return error
+                return res.status(400).json({ error: "That username already exists" });
+            } 
+            else {
+                //Inserting data
+            
+                //TODO Fix this timing issue please
+                await pool.query('INSERT INTO "Users" (username, password) VALUES ($1, $2) RETURNING *', [username, hashedPassword]);
+                result = await pool.query('SELECT * FROM "Users" WHERE  username = $1', [username]);
+                const userId = result.rows[0].id;
+                console.log(userId);
+                createJWT(username,userId,res);
+                return res.status(200).json({ message: "New User Created" });
+            }
+    } 
+    catch (error) {
+        console.log("error in signup controller", error.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
 };
 
 export const login = async (req, res) => {
-    console.log("Login controller called");
-    try{
+   
+    try{ 
+        console.log("Login controller called");
         const { username, password } = req.body;
 
         if(!username || !password){
