@@ -12,7 +12,8 @@ const router = express.Router();
 
 //Unprotected for testing
 // router.get("/", getUserProfile);
-// router.put("/", updateUserProfile);
+// router.put("/", updateUsername);
+// router.put("/", updateProfilePicture);
 // router.delete("/", deleteUserProfile);
 
 export default router;
