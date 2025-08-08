@@ -11,9 +11,9 @@ const router = express.Router();
 // router.delete("/:id", protectRoute, deleteGroup);
 
 //Unprotected for testing
-router.get("/", getUserProfile);
-router.put("/:username", updateUsername);
-router.put("/", updateProfilePicture);
-router.delete("/", deleteUserProfile);
+router.get("/:username", getUserProfile);
+router.put("/me/username", protectRoute, updateUsername);
+router.put("/me/profile-picture",protectRoute, updateProfilePicture);
+router.delete("/me", protectRoute, deleteUserProfile);
 
 export default router;

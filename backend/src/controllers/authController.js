@@ -56,14 +56,14 @@ export const login = async (req, res) => {
             return res.status(400).json({ error: "Username and Password required" });
         }
 
-        const result = getUserProfileByUsernameQuery(username);
-
-        if (result.rows.length === 0) {
+        const user = await getUserProfileByUsernameQuery(username);
+        console.log(user);
+        if (user.length === 0) {
             return res.status(404).json({ error: "No user with that username" });
         }
 
-        const isPasswordCorrect = await bcrypt.compare(password, result.rows[0].password);
-        const userId = result.rows[0].id;
+        const isPasswordCorrect = await bcrypt.compare(password, user[0].password);
+        const userId = user[0].id;
 
         if(!isPasswordCorrect){
             return res.status(404).json({ error: "Username or Password is Incorect" });
