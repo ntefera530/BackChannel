@@ -1,1 +1,0 @@
-import pool from '../lib/db.js';

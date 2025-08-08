@@ -1,4 +1,4 @@
-import { deleteUserProfile, getUserProfile, updateProfilePicture, updateUsername} from '../model/userModel.js'
+import { deleteUserProfileQuery, getUserProfileQuery, updateProfilePictureQuery, updateUsernameQuery} from '../models/userModel.js'
 
 export const getUserProfile = async (req, res) => {
     try{
@@ -8,7 +8,7 @@ export const getUserProfile = async (req, res) => {
             res.status(400).json({ message: "Invalid JWT" });
         }
 
-        const currentUser = getUserProfile(userId);
+        const currentUser = getUserProfileQuery(userId);
         return res.status(200).json({currentUser});
     }
     catch(error){
@@ -27,7 +27,7 @@ export const updateUsername = async (req, res) => {
 
         const {newUsername} = req.params; 
 
-        updateUsername(userId, newUsername);
+        updateUsernameQuery(userId, newUsername);
         return res.status(200).json({ message: "Username Updated" });
     }
     catch(error){
@@ -45,7 +45,7 @@ export const updateProfilePicture = async (req, res) => {
             res.status(400).json({ message: "Invalid JWT" });
         }
 
-        updateProfilePicture(userId, newPictureUrl);
+        updateProfilePictureQuery(userId, newPictureUrl);
         return res.status(200).json({message: "Profile Pic Updated"});
     }
     catch(error){
@@ -62,7 +62,7 @@ export const deleteUserProfile = async (req, res) => {
             res.status(400).json({ message: "Invalid JWT" });
         }
 
-        deleteUserProfile(userId);
+        deleteUserProfileQuery(userId);
         return res.status(200).json({ message: "User Profile" });
     }
     catch(error){

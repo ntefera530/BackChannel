@@ -1,5 +1,5 @@
 import pool from '../lib/db.js';
-import {getMessages, deleteMessage, deleteAllMessages} from "../model/messageModel.js"
+import {getMessagesQuery, deleteMessageQuery, deleteAllMessagesQuery} from "../models/messageModel.js"
 
 export const getMessages = async (req, res) => {
     console.log("get Messages");
@@ -9,7 +9,7 @@ export const getMessages = async (req, res) => {
         const {chatId, limit, offset} = req.params;
         //test user
         const userId = '49a241f4-4e95-44ca-bbed-c13b60d83685';
-        getMessages(chatId, limit, offset);
+        getMessagesQuery(chatId, limit, offset);
         return res.status(200).json({ message: "Got Messages" });
     }
     catch(error){
@@ -25,7 +25,7 @@ export const deleteMessage = async (req, res) => {
         const {messageId, chatId, userId} = req.params;
 
         // const userId2 = '49a241f4-4e95-44ca-bbed-c13b60d83685';
-        deleteMessage(chatId, userId, messageId);
+        deleteMessageQuery(chatId, userId, messageId);
         return res.status(200).json({ message: "Delete Message" });
     }
     catch(error){
@@ -39,7 +39,7 @@ export const deleteAllMessages = async (req, res) => {
 
     try{
         const {chatId, userId} = req.params;
-        deleteAllMessages(userId, chatId);
+        deleteAllMessagesQuery(userId, chatId);
         return res.status(200).json({ message: "Delete All Messages" });
     }
     catch(error){

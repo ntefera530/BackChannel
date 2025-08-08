@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import pool from '../lib/db.js';
 import { createJWT } from '../lib/utils.js';
+import {createUserProfileQuery, getUserProfileByIdQuery, getUserProfileByUsernameQuery} from "../models/authModel.js"
 
 export const signup = async (req, res) => {
     try {
@@ -21,7 +22,7 @@ export const signup = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, salt);
 
     
-            let result = await pool.query('SELECT * FROM "Users" WHERE  username = $1', [username]);
+            let result = getUserProfileQuery(username);
         
             if (result.rows.length > 0) {
                 // User already exists, return error
@@ -31,8 +32,8 @@ export const signup = async (req, res) => {
                 //Inserting data
             
                 //TODO Fix this timing issue please
-                await pool.query('INSERT INTO "Users" (username, password) VALUES ($1, $2) RETURNING *', [username, hashedPassword]);
-                result = await pool.query('SELECT * FROM "Users" WHERE  username = $1', [username]);
+                createUserProfileQuery(username, hashedPassword);
+                const newUser = getUserProfileByUsernameQuery(username);
                 const userId = result.rows[0].id;
                 console.log(userId);
                 createJWT(username,userId,res);
@@ -55,7 +56,7 @@ export const login = async (req, res) => {
             return res.status(400).json({ error: "Username and Password required" });
         }
 
-        const result = await pool.query('SELECT * FROM "Users" WHERE  username = $1', [username]);
+        const result = getUserProfileByUsernameQuery(username);
 
         if (result.rows.length === 0) {
             return res.status(404).json({ error: "No user with that username" });

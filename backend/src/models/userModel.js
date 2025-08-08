@@ -1,6 +1,6 @@
 import pool from '../lib/db.js';
 
-export const deleteUserProfile = async (userId) => {
+export const deleteUserProfileQuery = async (userId) => {
     const query = `
         DELETE FROM "Users" 
         WHERE user_id = $1
@@ -9,7 +9,7 @@ export const deleteUserProfile = async (userId) => {
   return result.rows;
 }
 
-export const getUserProfile = async (userId) => {
+export const getUserProfileQuery = async (userId) => {
     const query = `
         SELECT * 
         FROM "Users" 
@@ -19,7 +19,7 @@ export const getUserProfile = async (userId) => {
   return result.rows;
 }
 
-export const updateUsername = async (userId, newUsername) => {
+export const updateUsernameQuery = async (userId, newUsername) => {
     const query = `
         UPDATE "Users"  
         SET username = $1
@@ -29,7 +29,7 @@ export const updateUsername = async (userId, newUsername) => {
   return result.rows;
 }
 
-export const updateProfilePicture = async (userId, profilePictureUrl, ) => {
+export const updateProfilePictureQuery = async (userId, profilePictureUrl, ) => {
     const query = `
         UPDATE "Users"  
         SET profile_picture_url = $1
