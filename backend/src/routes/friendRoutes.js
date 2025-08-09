@@ -5,16 +5,8 @@ import { getAllFriends, addFriend, deleteFriend } from "../controllers/friendCon
 
 const router = express.Router();
 
-//TODO Protect all of these
-
-// router.get("/", protectRoute, getAllFriends);
-// router.post("/:id", protectRoute, addFriend);     //logic to add multple friends at a time?
-// router.delete("/:id", protectRoute,deleteFriend);
-
-//Unprotected for Testing
-router.get("/", getAllFriends);
-router.post("/:friendId", addFriend);     //logic to add multple friends at a time?
-router.delete("/:friendId", deleteFriend);
-
+router.get("/me", protectRoute, getAllFriends);
+router.post("/me/:friendId", protectRoute, addFriend);     //logic to add multple friends at a time?
+router.delete("/me/:friendId", protectRoute, deleteFriend);
 
 export default router;

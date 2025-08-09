@@ -5,19 +5,11 @@ import { getAllChats, createChat, deleteChat, leaveChat, inviteToChat, kickFromC
 
 const router = express.Router();
 
-//TODO Protect all of these
-
-// router.get("/", protectRoute, getAllGroups);
-// router.post("/", protectRoute, addGroup);
-// router.delete("/:id", protectRoute, deleteGroup);
-
-//Unprotected for testing
-router.get("/", getAllChats);
-router.post("/", createChat);
-router.delete("/:id", deleteChat);
-router.delete("/:id", leaveChat);
-router.delete("/:id", kickFromChat);
-router.post("/:id", inviteToChat);
-
+router.get("/me", protectRoute, getAllChats);
+router.post("/me", protectRoute, createChat);
+router.delete("/me/:id", protectRoute, deleteChat);
+router.delete("/:chatId/participant/:userId/me", protectRoute, leaveChat);
+router.delete("/:chatId/participant/:userId", protectRoute, kickFromChat);
+router.post("/me/:id", protectRoute, inviteToChat);
 
 export default router;

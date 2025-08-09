@@ -11,9 +11,9 @@ const router = express.Router();
 //router.get("/messages/:chatId", protectRoute, getMessages);
 
 //UNprotected to Test
-router.get("/messages/:chatId", getMessages);
-router.delete("/messages/:messageId", deleteMessage);
-router.delete("/messages", deleteAllMessages);
+router.get("/me/:chatId", protectRoute, getMessages);
+router.delete("/me/:chatId/:messageId", protectRoute, deleteMessage);
+router.delete("/me/:chatId", protectRoute, deleteAllMessages);
 
 
 export default router;
