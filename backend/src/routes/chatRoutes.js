@@ -7,9 +7,9 @@ const router = express.Router();
 
 router.get("/me", protectRoute, getAllChats);
 router.post("/me", protectRoute, createChat);
-router.delete("/me/:id", protectRoute, deleteChat);
-router.delete("/:chatId/participant/:userId/me", protectRoute, leaveChat);
-router.delete("/:chatId/participant/:userId", protectRoute, kickFromChat);
-router.post("/me/:id", protectRoute, inviteToChat);
+router.delete("/me/:chatId", protectRoute, deleteChat);
+router.delete("/me/:chatId/participant/me", protectRoute, leaveChat);
+router.delete("/me/:chatId/participant/:userId", protectRoute, kickFromChat);
+router.post("/me/:chatId/:userId", protectRoute, inviteToChat);
 
 export default router;
