@@ -1,10 +1,11 @@
+import HeaderBar from "./Componants/HeaderBar";
+import Chatbar from "./Componants/Chatbar";
 
 function App() {
   return (
-    <>
-      <div>
-        Hello
-      </div>
+    <>      
+      <HeaderBar/>
+      <Chatbar/>
     </>
   )
 }
