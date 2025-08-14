@@ -22,9 +22,10 @@ export const signup = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, salt);
 
     
-            let result = getUserProfileQuery(username);
+            let result = getUserProfileByUsernameQuery(username);
         
-            if (result.rows.length > 0) {
+            //TODO: Not checking for duplicate usernames correctly
+            if (result.rows && result.rows.length > 0) {
                 // User already exists, return error
                 return res.status(400).json({ error: "That username already exists" });
             } 
@@ -34,14 +35,15 @@ export const signup = async (req, res) => {
                 //TODO Fix this timing issue please
                 createUserProfileQuery(username, hashedPassword);
                 const newUser = getUserProfileByUsernameQuery(username);
-                const userId = result.rows[0].id;
-                console.log(userId);
+                //const userId = result.rows[0].id;
+                //console.log(userId);
+                const userId = 2; // Temporary fix, replace with actual userId from result
                 createJWT(username,userId,res);
                 return res.status(200).json({ message: "New User Created" });
             }
     } 
     catch (error) {
-        console.log("error in signup controller", error.message);
+        console.log("error in signup controller: ", error.message);
         res.status(500).json({ error: "Internal Server Error" });
     }
 };

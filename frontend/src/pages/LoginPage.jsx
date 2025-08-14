@@ -1,15 +1,33 @@
 import Button from '../components/Button';
 import Input from '../components/Input';
+import axios from 'axios';
+
 import { useState } from 'react';
 function LoginPage(){
     let [username, setUsername] = useState("");
     let [password, setPassword] = useState("");
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async(e) => {
         e.preventDefault();
         // Here you would typically send the username and password to your backend for authentication
         console.log("Username:", username);
         console.log("Password:", password);
+
+        try {
+            const res = await axios.post('http://localhost:5001/api/v1/auth/login', {
+              username,
+              password
+            });
+            console.log('Login success:', res.data);
+
+            if (response.data.token) {
+                localStorage.setItem('authToken', response.data.token);  
+            }
+
+          } catch (err) {
+            console.error('Login error:', err.response?.data || err.message);
+        }
+
         // Reset the form fields
         setUsername("");
         setPassword("");

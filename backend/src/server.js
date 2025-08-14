@@ -12,6 +12,7 @@ import chatRoutes from "./routes/chatRoutes.js";
 import dotenv from "dotenv"
 import cookieParser from "cookie-parser";
 import http from "http"
+import cors from "cors";
 
 dotenv.config();
 
@@ -23,6 +24,15 @@ const server = http.createServer(app);
 //need this to parse JSON bodies - Postman sends JSON
 app.use(express.json())
 app.use(cookieParser());
+
+// Allow all origins (for development only!)
+app.use(cors());
+
+// If you want more control:
+// app.use(cors({
+//   origin: 'http://localhost:5173', // your frontend URL
+//   credentials: true                // allow cookies/auth headers
+// }));
 
 //Creates WebSocket Server
 const wss = new WebSocketServer({port: 6000});
