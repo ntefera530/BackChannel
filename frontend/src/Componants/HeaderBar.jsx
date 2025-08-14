@@ -1,7 +1,7 @@
 function HeadBar() {
 
-    return (<div className="w-full  bg-gray-800">
-        Hello Nav Bar
+    return (<div>
+        Header Bar
     </div>)
 }
 
