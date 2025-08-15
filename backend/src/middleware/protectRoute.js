@@ -3,17 +3,20 @@ import jwt from "jsonwebtoken";
 const protectRoute = async (req, res, next) => {
 	try {
         const token = req.cookies.jwt; // Get token from cookies
+		//console.log("protectRoute,js - token: ", token);
 
         if (!token) {
 			return res.status(401).json({ error: "Unauthorized - No Token Provided" });
 		}
 
         const decode = jwt.verify(token, process.env.JWT_SECRET);
-        //console.log(decode);
-        
-		req.userId = decode.userId;
+        console.log("protectRoute,js - decoded token");
+		req.user = decode;
 		next();
 	} catch (error) {
+		if (error.name === "TokenExpiredError") {
+  			return res.status(401).json({ message: "Token expired" });
+		}
 		console.log("Error in protectRoute middleware: ", error.message);
 		res.status(500).json({ error: "Internal server error" });
 	}

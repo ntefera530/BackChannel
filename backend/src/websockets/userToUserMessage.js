@@ -1,11 +1,11 @@
 import WebSocket from "ws";
 import pool from '../lib/db.js';
 
-export const sendMessageToUser = async (content, sender_id, recipient_id, clientsMap) => {
-    console.log(`User ${sender_id} --> User "${recipient_id}": ${content}`);
+export const sendMessageToUser = async (content, sender_id, chat_id, clientsMap) => {
+    console.log(`User ${sender_id} --> Chat "${chat_id}": ${content}`);
    
     // Need to parse string id to userID, fix this??
-    const client = clientsMap.get(parseInt(recipient_id));
+    const client = clientsMap.get(parseInt(sender_id));
 
     //Json message to send over websocket idea
     // const dataToSend = {
@@ -16,17 +16,17 @@ export const sendMessageToUser = async (content, sender_id, recipient_id, client
     // websocket.send(JSON.stringify(dataToSend));
 
     //If Other user is connected, send to them
-    if(client && client.readyState === WebSocket.OPEN){
-        client.send(content);
+    //if(client && client.readyState === WebSocket.OPEN){
+        //client.send(content);
         try{
-            await pool.query('INSERT INTO "Messages" (sender_id, recipient_id, content) VALUES ($1, $2, $3)', [sender_id, recipient_id, content]);
+            await pool.query('INSERT INTO "Messages" (sender_id, chat_id, content) VALUES ($1, $2, $3)', [sender_id, sender_id, content]);
         }
         catch(error){
             console.log("DB ERROR");
         }   
-    }
+    //}
     //If not then store to be sent later
-    else{
-        console.log(`${recipient_id} is not connected`);
-    }
+    //else{
+        //console.log(`${sender_id} is not connected`);
+    //}
 }

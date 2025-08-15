@@ -73,7 +73,10 @@ export const login = async (req, res) => {
 
         createJWT(username, userId, res);   
 
-        return  res.status(200).json({ username: username, });
+        return  res.status(200).json({ 
+            username: username,
+            userId: userId 
+        });
         
     }catch(error){
         console.log("error in login controller", error.message);
@@ -90,6 +93,24 @@ export const logout = async (req, res) => {
 		res.status(200).json({ message: "Logged out successfully" });
 	} catch (error) {
 		console.log("Error in logout controller", error.message);
+		res.status(500).json({ error: "Internal Server Error" });
+	}
+};
+
+export const authenticate = async (req, res) => {
+    console.log("Auth controller called");
+
+    try {
+        //Get User
+        const authUser = {
+            username: req.user.username, 
+            userId: req.user.userId,
+        }
+
+		return res.status(200).json({authUser});
+
+	} catch (error) {
+		console.log("Error in Auth controller", error.message);
 		res.status(500).json({ error: "Internal Server Error" });
 	}
 };

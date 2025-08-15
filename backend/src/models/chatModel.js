@@ -2,19 +2,21 @@ import pool from '../lib/db.js';
 
 export const createChatQuery = async (uuid, name, isGroup, userId) => {
     const query = `
-        INSERT INTO "Chats" (uuid, name, isGroup, owner) 
+        INSERT INTO "Chats" (id, name, is_group_chat, owner) 
         VALUES ($1, $2, $3, $4)
     `;
   const result = await pool.query(query, [uuid, name, isGroup, userId]);
   return result.rows;
 }
 
-export const addChatParticipantByIdQuery = async (participant_id, uuid) => {
+export const addChatParticipantByIdQuery = async (participant_id, chatId) => {
     const query = `
         INSERT INTO "Chat Participants" (user_id, chat_id)
         VALUES ($1, $2)      
     `;
-  const result = await pool.query(query, [participant_id, uuid]);
+
+    console.log(participant_id, chatId);
+  const result = await pool.query(query, [participant_id, chatId]);
   return result.rows;
 }
 
@@ -23,6 +25,7 @@ export const deleteChatByIdQuery = async (chatId) => {
         DELETE FROM "Chat Participants" 
         WHERE id = $1
     `;
+    
   const result = await pool.query(query, [chatId]);
   return result.rows;
 }

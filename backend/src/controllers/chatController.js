@@ -1,16 +1,35 @@
 import {createChatQuery, addChatParticipantByIdQuery, deleteChatByIdQuery, getllChatsQuery, removeUserFromChatQuery, addUserToChatQuery} from "../models/chatModel.js"
+// v4 is the most commonly used random UUID
+import { v4 as uuidv4 } from "uuid";
 
 export const createChat = async (req, res) => {
     try{
-        const {uuid, name, isGroup, participants_id} = req.params;
+        const {uuid, name, isGroup, participants_ids} = req.params;
 
-        const userId = req.userId;
+        // const userId = req.user.userId;
+        // const username = req.user.username;
+        //const chat = createChatQuery(uuid, name, isGroup, userId);
+        // for(const participant_id of participants_ids){
+        //     const chatPartic = addChatParticipantByIdQuery(participant_id, uuid);
+        // }
 
-        const chat = createChatQuery(uuid, name, isGroup, userId);
-        for(const participant_id of participants_id){
-            const chatPartic = addChatParticipantByIdQuery(participant_id, uuid);
-        }
+        const temp_userId = '605065e1-818c-4001-8ad1-76c1a8f27e08';
+        const temp_uuid = uuidv4();
+        const temp_name = "Chat Name 1";
+        const temp_participant_ids = ['817db6e4-2f8a-4827-b29a-4a6d9ef97ae9'];
+        const temp_isGroup = false;
+
+        const chat = createChatQuery(temp_uuid, temp_name, temp_isGroup, temp_userId);
         
+        for(const participant_id of temp_participant_ids){
+            //const temp_partic_uuid = uuidv4();
+            const parti_id = participant_id;
+            console.log("UUID: ", temp_uuid)
+            console.log("ID: ", parti_id)
+            console.log("------------------------------")            
+            const chatPartic = addChatParticipantByIdQuery(parti_id, temp_uuid);
+        }
+  
         return res.status(200).json({ message: "Chat Added" });
     }
     catch(error){
@@ -71,7 +90,9 @@ export const inviteToChat = async (req, res) => {
     
     try{
         //const {chatId, userId} = req.params;
-        addUserToChatQuery(userId, chatId);
+        //addUserToChatQuery(userId, chatId);
+
+        const temp_user = "817db6e4-2f8a-4827-b29a-4a6d9ef97ae9"
         return res.status(200).json({ message: "Invite To Group" });
     }
     catch(error){

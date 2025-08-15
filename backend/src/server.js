@@ -18,32 +18,37 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT;
+app.use(express.json())
+app.use(cookieParser());
 
 const server = http.createServer(app);
 
 //need this to parse JSON bodies - Postman sends JSON
-app.use(express.json())
-app.use(cookieParser());
+
 
 // Allow all origins (for development only!)
-app.use(cors());
+//app.use(cors());
 
-// If you want more control:
-// app.use(cors({
-//   origin: 'http://localhost:5173', // your frontend URL
-//   credentials: true                // allow cookies/auth headers
-// }));
-
-//Creates WebSocket Server
-const wss = new WebSocketServer({port: 6000});
-setUpWebSocket(wss);
-
+//If you want more control: ie adding coockies
+app.use(cors({
+  origin: 'http://localhost:5173', // your frontend URL
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/messages", messageRoutes);
 app.use("/api/v1/chats", chatRoutes);
 app.use("/api/v1/friends", friendRoutes);
+
+//Creates WebSocket Server
+const wss = new WebSocketServer({port: 8080});
+setUpWebSocket(wss);
+
+
+
 
 
 app.listen(PORT, () => {
