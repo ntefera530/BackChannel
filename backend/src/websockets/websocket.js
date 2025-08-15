@@ -16,14 +16,14 @@ export const setUpWebSocket = (wss) => {
     //Need to get JWT from cookie -- currently hard coded into websocekt header. TODO remove hard coding
     const cookies = cookie.parse(req.headers.cookie || '');
     const token = cookies.jwt;
-    console.log("websocket.js -Token", token);
+    //console.log("websocket.js -Token", token);
 
     if(!token){
       console.log("websocket.js - failed no token");
       ws.close(); 
       return;
     }
-    console.log("websocket.js - token found")
+    //console.log("websocket.js - token found")
 
     ws.user = jwt.verify(token, process.env.JWT_SECRET)
 
@@ -32,19 +32,19 @@ export const setUpWebSocket = (wss) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const clientId = decoded.userId;
 
-    console.log('websocket.js - Decoded');
+    //console.log('websocket.js - Decoded');
 
     if(clientId){
-      console.log('websocket.js - Authed Client ID: ', clientId)
+      //console.log('websocket.js - Authed Client ID: ', clientId)
       //store the userId with their websoccket connection - manage diffrent users
       clientsMap.set(clientId, ws);
 
       ws.on('message', (message) => {
-        const { type, content, sender_id, chat_id} = JSON.parse(message);
+        const { id, type, content, sender_id, chat_id} = JSON.parse(message);
 
         switch(type){
             case "sendMessageToUser":
-                sendMessageToUser(content, sender_id, chat_id, clientsMap);
+                sendMessageToUser(id, content, sender_id, chat_id, clientsMap);
             break;
 
             case "sendMessageToGroup": 

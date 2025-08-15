@@ -89,10 +89,10 @@ export const inviteToChat = async (req, res) => {
     console.log("Invite To Group")
     
     try{
-        //const {chatId, userId} = req.params;
-        //addUserToChatQuery(userId, chatId);
-
+        const {chatId, userId} = req.params;
+        await addUserToChatQuery(userId, chatId);
         const temp_user = "817db6e4-2f8a-4827-b29a-4a6d9ef97ae9"
+        
         return res.status(200).json({ message: "Invite To Group" });
     }
     catch(error){
@@ -107,7 +107,7 @@ export const kickFromChat = async (req, res) => {
     try{
         const {chatId, userId} = req.params;
 
-        removeUserFromChatQuery(userId, chatId);
+        await removeUserFromChatQuery(userId, chatId);
         return res.status(200).json({ message: "Kick From Group" });
     }
     catch(error){
