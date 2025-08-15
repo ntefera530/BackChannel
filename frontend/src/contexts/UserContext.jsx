@@ -7,7 +7,6 @@ axios.defaults.withCredentials = true;
 export const UserContext = createContext();
 
 export function UserProvider({children}){
-    const [user, setUser] = useState();
     const [userId, setUserId] = useState(null);
     const [username, setUsername] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -20,11 +19,11 @@ export function UserProvider({children}){
     const login = async (username, password) => {
       try {
         setLoading(true);
-        console.log("Login 1")
+        console.log("Login Start")
         const response = await axios.post('http://localhost:5001/api/v1/auth/login', {username,password}, {
           withCredentials: true
         });
-        console.log(" Login 2")      
+        console.log(" Login End")      
         setUsername(response.username);
         setUserId(response.userId);
         if(response.status === 200){

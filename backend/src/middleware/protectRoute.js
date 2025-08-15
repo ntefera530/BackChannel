@@ -10,7 +10,7 @@ const protectRoute = async (req, res, next) => {
 		}
 
         const decode = jwt.verify(token, process.env.JWT_SECRET);
-        console.log("protectRoute,js - decoded token");
+        //console.log("protectRoute,js - decoded token");
 		req.user = decode;
 		next();
 	} catch (error) {

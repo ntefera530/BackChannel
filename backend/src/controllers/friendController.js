@@ -1,16 +1,29 @@
 import { normalizeFriendship } from '../lib/utils.js';
 import {deleteFriendQuery, addFriendQuery, getAllFriendsQuery} from "../models/friendModel.js"
+import { getUserIdByUsernameQuery } from "../models/userModel.js" 
 
 export const addFriend = async (req, res) => {
     try{
-        const userId = req.userId;
-        const friendId = req.params.friendId;
+        console.log(`Enter AddFreind Controller`);
+        const userId = req.user.userId;
+        const username = req.user.username;
+
+        const friendUsername = req.params.friendUsername;
+        const friendObject = await getUserIdByUsernameQuery(friendUsername);
+
+        if(!friendObject || friendObject.length === 0){
+            return res.status(404).json({message: "user not found"});
+        }
+
+        const friendId = friendObject[0].id;
+
+        console.log(friendId);
         
         console.log(`User ${userId} wants to add ${friendId}`);
         const normal = normalizeFriendship(userId, friendId);
 
-        console.log(normal);
-        addFriendQuery(normal.user_id, normal.friend_id);
+        //console.log(normal);
+        await addFriendQuery(normal.user_id, normal.friend_id);
 
         return res.status(200).json({ message: "Friend Added" });
     }
@@ -22,13 +35,19 @@ export const addFriend = async (req, res) => {
 
 export const deleteFriend = async (req, res) => {
     try{
-        const userId = req.userId;
-        const friendId = req.params.friendId;
+        const userId = req.user.userId;
+        const username = req.user.username;
+        const friendUsername = req.params.friendUsername;
+        const friendObject = await getUserIdByUsernameQuery(friendUsername);
+        if(!friendObject || friendObject.length === 0){
+            return res.status(404).json({message: "user not found"});
+        }
+        const friendId = friendObject[0].id;
         
         console.log(`User ${userId} wants to delete ${friendId}`);
         const normal = normalizeFriendship(userId, friendId);
 
-        deleteFriendQuery(normal.user_id, normal.friend_id);
+        await deleteFriendQuery(normal.user_id, normal.friend_id);
         return res.status(200).json({ message: "Friend Deleted" });
     }
     catch(error){
@@ -39,8 +58,13 @@ export const deleteFriend = async (req, res) => {
 
 export const getAllFriends = async (req, res) => {
     try{
-        const userId = req.userId;
-        const friendsList = getAllFriendsQuery(userId);
+        console.log("Get all Friends");
+        const userId = req.user.userId;
+        const username = req.user.username;
+
+
+        const friendsList = await getAllFriendsQuery(userId);
+        //console.log(friendsList);       
         
         return res.status(200).json(friendsList);
     }

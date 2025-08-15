@@ -1,5 +1,15 @@
 import pool from '../lib/db.js';
 
+export const getUserIdByUsernameQuery = async (username) => {
+    const query = `
+        Select id 
+        FROM "Users" 
+        WHERE username = $1
+    `;
+  const result = await pool.query(query, [username]);
+  return result.rows;
+}
+
 export const deleteUserProfileQuery = async (userId) => {
     const query = `
         DELETE FROM "Users" 

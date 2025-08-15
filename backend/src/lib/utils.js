@@ -29,7 +29,7 @@ export const createJWT = (username, userId, res) => {
 
 //stores bidirectional freindship the same way to avoid extra data in db_ only one row per freindship instead of 2
 export const normalizeFriendship = (userId, friendId) => {
-  if (userId < friendId) {
+  if (userId > friendId) {
     return { user_id: userId, friend_id: friendId };
   } else {
     return { user_id: friendId, friend_id: userId };
