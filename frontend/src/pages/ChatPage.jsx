@@ -4,6 +4,7 @@ import { useContext } from 'react';
 
 import Cookie from 'js-cookie'
 import {v4 as uuidv4} from 'uuid';
+import ChatMessage from '../components/ChatMessage';
 
 export default function ChatPage() {
   const [messages, setMessages] = useState([]);
@@ -12,7 +13,6 @@ export default function ChatPage() {
   const [userText, setUserText] = useState("");
   const wsRef = useRef(null);
   const {userId, username} = useContext(UserContext); //my User Context
-
 
   useEffect(() => {
     //const token = localStorage.getItem('jwt');
@@ -62,7 +62,7 @@ export default function ChatPage() {
         <button type="submit">Send</button>
       </form>      
       <div>
-        {messages.map((msg, i) => <div key={i}>{msg}</div>)}
+        {messages.map((msg, i) => <ChatMessage key={i} message={msg}/>)}
       </div>
     </div>
   );
