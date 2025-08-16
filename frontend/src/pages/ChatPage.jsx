@@ -30,9 +30,9 @@ export default function ChatPage() {
     //return () => ws.close();
   }, [username,userId]);
 
-    const handleChangeUserText = (event) => {
-        setUserText(event.target.value);
-    }
+  const handleChangeUserText = (event) => {
+    setUserText(event.target.value);
+  }
 
   const sendMessage = (event) => {
     event.preventDefault();

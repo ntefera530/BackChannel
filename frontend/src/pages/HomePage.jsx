@@ -2,6 +2,8 @@ import HeadBar from '../components/HeaderBar';
 import Sidebar from '../components/SideBar';
 import {UserContext} from '../contexts/UserContext';
 import { useContext, useEffect , useState} from 'react';
+import axios from 'axios';
+import FriendsList from '../components/FriendsList';
 axios.defaults.withCredentials = true;
 
 function HomePage(){
@@ -41,7 +43,7 @@ function HomePage(){
     return(
        <div>
             <HeadBar/>
-            <Sidebar/>
+            <FriendsList/>
 
         </div>
     ) 
