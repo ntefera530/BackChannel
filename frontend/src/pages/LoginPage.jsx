@@ -32,7 +32,7 @@ function LoginPage(){
     }
 
     return(
-        <div className="flex min-h-screen items-center justify-center">
+        <div className="flex min-h-screen items-center justify-center bg-pink-400">
             <div className=" bg-gray-500 p-6 rounded-lg shadow-lg w-96">
                 <h1 className="text-2xl font-bold text-center text-white"> Login Page</h1>
                 <form onSubmit={handleSubmit}>
@@ -42,13 +42,10 @@ function LoginPage(){
                     </div>
                     <div>
                         <label className="text-2xl font-bold text-center text-white"> Password</label>
-                        <input onChange={handleChangePassword} type="password" placeholder="Password" value={password} className=" bg-gray-600 border rounded p-2 mb-2 w-full text-white" />
+                        <input onChange={handleChangePassword} type="password" placeholder="Password" value={password} className=" bg-gray-800 border rounded p-2 mb-2 w-full text-white" />
                     </div>
-                    <button className="bg-green-400" type="submit">Login</button>
-                </form>            
-                <div>
-                    <button className="bg-orange-600" onClick={logout}> Logout</button>
-                </div>
+                    <button className="bg-purple-800 text-white" type="submit">Login</button>
+                </form>
             </div>
             
 

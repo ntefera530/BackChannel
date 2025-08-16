@@ -48,6 +48,7 @@ export default function ChatPage() {
       
       wsRef.current.send(JSON.stringify(message));
     }
+    setUserText("");
   };
 
   return (
