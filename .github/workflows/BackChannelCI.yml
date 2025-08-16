@@ -1,0 +1,54 @@
+name: CI - Node & React
+
+# Runs workflow on push and pull requests on the main branch
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x] # pick Node version(s) you test/support
+
+    steps:
+      # Checkout code
+      - uses: actions/checkout@v4
+
+      # Set up Node
+      - name: Use Node.js ${{ matrix.node-version }} #loops through each Node Version set above
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+
+      # Install & build backend
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: npm ci # clean install
+
+      - name: Run backend build (if applicable)
+        working-directory: ./backend
+        run: npm run dev --if-present
+
+      # Install & build frontend
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Run frontend build
+        working-directory: ./frontend
+        run: npm run dev
+
+      # Optional: run tests
+      - name: Run backend tests
+        working-directory: ./backend
+        run: npm test --if-present
+
+      - name: Run frontend tests
+        working-directory: ./frontend
+        run: npm test --if-present
