@@ -2,29 +2,28 @@ import { useState } from "react";
 import axios from 'axios'
 
 import { useContext } from 'react';
+import {UserContext} from '../contexts/UserContext';
+import { useNavigate } from 'react-router-dom';
 
 function SignUpPage(){
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const {signup} = useContext(UserContext); //my User Context
+    const navigate = useNavigate();
 
+    const goToLogin = () => {
+        navigate("/login");
+    }
     const handleSubmit = async(e) => {
         e.preventDefault();
-        // Here you would typically send the username and password to your backend for authentication
-        console.log("Username: ", username, ", Password: ", password);
+        //console.log("Username: ", username, ", Password: ", password);
 
-        try {
-            signup(username, password);
-        } 
-        catch (err) {
-            console.error('Signup error:', err.response?.data || err.message);
-        }
-        
+        signup(username, password);
+
         // Reset the form fields
         setUsername("");
         setPassword("");
     }
-
     const handleChangeUsername = (event) => {
         setUsername(event.target.value);
     }
@@ -33,13 +32,22 @@ function SignUpPage(){
     }
 
     return(
-        <div>
-            <h1> Signup Page</h1>
-            <form onSubmit={handleSubmit}>
-                <input onChange={handleChangeUsername} type="text" placeholder="Username" className="border rounded p-2 mb-2 w-full" />
-                <input onChange={handleChangePassword} type="password" placeholder="Password" className="border rounded p-2 mb-2 w-full" />
-                <button type="submit">SignUp</button>
-            </form>
+        <div className="flex min-h-screen items-center justify-center bg-pink-400">
+            <div className=" bg-gray-500 p-6 rounded-lg shadow-lg w-96">
+                <h1 className="text-2xl font-bold text-center text-white"> SignUp Page</h1>
+                <form onSubmit={handleSubmit}>
+                    <div>
+                        <label className="text-2xl font-bold text-center text-white">Username</label>
+                        <input onChange={handleChangeUsername} type="text" placeholder="Username" value={username} className="bg-gray-800 border rounded p-2 mb-2 w-full text-white"  />
+                    </div>
+                    <div>
+                        <label className="text-2xl font-bold text-center text-white"> Password</label>
+                        <input onChange={handleChangePassword} type="password" placeholder="Password" value={password} className=" bg-gray-800 border rounded p-2 mb-2 w-full text-white" />
+                    </div>
+                    <button className="bg-purple-800 text-white" type="submit">SignUp</button>
+                </form>
+                <button className="bg-blue-800 text-white" onClick={goToLogin}>Go to Login</button>
+            </div>
         </div>
     )
 }

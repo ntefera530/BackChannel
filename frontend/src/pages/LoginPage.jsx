@@ -12,6 +12,12 @@ function LoginPage(){
     let [password, setPassword] = useState("");
     const {login, logout, loading} = useContext(UserContext); //my User Context
 
+    const navigate = useNavigate();
+
+    const goToSignup = () => {
+        navigate("/signup");
+    }
+
     const handleSubmit = async(e) => {
         e.preventDefault();
         // Here you would typically send the username and password to your backend for authentication
@@ -46,9 +52,8 @@ function LoginPage(){
                     </div>
                     <button className="bg-purple-800 text-white" type="submit">Login</button>
                 </form>
+                <button className="bg-blue-800 text-white" onClick={goToSignup}>Go to Signup</button>
             </div>
-            
-
         </div>
     ) 
 }
