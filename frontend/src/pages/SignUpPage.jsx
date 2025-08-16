@@ -1,30 +1,25 @@
 import { useState } from "react";
 import axios from 'axios'
+
+import { useContext } from 'react';
+
 function SignUpPage(){
-    let [username, setUsername] = useState("");
-    let [password, setPassword] = useState("");
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const {signup} = useContext(UserContext); //my User Context
 
     const handleSubmit = async(e) => {
         e.preventDefault();
         // Here you would typically send the username and password to your backend for authentication
-        console.log("Username:", username);
-        console.log("Password:", password);
+        console.log("Username: ", username, ", Password: ", password);
 
         try {
-            const response = await axios.post('http://localhost:5001/api/v1/auth/signup', {
-              username,
-              password
-            });
-            console.log('Signup success:', response.data);
-
-            if (response.data.token) {
-                localStorage.setItem('authToken', response.data.token);  
-            }
-
-          } catch (err) {
+            signup(username, password);
+        } 
+        catch (err) {
             console.error('Signup error:', err.response?.data || err.message);
         }
-
+        
         // Reset the form fields
         setUsername("");
         setPassword("");

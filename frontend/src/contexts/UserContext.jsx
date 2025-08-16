@@ -39,6 +39,29 @@ export function UserProvider({children}){
       }
     };
 
+    const signup = async (username, password) => {
+      try {
+        setLoading(true);
+        console.log("Signup Start")
+        const response = await axios.post('http://localhost:5001/api/v1/auth/signup', {username,password}, {
+          withCredentials: true
+        });
+        console.log("Signup End")      
+        setUsername(response.username);
+        setUserId(response.userId);
+        if(response.status === 200){
+          navigate("/home");
+        }
+        
+      } catch (err) {
+        const errorMessage = err.response?.data?.message || 'Signup failed';
+        console.log("ERROR in USER CONTEXT");
+        return { success: false, error: errorMessage };
+      } finally {
+        setLoading(false);
+      }
+    };
+
     const logout = async () => {
       try {
         setLoading(true);

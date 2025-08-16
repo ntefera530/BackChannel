@@ -1,5 +1,4 @@
 import bcrypt from "bcryptjs";
-import pool from '../lib/db.js';
 import { createJWT } from '../lib/utils.js';
 import {createUserProfileQuery, getUserProfileByIdQuery, getUserProfileByUsernameQuery} from "../models/authModel.js"
 
@@ -9,7 +8,7 @@ export const signup = async (req, res) => {
         console.log("Signup controller called");
         const { username, password } = req.body;
 
-        //Check for valid Username and Password;
+        // Validate Input
         if(!username || !password) {
             return res.status(400).json({ message: "Username and password are required" });
         }
@@ -18,29 +17,29 @@ export const signup = async (req, res) => {
         }
 
         // Encrypt Password
-         const salt = await bcrypt.genSalt(10);
+        const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-    
-            let result = getUserProfileByUsernameQuery(username);
+        let result = await getUserProfileByUsernameQuery(username);
         
-            //TODO: Not checking for duplicate usernames correctly
-            if (result.rows && result.rows.length > 0) {
-                // User already exists, return error
-                return res.status(400).json({ error: "That username already exists" });
-            } 
-            else {
-                //Inserting data
+        //TODO: Not checking for duplicate usernames correctly
+        if (result.rows && result.rows.length > 0) {
+            return res.status(400).json({ error: "That username already exists" });
+        } 
+        else {
             
-                //TODO Fix this timing issue please
-                createUserProfileQuery(username, hashedPassword);
-                const newUser = getUserProfileByUsernameQuery(username);
-                //const userId = result.rows[0].id;
-                //console.log(userId);
-                const userId = 2; // Temporary fix, replace with actual userId from result
-                createJWT(username,userId,res);
-                return res.status(200).json({ message: "New User Created" });
-            }
+            //TODO Fix this timing issue please
+            await createUserProfileQuery(username, hashedPassword);
+            const newUser = await getUserProfileByUsernameQuery(username);
+            //const userId = result.rows[0].id;
+            //console.log(userId);
+            const userId = 2; // Temporary fix, replace with actual userId from result
+            createJWT(username,userId,res);
+
+            //send the new user without password?
+            return res.status(200).json({ message: "New User Created" });
+            
+        }
     } 
     catch (error) {
         console.log("error in signup controller: ", error.message);

@@ -15,8 +15,7 @@ function LoginPage(){
     const handleSubmit = async(e) => {
         e.preventDefault();
         // Here you would typically send the username and password to your backend for authentication
-        console.log("Username:", username);
-        console.log("Password:", password);
+        console.log("Username: ", username, ", Password: ", password);
 
         login(username, password)
 
@@ -33,17 +32,26 @@ function LoginPage(){
     }
 
     return(
-        <div>
-            <h1> Login Page</h1>
-            <form onSubmit={handleSubmit}>
-                <input onChange={handleChangeUsername} type="text" placeholder="Username" className="border rounded p-2 mb-2 w-full" />
-                <input onChange={handleChangePassword} type="password" placeholder="Password" className="border rounded p-2 mb-2 w-full" />
-                <button className="bg-green-400" type="submit">Login</button>
-            </form>
-            <div>
-                <h1>Logout Button</h1>
-                <button className="bg-orange-600" onClick={logout}> Logout</button>
+        <div className="flex min-h-screen items-center justify-center">
+            <div className=" bg-gray-500 p-6 rounded-lg shadow-lg w-96">
+                <h1 className="text-2xl font-bold text-center text-white"> Login Page</h1>
+                <form onSubmit={handleSubmit}>
+                    <div>
+                        <label className="text-2xl font-bold text-center text-white">Username</label>
+                        <input onChange={handleChangeUsername} type="text" placeholder="Username" value={username} className="bg-gray-800 border rounded p-2 mb-2 w-full text-white"  />
+                    </div>
+                    <div>
+                        <label className="text-2xl font-bold text-center text-white"> Password</label>
+                        <input onChange={handleChangePassword} type="password" placeholder="Password" value={password} className=" bg-gray-600 border rounded p-2 mb-2 w-full text-white" />
+                    </div>
+                    <button className="bg-green-400" type="submit">Login</button>
+                </form>            
+                <div>
+                    <button className="bg-orange-600" onClick={logout}> Logout</button>
+                </div>
             </div>
+            
+
         </div>
     ) 
 }
