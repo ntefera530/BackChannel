@@ -1,6 +1,3 @@
-import Button from '../components/Button';
-import Input from '../components/Input';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import {UserContext} from '../contexts/UserContext';
 
@@ -20,8 +17,7 @@ function LoginPage(){
 
     const handleSubmit = async(e) => {
         e.preventDefault();
-        // Here you would typically send the username and password to your backend for authentication
-        console.log("Username: ", username, ", Password: ", password);
+        //console.log("Username: ", username, ", Password: ", password);
 
         login(username, password)
 

@@ -1,9 +1,7 @@
-import { useState } from "react";
-import axios from 'axios'
-
-import { useContext } from 'react';
-import {UserContext} from '../contexts/UserContext';
+import { useState, useContext } from "react";
 import { useNavigate } from 'react-router-dom';
+import { UserContext} from '../contexts/UserContext';
+
 
 function SignUpPage(){
     const [username, setUsername] = useState("");
