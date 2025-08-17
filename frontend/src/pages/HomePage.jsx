@@ -4,7 +4,11 @@ import {UserContext} from '../contexts/UserContext';
 import { useContext, useEffect , useState} from 'react';
 import axios from 'axios';
 import FriendsList from '../components/FriendsList';
+import Chatbar from '../components/ChatBar';
+import ChatPage from './ChatPage';
 axios.defaults.withCredentials = true;
+
+import FriendsProvider from "../contexts/FriendContext";
 
 function HomePage(){
     const [friends, setFriends] = useState([]);
@@ -12,20 +16,8 @@ function HomePage(){
     const {username, userId} = useContext(UserContext); //my User Context
 
     useEffect(() => {
-        getFriends();
     }, []);
 
-    const getFriends = async () => {
-        try{
-            const response = await axios.post('http://localhost:5001/api/v1/friends/me', {
-                withCredentials: true
-            });
-            //setFriends(response.data.friends);
-
-        }catch(error){
-            console.error("Error fetching friends:", error);
-        }
-    }
 
     const getGroupChats = async () => {
         try{
@@ -43,8 +35,12 @@ function HomePage(){
     return(
        <div>
             <HeadBar/>
-            <FriendsList/>
+            <FriendsProvider>
+                <FriendsList/>                
+            </FriendsProvider>
 
+            <Chatbar/>
+            <ChatPage/>
         </div>
     ) 
 }

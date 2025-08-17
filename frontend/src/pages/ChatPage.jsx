@@ -52,7 +52,7 @@ export default function ChatPage() {
   };
 
   return (
-    <div>
+    <div className='bg-gray-500'>
 
       <form onSubmit={sendMessage}>
         <input
