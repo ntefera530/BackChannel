@@ -9,6 +9,9 @@ import ChatPage from './ChatPage';
 axios.defaults.withCredentials = true;
 
 import FriendsProvider from "../contexts/FriendContext";
+import ChatsProvider from '../contexts/ChatContext';
+
+import CreateChatPage from './CreateChatPage';
 
 function HomePage(){
     const [friends, setFriends] = useState([]);
@@ -19,28 +22,18 @@ function HomePage(){
     }, []);
 
 
-    const getGroupChats = async () => {
-        try{
-            const response = await axios.post('http://localhost:5001/api/v1/chats/me', {
-                withCredentials: true
-            });
-            //setFriends(response.data.friends);
-
-        }catch(error){
-            console.error("Error fetching friends:", error);
-        }
-    }
-
-
     return(
        <div>
             <HeadBar/>
             <FriendsProvider>
                 <FriendsList/>                
             </FriendsProvider>
+            <ChatsProvider>
+                <Chatbar/>
+                <ChatPage/>
+            </ChatsProvider>
 
-            <Chatbar/>
-            <ChatPage/>
+
         </div>
     ) 
 }

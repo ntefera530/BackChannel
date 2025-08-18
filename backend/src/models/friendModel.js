@@ -31,6 +31,16 @@ export const getAllFriendsQuery = async (userId) => {
         WHERE user_id = $1 
         OR friend_id = $1;
     `;
-  const result = await pool.query(query, [userId]);
+
+    const query2 = `
+        SELECT u.id, u.username, u.bio, u.profile_picture_url
+        FROM "Users" u
+        JOIN "Friendships" f ON (
+            (f.user_id = $1 AND u.id =f.friend_id)
+            OR
+            (f.friend_id = $1 AND u.id = f.user_id)
+        );
+    `;
+  const result = await pool.query(query2, [userId]);
   return result.rows;
 }

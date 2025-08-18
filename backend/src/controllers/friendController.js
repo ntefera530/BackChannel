@@ -64,7 +64,7 @@ export const getAllFriends = async (req, res) => {
 
 
         const friendsList = await getAllFriendsQuery(userId);
-        //console.log(friendsList);       
+        console.log(friendsList);       
         
         return res.status(200).json(friendsList);
     }

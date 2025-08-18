@@ -13,7 +13,7 @@ export function UserProvider({children}){
     const navigate = useNavigate();
 
     useEffect(() => {
-        //checkAuth();
+        checkAuth();
     }, [username, userId]);
 
     const login = async (username, password) => {

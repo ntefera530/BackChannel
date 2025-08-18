@@ -10,11 +10,40 @@ export default function ChatsProvider({ children }) {
     const [loading, setLoading] = useState(true);
   
     useEffect(() => {
-
+      getChats();
     }, []);
+
+    const getChats = async () => {
+        setLoading(true);
+        try {
+          const res = await axios.get("http://localhost:5001/api/v1/chats/me");
+          console.log(res.data)
+          setChats(res.data);
+        } catch (err) {
+          console.error("Error fetching friends:", err);
+        } finally {
+          setLoading(false);
+        }
+    }
+
+    const createGroupChat = async (name) => {
+        setLoading(true);
+        try {
+          const res = await axios.post("http://localhost:5001/api/v1/chats/me",{
+            name: name,
+            isGroup: true,
+          });
+          console.log(res.data)
+          setChats(res.data);
+        } catch (err) {
+          console.error("Error fetching friends:", err);
+        } finally {
+          setLoading(false);
+        }
+    }
   
     return (
-      <ChatsContext.Provider value={{ chats, setChats, loading }}>
+      <ChatsContext.Provider value={{ chats, getChats, createGroupChat, loading }}>
         {children}
       </ChatsContext.Provider>
     );

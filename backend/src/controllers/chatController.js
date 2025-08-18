@@ -4,6 +4,26 @@ import { v4 as uuidv4 } from "uuid";
 
 export const createChat = async (req, res) => {
     try{
+        const {name, isGroup} = req.body;
+
+        const ownerUserId = req.user.userId;
+        const chatUuid = uuidv4();
+
+        const chat = await createChatQuery(chatUuid, name, isGroup, ownerUserId);
+        //need to add the creator as a participant to his own chat lol
+        await addChatParticipantByIdQuery(ownerUserId ,chatUuid);
+
+        return res.status(200).json(chat);
+    }
+    catch(error){
+        console.error("Error Adding Chat:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+//TODO
+export const addParticipantsToChat = async (req, res) => {
+    try{
         const {uuid, name, isGroup, participants_ids} = req.params;
 
         // const userId = req.user.userId;
@@ -60,10 +80,11 @@ export const getAllChats = async (req, res) => {
     console.log("Get Chat")
 
     try{
-
+        const userId = req.user.userId;
         //const userId = req.userId;
-        getllChatsQuery(userId);
-        return res.status(200).json({ message: "Got Group - Change THis" });
+        console.log(userId);
+        const result = await getllChatsQuery(userId);
+        return res.status(200).json(result);
     }
     catch(error){
         console.error("Error Getting Chats:", error);

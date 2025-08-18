@@ -52,8 +52,7 @@ export default function ChatPage() {
   };
 
   return (
-    <div className='bg-gray-500'>
-
+    <div className='fixed top-16 left-80 w-screen h-screen bg-gray-500'>
       <form onSubmit={sendMessage}>
         <input
           value={userText}
@@ -61,10 +60,12 @@ export default function ChatPage() {
           placeholder="Type something..."
         />
         <button type="submit">Send</button>
-      </form>      
+      </form> 
       <div>
         {messages.map((msg, i) => <ChatMessage key={i} message={msg}/>)}
       </div>
+     
+
     </div>
   );
 }

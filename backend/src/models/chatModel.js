@@ -32,10 +32,9 @@ export const deleteChatByIdQuery = async (chatId) => {
 
 export const getllChatsQuery = async (userId) => {
     const query = `
-        SELECT c.id 
-        FROM "Chats" c , "Chat Participants" chp 
-        WHERE chp.user_id == $1 
-        AND c.id = chp.chat_id
+        SELECT c.id, c.name, c.owner
+        FROM "Chats" c JOIN "Chat Participants" chp 
+        ON (chp.user_id = $1 AND c.id = chp.chat_id);
     `;
   const result = await pool.query(query, [userId]);
   return result.rows;
