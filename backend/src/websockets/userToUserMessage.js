@@ -1,12 +1,14 @@
 import WebSocket from "ws";
 import pool from '../lib/db.js';
+import { saveMessagesQuery } from "../models/messageModel.js";
 
-export const sendMessageToUser = async (id, content, sender_id, chat_id, clientsMap) => {
+export const sendMessageToUser = async (id, content, sender_id, chat_id, expire_by, clientsMap) => {
     console.log(`User ${sender_id} --> Chat "${chat_id}", Content: ${content}`);
 
     try{
-        await pool.query('INSERT INTO "Messages" (id, sender_id, chat_id, content) VALUES ($1, $2, $3, $4)', [id, sender_id, chat_id, content]);
-        const participants = await pool.query('SELECT user_id FROM "Chat Participants" WHERE chat_id = $1',[chat_id]);
+    
+        await saveMessagesQuery(id, sender_id, chat_id, content, expire_by);
+        const participants = await getChatParticipantsQuery(chat_id);
         console.log(participants.rows);
 
         participants.rows.forEach(row =>{
@@ -25,8 +27,6 @@ export const sendMessageToUser = async (id, content, sender_id, chat_id, clients
             else{
                 participantWs.send(JSON.stringify(message)); 
             }
-
-
         });
     }
     catch(error){

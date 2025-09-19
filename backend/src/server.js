@@ -3,6 +3,8 @@ import WebSocket from 'ws'
 import { WebSocketServer } from 'ws';
 import { setUpWebSocket } from "./websockets/websocket.js";
 
+import { cleanupExpiredMessages } from "./workers/messageDeletionWorker.js";
+
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
@@ -13,6 +15,8 @@ import dotenv from "dotenv"
 import cookieParser from "cookie-parser";
 import http from "http"
 import cors from "cors";
+import Redis from 'ioredis';
+import {Queue} from 'bullmq';
 
 dotenv.config();
 
@@ -21,6 +25,8 @@ const PORT = process.env.PORT;
 app.use(express.json())
 app.use(cookieParser());
 
+
+
 const server = http.createServer(app);
 
 //need this to parse JSON bodies - Postman sends JSON
@@ -28,6 +34,9 @@ const server = http.createServer(app);
 
 // Allow all origins (for development only!)
 //app.use(cors());
+
+// THis delets messages that are set to expire, need to tset the expire date on front end TODO
+//setInterval(cleanupExpiredMessages, 60 * 1000 * 60 * 24); // run every day
 
 //If you want more control: ie adding coockies
 app.use(cors({

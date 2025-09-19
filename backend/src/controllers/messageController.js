@@ -6,11 +6,14 @@ export const getMessages = async (req, res) => {
 
     try{
 
-        const {chatId, limit, offset} = req.params;
-        //test user
-        const userId = '49a241f4-4e95-44ca-bbed-c13b60d83685';
-        getMessagesQuery(chatId, limit, offset);
-        return res.status(200).json({ message: "Got Messages" });
+        const userId = req.user.userId;
+        const {chatId} = req.params;
+        const limit = parseInt(req.query.limit) || 10;
+        const offset = parseInt(req.query.offset) || 0;
+
+
+        const messages = await getMessagesQuery(chatId, limit, offset);
+        return res.status(200).json({ messages });
     }
     catch(error){
         console.error("Error Getting Messages:", error);
@@ -24,7 +27,6 @@ export const deleteMessage = async (req, res) => {
     try{
         const {messageId, chatId, userId} = req.params;
 
-        // const userId2 = '49a241f4-4e95-44ca-bbed-c13b60d83685';
         deleteMessageQuery(chatId, userId, messageId);
         return res.status(200).json({ message: "Delete Message" });
     }

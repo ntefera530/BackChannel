@@ -9,6 +9,18 @@ export const createChatQuery = async (uuid, name, isGroup, userId) => {
   return result.rows;
 }
 
+export const getDmChatIdByFriendIdQuery = async (userId, friendId) => {
+    const query = `
+        SELECT c.id
+        From "Chats" c JOIN " 
+        WHERE user_id = $1 
+        AND friend_id = $2
+        AND is_group_chat = false
+    `;
+  const result = await pool.query(query, [userId, friendId]);
+  return result.rows;
+}
+
 export const addChatParticipantByIdQuery = async (participant_id, chatId) => {
     const query = `
         INSERT INTO "Chat Participants" (user_id, chat_id)
@@ -56,5 +68,15 @@ export const addUserToChatQuery = async (userId, chatId) => {
         VALUES ($1, $2)
     `;
   const result = await pool.query(query, [userId, chatId]);
+  return result.rows;
+}
+
+export const getChatParticipantsQuery = async (chatId) => {
+    const query = `
+        SELECT user_id FROM
+        FROM "Chat Participants"
+        WHERE chat_id = $1
+    `;
+  const result = await pool.query(query, [chat_id]);
   return result.rows;
 }

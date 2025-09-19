@@ -33,3 +33,22 @@ export const deleteAllMessagesQuery = async (userId, chatId) => {
   const result = await pool.query(query, [chatId, userId]);
   return result.rows;
 }
+
+export const saveMessagesQuery = async (userId, chatId) => {
+    const query = `
+        INSERT INTO "Messages" (id, sender_id, chat_id, content, expire_by)
+        VALUES ($1, $2, $3, $4, $5)
+    `;
+  const result = await pool.query(query, [id, sender_id, chat_id, content, expire_by]);
+  return result.rows;
+}
+
+export const cleanupExpiredMessagesQuery = async () => {
+    const query = `
+        DELETE FROM "Messages" 
+        WHERE expires_at <= NOW()
+    `;
+  const result = await pool.query(query, []);
+  return result.rows;
+}
+
