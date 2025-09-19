@@ -1,6 +1,6 @@
 import pool from '../lib/db.js';
 
-export const getMessagesQuery = async (chatId, limit, offset) => {
+export const getMessagesByChatIdQuery = async (chatId, limit, offset) => {
     const query = `
         SELECT *
         FROM "Messages" 
@@ -13,6 +13,19 @@ export const getMessagesQuery = async (chatId, limit, offset) => {
   return result.rows;
 }
 
+export const getAllMessagesQuery = async (userId, limit, offset) => {
+    const query = `
+        SELECT *
+        FROM "Messages" 
+        WHERE user_id = $1 
+        LIMIT $2 
+        OFFSET $3
+    `;
+  const result = await pool.query(query, [userId, limit, offset]);
+  return result.rows;
+}
+
+
 export const deleteMessageQuery = async (chatId, userId, messageId) => {
     const query = `
         DELETE FROM "Messages" 
@@ -21,6 +34,15 @@ export const deleteMessageQuery = async (chatId, userId, messageId) => {
         AND sender_id = $3 
     `;
   const result = await pool.query(query, [messageId, chatId, userId]);
+  return result.rows;
+}
+
+export const deleteAllMessageQuery = async (userId) => {
+  const query = `
+    DELETE FROM "Messages" 
+    WHERE sender_id = $1 
+  `;
+  const result = await pool.query(query, [userId]);
   return result.rows;
 }
 

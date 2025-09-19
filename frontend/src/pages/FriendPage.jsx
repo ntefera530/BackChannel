@@ -1,4 +1,4 @@
-import {UserContext} from '../contexts/UserContext';
+import {useUser} from '../contexts/UserContext';
 import { useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 axios.defaults.withCredentials = true;
@@ -6,7 +6,7 @@ axios.defaults.withCredentials = true;
 function FriendPage(){
     const [friends, setFriends] = useState([]);
     const [friendsUsername, setFriendsUserName] = useState("");
-    const {username, userId} = useContext(UserContext); //my User Context
+    const {username, userId} = useUser(); //my User Context
 
     const handleAddFriendSubmit = async (event) => {
         event.preventDefault();

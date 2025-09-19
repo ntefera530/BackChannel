@@ -32,6 +32,15 @@ export const updateUsername = async (req, res) => {
     }
 }
 
+//TODO
+export const updatePassword = async (req, res) => {
+}
+
+//TODO
+export const updatBio = async (req, res) => {
+}
+
+//TODO Set up AWS
 export const updateProfilePicture = async (req, res) => {
     try{
         const userId = req.userId;

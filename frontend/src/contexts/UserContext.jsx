@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
-import { createContext, useState} from 'react';
+import { useContext, createContext, useState} from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 axios.defaults.withCredentials = true;
 
-export const UserContext = createContext();
+const UserContext = createContext();
 
-export function UserProvider({children}){
+export default function UserProvider({children}){
     const [userId, setUserId] = useState(null);
     const [username, setUsername] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -113,5 +113,7 @@ export function UserProvider({children}){
     )
 }
 
-// export {UserProvider};
-// export default UserContext;
+// Custom hook (named export)
+export function useUser() {
+  return useContext(UserContext);
+}

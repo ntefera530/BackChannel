@@ -1,6 +1,6 @@
 import HeadBar from '../components/HeaderBar';
 import Sidebar from '../components/SideBar';
-import {UserContext} from '../contexts/UserContext';
+import {useUser} from '../contexts/UserContext';
 import { useContext, useEffect , useState} from 'react';
 import axios from 'axios';
 import FriendsList from '../components/FriendsList';
@@ -16,7 +16,7 @@ import CreateChatPage from './CreateChatPage';
 function HomePage(){
     const [friends, setFriends] = useState([]);
     const [groupChats, setGroupChats] = useState([]);
-    const {username, userId} = useContext(UserContext); //my User Context
+    const {username, userId} = useUser; //my User Context
 
     useEffect(() => {
     }, []);
@@ -32,8 +32,6 @@ function HomePage(){
                 <Chatbar/>
                 <ChatPage/>
             </ChatsProvider>
-
-
         </div>
     ) 
 }

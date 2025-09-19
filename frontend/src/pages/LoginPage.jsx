@@ -1,12 +1,12 @@
 import { useNavigate } from 'react-router-dom';
-import {UserContext} from '../contexts/UserContext';
+import { useUser} from '../contexts/UserContext';
 import { useContext } from 'react';
 import { useState } from 'react';
 
 function LoginPage(){
     let [username, setUsername] = useState("");
     let [password, setPassword] = useState("");
-    const {login, logout, loading} = useContext(UserContext); //my User Context
+    const {login, logout, loading} = useUser(); //my User Context
 
     const navigate = useNavigate();
 

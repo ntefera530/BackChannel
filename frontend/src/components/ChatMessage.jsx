@@ -1,9 +1,9 @@
 import {useState} from 'react';
-import {UserContext} from '../contexts/UserContext';
+import {useUser} from '../contexts/UserContext';
 import { useContext } from 'react';
 
 function ChatMessage({message}){
-    const {userId} = useContext(UserContext); //my User Context
+    const {userId} = useUser(); //my User Context
 
     const object = JSON.parse(message);
     const messageText = object.content;

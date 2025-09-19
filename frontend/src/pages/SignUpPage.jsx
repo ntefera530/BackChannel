@@ -1,12 +1,12 @@
 import { useState, useContext } from "react";
 import { useNavigate } from 'react-router-dom';
-import { UserContext} from '../contexts/UserContext';
+import { useUser} from '../contexts/UserContext';
 
 
 function SignUpPage(){
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const {signup} = useContext(UserContext); //my User Context
+    const {signup} = useUser(); //my User Context
     const navigate = useNavigate();
 
     const goToLogin = () => {

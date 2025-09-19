@@ -3,20 +3,21 @@ import { createRoot } from 'react-dom/client'
 import {BrowserRouter} from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
-import { UserProvider } from "./contexts/UserContext.jsx";
+import UserProvider from "./contexts/UserContext.jsx";
 import ChatsProvider from './contexts/ChatContext.jsx'
+import MessageProvider from './contexts/MessageContext.jsx'
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+  <StrictMode>        <MessageProvider>
          <ChatsProvider>   
     <BrowserRouter>
       <UserProvider>
 
-          <App />
+                <App />    
 
- 
+
       </UserProvider>
     </BrowserRouter>
-    </ChatsProvider>
+    </ChatsProvider>        </MessageProvider>
   </StrictMode>,
 )

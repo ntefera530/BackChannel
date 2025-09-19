@@ -1,5 +1,23 @@
 import pool from '../lib/db.js';
 
+export const createGroupChatQuery = async (groupChatUuid, groupChatTitle, isGroup, ownerUserId) => {
+  const query = `
+    INSERT INTO "Chats" (id, name, is_group_chat, owner) 
+    VALUES ($1, $2, $3, $4)
+  `;
+  const result = await pool.query(query, [groupChatUuid, groupChatTitle, isGroup, ownerUserId]);
+  return result.rows;
+}
+
+export const createDirectMessageQuery = async (groupChatUuid, groupChatTitle, isGroup, ownerUserId) => {
+  const query = `
+    INSERT INTO "Chats" (id, name, is_group_chat, owner) 
+    VALUES ($1, $2, $3, $4)
+  `;
+  const result = await pool.query(query, [groupChatUuid, groupChatTitle, isGroup, ownerUserId]);
+  return result.rows;
+}
+
 export const createChatQuery = async (uuid, name, isGroup, userId) => {
     const query = `
         INSERT INTO "Chats" (id, name, is_group_chat, owner) 
@@ -21,7 +39,7 @@ export const getDmChatIdByFriendIdQuery = async (userId, friendId) => {
   return result.rows;
 }
 
-export const addChatParticipantByIdQuery = async (participant_id, chatId) => {
+export const addChatParticipantByIdQuery = async (participantsIdArray, chatId) => {
     const query = `
         INSERT INTO "Chat Participants" (user_id, chat_id)
         VALUES ($1, $2)      
@@ -29,6 +47,16 @@ export const addChatParticipantByIdQuery = async (participant_id, chatId) => {
 
     console.log(participant_id, chatId);
   const result = await pool.query(query, [participant_id, chatId]);
+  return result.rows;
+}
+
+export const addAllChatParticipantByIdQuery = async (participantsIdArray, chatId) => {
+  const query = `
+      INSERT INTO "Chat Participants" (user_id, chat_id)
+      SELECT uuid, $2
+      FROM unnest(COALESCE($1::uuid[], ARRAY[]::uuid[])) AS uuid;    
+  `;
+  const result = await pool.query(query, [participantsIdArray, chatId]);
   return result.rows;
 }
 
@@ -42,7 +70,7 @@ export const deleteChatByIdQuery = async (chatId) => {
   return result.rows;
 }
 
-export const getllChatsQuery = async (userId) => {
+export const getAllChatsQuery = async (userId) => {
     const query = `
         SELECT c.id, c.name, c.owner
         FROM "Chats" c JOIN "Chat Participants" chp 

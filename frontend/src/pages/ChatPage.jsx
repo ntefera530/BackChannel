@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import {UserContext} from '../contexts/UserContext';
+import {useUser} from '../contexts/UserContext';
+import {useMessages} from '../contexts/MessageContext';
 import { useContext } from 'react';
 
 import Cookie from 'js-cookie'
@@ -12,7 +13,8 @@ export default function ChatPage() {
   const [currentUser, setCurrentUser] = useState(null);
   const [userText, setUserText] = useState("");
   const wsRef = useRef(null);
-  const {userId, username} = useContext(UserContext); //my User Context
+  const {userId, username} = useUser(); //my User Context
+  const {setSelectedChatId, selectedChatId, } = useMessages()
 
   useEffect(() => {
     //const token = localStorage.getItem('jwt');
@@ -43,7 +45,7 @@ export default function ChatPage() {
         id: newUuid,
         content: userText, 
         sender_id: userId, 
-        chat_id: "28226e7f-08d3-4712-8f3c-d5ea9ab6f01e" 
+        chat_id:  setSelectedChatId //"28226e7f-08d3-4712-8f3c-d5ea9ab6f01e" //TODO HARD CODED CHANGE THIS NDT
       }
       
       wsRef.current.send(JSON.stringify(message));
@@ -58,10 +60,13 @@ export default function ChatPage() {
           value={userText}
           onChange={handleChangeUserText}
           placeholder="Type something..."
-        />
+        />        
+        <div>{selectedChatId}</div>
         <button type="submit">Send</button>
+
       </form> 
       <div>
+        <div></div>
         {messages.map((msg, i) => <ChatMessage key={i} message={msg}/>)}
       </div>
      

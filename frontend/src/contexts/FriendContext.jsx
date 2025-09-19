@@ -59,7 +59,7 @@ export default function FriendsProvider({ children }) {
     );
   }
   
-  // Custom hook (named export)
-  export function useFriends() {
-    return useContext(FriendsContext);
-  }
+// Custom hook (named export)
+export function useFriends() {
+  return useContext(FriendsContext);
+}
