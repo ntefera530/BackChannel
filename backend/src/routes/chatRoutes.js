@@ -1,15 +1,23 @@
 import express from "express";
 import protectRoute from "../middleware/protectRoute.js";
-import { getAllChats, createChat, deleteChat, leaveChat, inviteToChat, kickFromChat, getDmChatIdByFriend} from "../controllers/chatController.js";
+import * as chatController from "../controllers/chatController.js";
 
 const router = express.Router();
 
-router.get("/me", protectRoute, getAllChats);
-router.get("/me/:friendId", protectRoute, getDmChatIdByFriend);
-router.post("/me", protectRoute, createChat);
-router.delete("/me/:chatId", protectRoute, deleteChat);
-router.delete("/me/:chatId/participant/me", protectRoute, leaveChat);
-router.delete("/me/:chatId/participant/:userId", protectRoute, kickFromChat);
-router.post("/me/:chatId/:userId", protectRoute, inviteToChat);
+// Get
+router.get("/me", protectRoute, chatController.getAllChats);
+router.get("/me/:friendId", protectRoute, chatController.getDmChatIdByFriend);
+
+
+// Post
+router.post("/me/direct", protectRoute, chatController.createDirectMessage);
+router.post("/me/group", protectRoute, chatController.createGroupChat);
+router.post("/me/:chatId/", protectRoute, chatController.addParticipantsToChat);
+
+// Delete
+router.delete("/me/:chatId", protectRoute, chatController.deleteGroupChat);
+router.delete("/me/:chatId/participant/me", protectRoute, chatController.leaveGroupChat);
+router.delete("/me/:chatId/participant/:userId", protectRoute, chatController.kickUserFromGroupChat);
+
 
 export default router;

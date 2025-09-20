@@ -1,19 +1,17 @@
 import express from "express";
 import protectRoute from "../middleware/protectRoute.js";
-
-import { getUserProfile, updateUsername, updateProfilePicture,  deleteUserProfile} from "../controllers/userController.js";
+import * as userController from "../controllers/userController.js";
 
 const router = express.Router();
 
-//TODO Protect all of these
-// router.get("/", protectRoute, getAllGroups);
-// router.post("/", protectRoute, addGroup);
-// router.delete("/:id", protectRoute, deleteGroup);
+// Get
+router.get("/:username", userController.getUserProfile);
 
-//Unprotected for testing
-router.get("/:username", getUserProfile);
-router.put("/me/username", protectRoute, updateUsername);
-router.put("/me/profile-picture",protectRoute, updateProfilePicture);
-router.delete("/me", protectRoute, deleteUserProfile);
+// Post or Put
+router.put("/me/username", protectRoute, userController.updateUsername);
+router.put("/me/profile-picture",protectRoute, userController.updateProfilePicture);
+
+// Delete
+router.delete("/me", protectRoute, userController.deleteUserProfile);
 
 export default router;

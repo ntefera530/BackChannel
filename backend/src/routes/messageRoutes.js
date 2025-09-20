@@ -1,12 +1,16 @@
 import express from "express";
 import protectRoute from "../middleware/protectRoute.js";
-import { getMessages, deleteMessage, deleteAllMessages } from "../controllers/messageController.js";
-
+import * as messageController from "../controllers/messageController.js";
 
 const router = express.Router();
 
-router.get("/me/:chatId", protectRoute, getMessages);
-router.delete("/me/:chatId/:messageId", protectRoute, deleteMessage);
-router.delete("/me/:chatId", protectRoute, deleteAllMessages);
+// Get
+router.get("/me/:chatId", protectRoute, messageController.getAllMessages);
+
+// Post
+
+// Delete
+router.delete("/me/:chatId/:messageId", protectRoute, messageController.deleteMessage);
+router.delete("/me/:chatId", protectRoute, messageController.deleteAllMessages);
 
 export default router;

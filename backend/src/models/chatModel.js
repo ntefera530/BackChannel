@@ -1,55 +1,16 @@
 import pool from '../lib/db.js';
 
-export const createGroupChatQuery = async (groupChatUuid, groupChatTitle, isGroup, ownerUserId) => {
-  const query = `
-    INSERT INTO "Chats" (id, name, is_group_chat, owner) 
-    VALUES ($1, $2, $3, $4)
-  `;
-  const result = await pool.query(query, [groupChatUuid, groupChatTitle, isGroup, ownerUserId]);
-  return result.rows;
-}
-
-export const createDirectMessageQuery = async (groupChatUuid, groupChatTitle, isGroup, ownerUserId) => {
-  const query = `
-    INSERT INTO "Chats" (id, name, is_group_chat, owner) 
-    VALUES ($1, $2, $3, $4)
-  `;
-  const result = await pool.query(query, [groupChatUuid, groupChatTitle, isGroup, ownerUserId]);
-  return result.rows;
-}
-
+// 1. Create Chat -- is_Group = true for group chat, false for DM
 export const createChatQuery = async (uuid, name, isGroup, userId) => {
-    const query = `
-        INSERT INTO "Chats" (id, name, is_group_chat, owner) 
-        VALUES ($1, $2, $3, $4)
-    `;
+  const query = `
+      INSERT INTO "Chats" (id, name, is_group_chat, owner) 
+      VALUES ($1, $2, $3, $4)
+  `;
   const result = await pool.query(query, [uuid, name, isGroup, userId]);
   return result.rows;
 }
 
-export const getDmChatIdByFriendIdQuery = async (userId, friendId) => {
-    const query = `
-        SELECT c.id
-        From "Chats" c JOIN " 
-        WHERE user_id = $1 
-        AND friend_id = $2
-        AND is_group_chat = false
-    `;
-  const result = await pool.query(query, [userId, friendId]);
-  return result.rows;
-}
-
-export const addChatParticipantByIdQuery = async (participantsIdArray, chatId) => {
-    const query = `
-        INSERT INTO "Chat Participants" (user_id, chat_id)
-        VALUES ($1, $2)      
-    `;
-
-    console.log(participant_id, chatId);
-  const result = await pool.query(query, [participant_id, chatId]);
-  return result.rows;
-}
-
+// 2. Add Participants to Chat
 export const addAllChatParticipantByIdQuery = async (participantsIdArray, chatId) => {
   const query = `
       INSERT INTO "Chat Participants" (user_id, chat_id)
@@ -60,45 +21,95 @@ export const addAllChatParticipantByIdQuery = async (participantsIdArray, chatId
   return result.rows;
 }
 
-export const deleteChatByIdQuery = async (chatId) => {
-    const query = `
-        DELETE FROM "Chat Participants" 
-        WHERE id = $1
-    `;
-    
+// 3. Remove Selected Participants from Chat - TODO THIS DOENST WORK
+export const removeParticipantsFromChatQuery = async (participantsIdArray, chatId) => {
+  const query = `
+    DELETE INTO "Chat Participants" (user_id, chat_id)
+    SELECT uuid, $2
+    FROM unnest(COALESCE($1::uuid[], ARRAY[]::uuid[])) AS uuid; 
+  `;
+  const result = await pool.query(query, [participantsIdArray, chatId]);
+  return result.rows;
+}
+
+// 4. Remove All Participants from Chat (Except Owner) - TODO THIS DOESNT WORK
+export const deleteChatParticipantsQuery = async (chatId, ownerId) => {
+  const query = `
+      DELETE FROM "Chat Participants" 
+      WHERE id = $1
+      AND owner_id != (SELECT owner_id FROM "Chats" WHERE id = $2)
+  `;
+  
+  const result = await pool.query(query, [chatId, ownerId]);
+  return result.rows;
+}
+
+// 5. Delete Chat (owner only)
+export const deleteSelectedChatQuery = async (chatId,) => {
+  const query = `
+      DELETE FROM "Chats" 
+      WHERE id = $1
+  `;
+  
   const result = await pool.query(query, [chatId]);
   return result.rows;
 }
 
-export const getAllChatsQuery = async (userId) => {
-    const query = `
-        SELECT c.id, c.name, c.owner
-        FROM "Chats" c JOIN "Chat Participants" chp 
-        ON (chp.user_id = $1 AND c.id = chp.chat_id);
-    `;
+// 6. Delete ALl Chats
+export const deleteALlChatsQuery = async (userId) => {
+  const query = `
+      DELETE FROM "Chats" 
+      WHERE owner_id = $1
+  `;
   const result = await pool.query(query, [userId]);
   return result.rows;
 }
 
-export const removeUserFromChatQuery = async (userId, chatId) => {
-    const query = `
-        DELETE FROM "Chats Participants" 
-        WHERE user_id == $1 
-        AND chat_id = $2', [userId, chatId]         
-    `;
-  const result = await pool.query(query, [userId, chatId]);
+// 7. Get all Chats for User
+export const getAllChatsQuery = async (userId) => {
+  const query = `
+      SELECT c.id, c.name, c.owner
+      FROM "Chats" c JOIN "Chat Participants" chp 
+      ON (chp.user_id = $1 AND c.id = chp.chat_id);
+  `;
+  const result = await pool.query(query, [userId]);
   return result.rows;
 }
 
-export const addUserToChatQuery = async (userId, chatId) => {
-    const query = `
-        INSERT INTO "Chat Participants" (user_id, chat_id) 
-        VALUES ($1, $2)
-    `;
-  const result = await pool.query(query, [userId, chatId]);
+// 8. Get Direct Message for User - TODO THIS DOESNT WORK
+export const getDirectMessageChatsQuery = async (userId) => {
+  const query = `
+      SELECT c.id, c.name, c.owner
+      FROM "Chats" c JOIN "Chat Participants" chp 
+      ON (chp.user_id = $1 AND c.id = chp.chat_id);
+  `;
+  const result = await pool.query(query, [userId]);
   return result.rows;
 }
 
+// 9. Get Direct Message for User - TODO THIS DOESNT WORK
+export const getGroupChatsQuery = async (userId) => {
+  const query = `
+      SELECT c.id, c.name, c.owner
+      FROM "Chats" c JOIN "Chat Participants" chp 
+      ON (chp.user_id = $1 AND c.id = chp.chat_id);
+  `;
+  const result = await pool.query(query, [userId]);
+  return result.rows;
+}
+
+// 10. Get Chat Owner by Chat Id
+export const getChatOwnerByIdQuery = async (groupChatUuid) => {
+  const query = `
+    SELECT owner_id FROM
+    FROM "Chat"
+    WHERE chat_id = $1
+  `;
+  const result = await pool.query(query, [groupChatUuid]);
+  return result.rows;
+}
+
+// 11. Get Chat Participants by Chat Id
 export const getChatParticipantsQuery = async (chatId) => {
     const query = `
         SELECT user_id FROM
@@ -106,5 +117,18 @@ export const getChatParticipantsQuery = async (chatId) => {
         WHERE chat_id = $1
     `;
   const result = await pool.query(query, [chat_id]);
+  return result.rows;
+}
+
+// 12. Get Direct Message Id by Friend Id
+export const getDmChatIdByFriendIdQuery = async (userId, friendId) => {
+    const query = `
+        SELECT c.id
+        From "Chats" c JOIN " 
+        WHERE user_id = $1 
+        AND friend_id = $2
+        AND is_group_chat = false
+    `;
+  const result = await pool.query(query, [userId, friendId]);
   return result.rows;
 }
