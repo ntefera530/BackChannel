@@ -59,3 +59,13 @@ export const updateProfilePictureQuery = async (userId, profilePictureUrl, ) => 
   const result = await pool.query(query, [profilePictureUrl, userId]);
   return result.rows;
 }
+
+export const createUserProfileQuery = async (username, hashedPassword) => {
+  const query = `
+      INSERT INTO "Users" (username, password) 
+      VALUES ($1, $2) 
+      RETURNING *
+  `;
+const result = await pool.query(query, [username, hashedPassword]);
+return result.rows;
+}

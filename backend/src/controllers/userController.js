@@ -1,10 +1,10 @@
-import { deleteUserProfileQuery, getUserProfileByIdQuery, getUserProfileByUsernameQuery ,updateProfilePictureQuery, updateUsernameQuery} from '../models/userModel.js'
+import * as userRepo from '../models/userModel.js'
 
 export const getUserProfile = async (req, res) => {
     try{
         const username = req.params.username;
 
-        const currentUser = await getUserProfileByUsernameQuery(username);
+        const currentUser = await userRepo.getUserProfileByUsernameQuery(username);
         console.log(currentUser)
         return res.status(200).json(currentUser);
     }
@@ -23,7 +23,7 @@ export const updateUsername = async (req, res) => {
             res.status(400).json({ message: "Invalid JWT" });
         }
 
-        await updateUsernameQuery(userId, newUsername);
+        await userRepo.updateUsernameQuery(userId, newUsername);
         return res.status(200).json({ message: "Username Updated" });
     }
     catch(error){
@@ -50,7 +50,7 @@ export const updateProfilePicture = async (req, res) => {
             res.status(400).json({ message: "Invalid JWT" });
         }
 
-        await updateProfilePictureQuery(userId, newPictureUrl);
+        await userRepo.updateProfilePictureQuery(userId, newPictureUrl);
         return res.status(200).json({message: "Profile Pic Updated"});
     }
     catch(error){
@@ -67,7 +67,7 @@ export const deleteUserProfile = async (req, res) => {
             res.status(400).json({ message: "Invalid JWT" });
         }
 
-        await deleteUserProfileQuery(userId);
+        await userRepo.deleteUserProfileQuery(userId);
         return res.status(200).json({ message: "User Profile Deleted" });
     }
     catch(error){

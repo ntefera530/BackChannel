@@ -1,5 +1,5 @@
 import pool from '../lib/db.js';
-import {getMessagesByChatIdQuery, deleteMessageQuery, deleteAllMessagesQuery, getAllMessagesQuery} from "../models/messageModel.js"
+import * as messageRepo from "../models/messageModel.js"
 
 //TODO - get all messages user has sent in app
 export const getAllMessages = async (req, res) => {
@@ -13,7 +13,7 @@ export const getAllMessages = async (req, res) => {
         const offset = parseInt(req.query.offset) || 0;
 
 
-        const messages = await getAllMessagesQuery(userId, limit, offset);
+        const messages = await messageRepo.getAllMessagesQuery(userId, limit, offset);
         return res.status(200).json({ messages });
     }
     catch(error){
@@ -34,7 +34,7 @@ export const getMessagesByChatId = async (req, res) => {
         const offset = parseInt(req.query.offset) || 0;
 
 
-        const messages = await getMessagesByChatIdQuery(chatId, limit, offset);
+        const messages = await messageRepo.getMessagesByChatIdQuery(chatId, limit, offset);
         return res.status(200).json({ messages });
     }
     catch(error){
@@ -50,7 +50,7 @@ export const deletSelectedMessages = async (req, res) => {
     try{
         const {messageId, chatId, userId} = req.params;
 
-        deleteMessageQuery(chatId, userId, messageId); //N
+        await messageRepo.deleteMessageQuery(chatId, userId, messageId); //N
         return res.status(200).json({ message: "Delete Message" });
     }
     catch(error){
@@ -65,7 +65,7 @@ export const deleteMessagesByChatId = async (req, res) => {
 
     try{
         const {chatId} = req.params;
-        deleteAllMessagesQuery(userId, chatId);
+        await messageRepo.deleteAllMessagesQuery(userId, chatId);
         return res.status(200).json({ message: "Delete All Messages" });
     }
     catch(error){
@@ -80,7 +80,7 @@ export const deleteAllMessages = async (req, res) => {
 
     try{
         const {userId} = req.params;
-        deleteAllMessagesQuery(userId, chatId);
+        messageRepo.deleteAllMessagesQuery(userId, chatId);
         return res.status(200).json({ message: "Delete All Messages" });
     }
     catch(error){
@@ -96,7 +96,7 @@ export const deleteMessage = async (req, res) => {
     try{
         const {messageId, chatId, userId} = req.params;
 
-        deleteMessageQuery(chatId, userId, messageId);
+        await messageRepo.deleteMessageQuery(chatId, userId, messageId);
         return res.status(200).json({ message: "Delete Message" });
     }
     catch(error){

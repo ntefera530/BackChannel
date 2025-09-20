@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { createJWT } from '../lib/utils.js';
-import {createUserProfileQuery, getUserProfileByIdQuery, getUserProfileByUsernameQuery} from "../models/authModel.js"
+import * as userModel from "../models/userModel.js"
 
 export const signup = async (req, res) => {
     try {

@@ -1,5 +1,5 @@
 import { normalizeFriendship } from '../lib/utils.js';
-import {deleteFriendQuery, addFriendQuery, getAllFriendsQuery} from "../models/friendModel.js"
+import * as friendRepo from "../models/friendModel.js"
 import { getUserIdByUsernameQuery } from "../models/userModel.js" 
 
 export const addFriend = async (req, res) => {
@@ -23,7 +23,7 @@ export const addFriend = async (req, res) => {
         const normal = normalizeFriendship(userId, friendId);
 
         //console.log(normal);
-        await addFriendQuery(normal.user_id, normal.friend_id);
+        await friendRepo.addFriendQuery(normal.user_id, normal.friend_id);
 
         return res.status(200).json({ message: "Friend Added" });
     }
@@ -63,7 +63,7 @@ export const getAllFriends = async (req, res) => {
         const username = req.user.username;
 
 
-        const friendsList = await getAllFriendsQuery(userId);
+        const friendsList = await friendRepo.getAllFriendsQuery(userId);
         console.log(friendsList);       
         
         return res.status(200).json(friendsList);
