@@ -4,13 +4,8 @@ import * as friendController from "../controllers/friendController.js";
 
 const router = express.Router();
 
-// Get 
-router.get("/me", protectRoute, friendController.getAllFriends);
-
-// Post 
-router.post("/me/:friendUsername", protectRoute, friendController.addFriend);     //logic to add multple friends at a time?
-
-// Delete
-router.delete("/me/:friendUsername", protectRoute, friendController.deleteFriend);
+router.get("/", protectRoute, friendController.getAllFriends);
+router.post("/", protectRoute, friendController.addFriend);
+router.delete("/:friendId", protectRoute, friendController.deleteFriend);
 
 export default router;

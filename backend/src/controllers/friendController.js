@@ -3,26 +3,20 @@ import * as friendRepo from "../models/friendModel.js"
 import { getUserIdByUsernameQuery } from "../models/userModel.js" 
 
 export const addFriend = async (req, res) => {
+    console.log('Add Friend');
     try{
-        console.log(`Enter AddFreind Controller`);
         const userId = req.user.userId;
         const username = req.user.username;
-
         const friendUsername = req.params.friendUsername;
+
         const friendObject = await getUserIdByUsernameQuery(friendUsername);
 
         if(!friendObject || friendObject.length === 0){
             return res.status(404).json({message: "user not found"});
         }
-
         const friendId = friendObject[0].id;
-
-        console.log(friendId);
-        
-        console.log(`User ${userId} wants to add ${friendId}`);
         const normal = normalizeFriendship(userId, friendId);
-
-        //console.log(normal);
+        
         await friendRepo.addFriendQuery(normal.user_id, normal.friend_id);
 
         return res.status(200).json({ message: "Friend Added" });
@@ -73,3 +67,4 @@ export const getAllFriends = async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 }
+

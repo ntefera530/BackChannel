@@ -4,20 +4,17 @@ import * as chatController from "../controllers/chatController.js";
 
 const router = express.Router();
 
-// Get
-router.get("/me", protectRoute, chatController.getAllChats);
-router.get("/me/:friendId", protectRoute, chatController.getDmChatIdByFriend);
+router.get("/", protectRoute, chatController.getAllChats); //query param type = direct or group
+router.get("/:chatId/messages", protectRoute, chatController.getAllMessagesInChat); 
 
+router.post("/", protectRoute, chatController.createChat);//query param type = direct or group
+router.post("/:chatId/participants", protectRoute, chatController.addParticipantsToChat);
 
-// Post
-router.post("/me/direct", protectRoute, chatController.createDirectMessage);
-router.post("/me/group", protectRoute, chatController.createGroupChat);
-router.post("/me/:chatId/", protectRoute, chatController.addParticipantsToChat);
-
-// Delete
-router.delete("/me/:chatId", protectRoute, chatController.deleteGroupChat);
-router.delete("/me/:chatId/participant/me", protectRoute, chatController.leaveGroupChat);
-router.delete("/me/:chatId/participant/:userId", protectRoute, chatController.kickUserFromGroupChat);
+router.delete("/:chatId", protectRoute, chatController.deleteGroupChat); //(owner only)
+router.delete("/:chatId/participants/me", protectRoute, chatController.leaveGroupChat);
+router.delete("/:chatId/participant", protectRoute, chatController.kickUsersFromGroupChat); //Body: Users
+router.delete("/:chatId/messages", protectRoute, chatController.deleteAllMessagesInChat);  // Delete All Messages in Chat
+router.delete("/:chatId/messages/:messageId", protectRoute, chatController.getAllMessagesInChat); // Delete Specific Message in Chat
 
 
 export default router;

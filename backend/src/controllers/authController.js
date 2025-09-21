@@ -1,11 +1,11 @@
 import bcrypt from "bcryptjs";
 import { createJWT } from '../lib/utils.js';
-import * as userModel from "../models/userModel.js"
+import * as userRepo from "../models/userModel.js"
 
 export const signup = async (req, res) => {
+    console.log("Signup controller called");
     try {
-        
-        console.log("Signup controller called");
+
         const { username, password } = req.body;
 
         // Validate Input
@@ -20,7 +20,7 @@ export const signup = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        let result = await getUserProfileByUsernameQuery(username);
+        let result = await userRepo.getUserProfileByUsernameQuery(username);
         
         //TODO: Not checking for duplicate usernames correctly
         if (result.rows && result.rows.length > 0) {
@@ -28,17 +28,13 @@ export const signup = async (req, res) => {
         } 
         else {
             
-            //TODO Fix this timing issue please
-            await createUserProfileQuery(username, hashedPassword);
-            const newUser = await getUserProfileByUsernameQuery(username);
-            //const userId = result.rows[0].id;
-            //console.log(userId);
-            const userId = 2; // Temporary fix, replace with actual userId from result
+            const newUser = await userModel.createUserProfileQuery(username, hashedPassword);
+            const userId = newUser.rows[0].id;
+
             createJWT(username,userId,res);
 
-            //send the new user without password?
-            return res.status(200).json({ message: "New User Created" });
-            
+            //TODO send the new user without password?
+            return res.status(200).json({ message: "New User Created" });          
         }
     } 
     catch (error) {
@@ -48,9 +44,9 @@ export const signup = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-   
+   console.log("Login controller called");
     try{ 
-        console.log("Login controller called");
+        
         const { username, password } = req.body;
 
         if(!username || !password){
@@ -58,21 +54,20 @@ export const login = async (req, res) => {
         }
 
         const user = await getUserProfileByUsernameQuery(username);
-        console.log(user);
+
         if (user.length === 0) {
             return res.status(404).json({ error: "No user with that username" });
         }
 
         const isPasswordCorrect = await bcrypt.compare(password, user[0].password);
-        const userId = user[0].id;
-
         if(!isPasswordCorrect){
             return res.status(404).json({ error: "Username or Password is Incorect" });
         }
 
+        const userId = user[0].id;
         createJWT(username, userId, res);   
 
-        return  res.status(200).json({ 
+        return res.status(200).json({ 
             username: username,
             userId: userId 
         });

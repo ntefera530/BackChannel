@@ -4,14 +4,17 @@ import * as userController from "../controllers/userController.js";
 
 const router = express.Router();
 
-// Get
 router.get("/:username", userController.getUserProfile);
+router.get("/me/messages", userController.getAllUserMessages);
 
-// Post or Put
+
 router.put("/me/username", protectRoute, userController.updateUsername);
+router.put("/me/password", protectRoute, userController.updateUsername);
 router.put("/me/profile-picture",protectRoute, userController.updateProfilePicture);
+router.put("/me/bio",protectRoute, userController.updateProfilePicture);
 
-// Delete
+
 router.delete("/me", protectRoute, userController.deleteUserProfile);
+router.delete("/me/messages", protectRoute, userController.deleteAllUserMessages);
 
 export default router;

@@ -56,10 +56,6 @@ app.use("/api/v1/friends", friendRoutes);
 const wss = new WebSocketServer({port: 8080});
 setUpWebSocket(wss);
 
-
-
-
-
 app.listen(PORT, () => {
     console.log("Server is Listening on port: " + PORT)
     console.log("WebSocket is Listening on port: 6000")

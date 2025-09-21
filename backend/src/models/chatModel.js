@@ -1,12 +1,21 @@
 import pool from '../lib/db.js';
 
 // 1. Create Chat -- is_Group = true for group chat, false for DM
-export const createChatQuery = async (uuid, name, isGroup, userId) => {
+export const createGroupChatQuery = async (uuid, name, isGroup, userId, expiresAt) => {
   const query = `
-      INSERT INTO "Chats" (id, name, is_group_chat, owner) 
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO "Chats" (id, name, is_group_chat, owner, expires_at) 
+      VALUES ($1, $2, $3, $4, $5)
   `;
-  const result = await pool.query(query, [uuid, name, isGroup, userId]);
+  const result = await pool.query(query, [uuid, name, isGroup, userId, expiresAt]);
+  return result.rows;
+}
+
+export const createDirectMessageQuery = async (directMessageUuid, isGroupChat) => {
+  const query = `
+      INSERT INTO "Chats" (id, is_group_chat) 
+      VALUES ($1, $2)
+  `;
+  const result = await pool.query(query, [directMessageUuid, isGroupChat]);
   return result.rows;
 }
 
@@ -77,7 +86,7 @@ export const getAllChatsQuery = async (userId) => {
 }
 
 // 8. Get Direct Message for User - TODO THIS DOESNT WORK
-export const getDirectMessageChatsQuery = async (userId) => {
+export const getDirectMessagesQuery = async (userId) => {
   const query = `
       SELECT c.id, c.name, c.owner
       FROM "Chats" c JOIN "Chat Participants" chp 
