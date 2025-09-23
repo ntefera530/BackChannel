@@ -21,21 +21,19 @@ export const signup = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, salt);
 
         let result = await userRepo.getUserProfileByUsernameQuery(username);
-        
-        //TODO: Not checking for duplicate usernames correctly
-        if (result.rows && result.rows.length > 0) {
-            return res.status(400).json({ error: "That username already exists" });
-        } 
-        else {
-            
-            const newUser = await userModel.createUserProfileQuery(username, hashedPassword);
-            const userId = newUser.rows[0].id;
 
-            createJWT(username,userId,res);
-
-            //TODO send the new user without password?
-            return res.status(200).json({ message: "New User Created" });          
+        //If undefined, no user found
+        if(!result){
+            const newUser = await userRepo.createUserProfileQuery(username, hashedPassword);
+            const userId = newUser[0].id;
+            createJWT(username,userId,res);   
         }
+        else {
+            return res.status(400).json({ error: "That username already exists" });
+        }
+
+        //TODO send the new user without password? 
+        return res.status(200).json({ message: "New User Created" });
     } 
     catch (error) {
         console.log("error in signup controller: ", error.message);
@@ -53,18 +51,18 @@ export const login = async (req, res) => {
             return res.status(400).json({ error: "Username and Password required" });
         }
 
-        const user = await getUserProfileByUsernameQuery(username);
+        const user = await userRepo.getUserProfileByUsernameQuery(username);
 
-        if (user.length === 0) {
+        if (!user || user.length === 0) {
             return res.status(404).json({ error: "No user with that username" });
         }
 
-        const isPasswordCorrect = await bcrypt.compare(password, user[0].password);
+        const isPasswordCorrect = await bcrypt.compare(password, user.password);
         if(!isPasswordCorrect){
             return res.status(404).json({ error: "Username or Password is Incorect" });
         }
 
-        const userId = user[0].id;
+        const userId = user.id;
         createJWT(username, userId, res);   
 
         return res.status(200).json({ 

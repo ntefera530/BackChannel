@@ -1,22 +1,15 @@
 import pool from '../lib/db.js';
 
-export const getUserIdByUsernameQuery = async (username) => {
+// ------------------------------------- GET -------------------------------------------------------------------------------------
+
+export const getUserProfileByUsernameQuery = async (username) => {
     const query = `
-        Select id 
+        SELECT * 
         FROM "Users" 
         WHERE username = $1
     `;
   const result = await pool.query(query, [username]);
-  return result.rows;
-}
-
-export const deleteUserProfileQuery = async (userId) => {
-    const query = `
-        DELETE FROM "Users" 
-        WHERE id = $1
-    `;
-  const result = await pool.query(query, [userId]);
-  return result.rows;
+  return result.rows[0];
 }
 
 export const getUserProfileByIdQuery = async (userId) => {
@@ -29,16 +22,17 @@ export const getUserProfileByIdQuery = async (userId) => {
   return result.rows;
 }
 
-export const getUserProfileByUsernameQuery = async (username) => {
+export const getUserIdByUsernameQuery = async (username) => {
     const query = `
-        SELECT * 
+        Select id 
         FROM "Users" 
         WHERE username = $1
     `;
   const result = await pool.query(query, [username]);
-  //console.log(result.rows[0])
-  return result.rows[0];
+  return result.rows;
 }
+
+// ------------------------------------- Update -------------------------------------------------------------------------------------
 
 export const updateUsernameQuery = async (userId, newUsername) => {
     const query = `
@@ -50,6 +44,17 @@ export const updateUsernameQuery = async (userId, newUsername) => {
   return result.rows;
 }
 
+export const updatePasswordQuery = async (userId, newPassword) => {
+    const query = `
+        UPDATE "Users"  
+        SET password = $1
+        WHERE id = $2
+    `;
+  const result = await pool.query(query, [newPassword, userId]);
+  return result.rows;
+}
+
+
 export const updateProfilePictureQuery = async (userId, profilePictureUrl, ) => {
     const query = `
         UPDATE "Users"  
@@ -59,6 +64,26 @@ export const updateProfilePictureQuery = async (userId, profilePictureUrl, ) => 
   const result = await pool.query(query, [profilePictureUrl, userId]);
   return result.rows;
 }
+
+
+// ------------------------------------- Delete -------------------------------------------------------------------------------------
+
+export const deleteUserProfileByIdQuery = async (userId) => {
+    const query = `
+        DELETE FROM "Users" 
+        WHERE id = $1
+    `;
+  const result = await pool.query(query, [userId]);
+  return result.rows;
+}
+
+
+
+
+
+
+
+
 
 export const createUserProfileQuery = async (username, hashedPassword) => {
   const query = `

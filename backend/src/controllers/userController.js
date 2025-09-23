@@ -32,8 +32,22 @@ export const updateUsername = async (req, res) => {
     }
 }
 
-//TODO
 export const updatePassword = async (req, res) => {
+    try{
+        const userId = req.userId;
+        const newPassword = req.body.newPassword;
+
+        if(!userId){
+            res.status(400).json({ message: "Invalid JWT" });
+        }
+
+        await userRepo.updatePasswordQuery(userId, newPassword);
+        return res.status(200).json({ message: "Password Updated" });
+    }
+    catch(error){
+        console.error("Error in Update Password:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
 }
 
 //TODO
@@ -67,7 +81,24 @@ export const deleteUserProfile = async (req, res) => {
             res.status(400).json({ message: "Invalid JWT" });
         }
 
-        await userRepo.deleteUserProfileQuery(userId);
+        await userRepo.deleteUserProfileByIdQuery(userId);
+        return res.status(200).json({ message: "User Profile Deleted" });
+    }
+    catch(error){
+        console.error("Error Deleting User Profile:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+export const deleteAllUserMessages = async (req, res) => {
+    try{
+        const userId = req.userId;
+
+        if(!userId){
+            res.status(400).json({ message: "Invalid JWT" });
+        }
+
+        await userRepo.deleteAllUserMessagesQuery(userId);
         return res.status(200).json({ message: "User Profile Deleted" });
     }
     catch(error){
