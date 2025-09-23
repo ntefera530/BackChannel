@@ -199,13 +199,14 @@ export const  deleteMessagesByChatId = async (req, res) => {
     }
 }
 
-export const  deleteAllMessageByUserId = async (req, res) => {
-    console.log("Delete All Messages");
+export const  deleteUserMessagesByChatId = async (req, res) => {
+    console.log("Delete All Messages IN Chat");
 
     try{
         const userId = req.user.userId;
+        const {chatId} = req.params;
 
-        const messages = await userRepo.deleteMessagesByUserIdQuery(chatId);
+        const messages = await messageRepo.deleteUserMessagesByChatIdQuery(chatId, userId);
         return res.status(200).json({ messages });
     }
     catch(error){

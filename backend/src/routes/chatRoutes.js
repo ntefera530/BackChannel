@@ -13,7 +13,7 @@ router.post("/:chatId/participants", protectRoute, chatController.addParticipant
 router.delete("/:chatId", protectRoute, chatController.deleteGroupChat);
 router.delete("/:chatId/participants/me", protectRoute, chatController.leaveGroupChat);
 router.delete("/:chatId/participant", protectRoute, chatController.kickUsersFromGroupChat);
-//router.delete("/:chatId/messages", protectRoute, chatController.deleteAllMessagesInChat);  // Delete All Messages in Chat
+router.delete("/:chatId/messages/me", protectRoute, chatController.deleteUserMessagesByChatId);  // Delete All Messages in Chat
 router.delete("/:chatId/messages/selected-messages", protectRoute, chatController.deletSelectedMessages);
 
 
