@@ -13,18 +13,6 @@ export const getMessagesByChatIdQuery = async (chatId, limit, offset) => {
   return result.rows;
 }
 
-export const getAllMessagesQuery = async (userId, limit, offset) => {
-    const query = `
-        SELECT *
-        FROM "Messages" 
-        WHERE user_id = $1 
-        LIMIT $2 
-        OFFSET $3
-    `;
-  const result = await pool.query(query, [userId, limit, offset]);
-  return result.rows;
-}
-
 export const deleteSelectedMessagesByIdQuery = async (messages) => {
 
   if (!messagesIds || messagesIds.length === 0) {

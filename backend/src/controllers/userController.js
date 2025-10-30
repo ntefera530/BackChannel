@@ -98,7 +98,26 @@ export const deleteAllUserMessages = async (req, res) => {
             res.status(400).json({ message: "Invalid JWT" });
         }
 
+        //TODO: Fix this function in userRepo
         await userRepo.deleteAllUserMessagesQuery(userId);
+        return res.status(200).json({ message: "User Profile Deleted" });
+    }
+    catch(error){
+        console.error("Error Deleting User Profile:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+export const getAllUserMessages = async (req, res) => {
+    try{
+        const userId = req.userId;
+
+        if(!userId){
+            res.status(400).json({ message: "Invalid JWT" });
+        }
+
+        //TODO: Fix this function in userRepo
+        await userRepo.getAllUserMessagesQuery(userId);
         return res.status(200).json({ message: "User Profile Deleted" });
     }
     catch(error){

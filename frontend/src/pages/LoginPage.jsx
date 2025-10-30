@@ -6,7 +6,7 @@ import { useState } from 'react';
 function LoginPage(){
     let [username, setUsername] = useState("");
     let [password, setPassword] = useState("");
-    const {login, logout, loading} = useUser(); //my User Context
+    const {login} = useUser(); //my User Context
 
     const navigate = useNavigate();
 

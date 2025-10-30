@@ -5,7 +5,7 @@ import * as userController from "../controllers/userController.js";
 const router = express.Router();
 
 router.get("/:username", userController.getUserProfile);
-//router.get("/me/messages", userController.getAllUserMessages);
+router.get("/me/messages", userController.getAllUserMessages);
 
 
 router.put("/me/username", protectRoute, userController.updateUsername);

@@ -32,6 +32,18 @@ export const getUserIdByUsernameQuery = async (username) => {
   return result.rows;
 }
 
+export const getAllMessagesQuery = async (userId, limit, offset) => {
+    const query = `
+        SELECT *
+        FROM "Messages" 
+        WHERE user_id = $1 
+        LIMIT $2 
+        OFFSET $3
+    `;
+  const result = await pool.query(query, [userId, limit, offset]);
+  return result.rows;
+}
+
 // ------------------------------------- Update -------------------------------------------------------------------------------------
 
 export const updateUsernameQuery = async (userId, newUsername) => {
