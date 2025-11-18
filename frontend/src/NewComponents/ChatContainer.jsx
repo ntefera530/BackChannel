@@ -19,9 +19,14 @@ const ChatContainer = () => {
         getMessagesByChatId(selectedChatId)
         //getMessagesByChatId('dfeb231c-539b-440c-af50-79c52c14188d');
 
-        bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-        
-    }, [selectedChatId, messages]);
+    }, [selectedChatId]);
+
+    useEffect(() => {
+        requestAnimationFrame(() => {
+            bottomRef.current.scrollIntoView({ behavior: "smooth" });
+    });    
+    }, [messages]);
+
 
     return (
         <div className="flex-1 flex flex-col overflow-auto">
@@ -60,10 +65,11 @@ const ChatContainer = () => {
                         </div>
                     </div>
                 ))}
+                
+                {/* Dummy div to scroll to bottom */}
+                <div ref={bottomRef} />
             </div>
 
-            {/* Dummy div to scroll to bottom */}
-            <div ref={bottomRef} />
 
             <MessageInput/>
         </div>
