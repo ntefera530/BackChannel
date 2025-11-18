@@ -3,20 +3,20 @@ import { useUser } from '../contexts/UserContext';
 import { useState } from 'react';
 import { Lock, User } from 'lucide-react';
 
-const SignUpPage = () => {
+const LoginPage = () => {
   let [username, setUsername] = useState("");
   let [password, setPassword] = useState("");
-  const {signup} = useUser(); //my User Context
+  const {login} = useUser(); //my User Context
 
   const navigate = useNavigate();
 
-  const goToLogin = () => {
-    navigate("/login");
+  const goToSignUp = () => {
+    navigate("/signup");
   }
 
   const handleSubmit = async(e) => {
     e.preventDefault();
-    signup(username, password)
+    login(username, password)
     setUsername("");
     setPassword("");
   }
@@ -77,15 +77,15 @@ const SignUpPage = () => {
         </div>
 
         {/* Submit Button} */}
-        <button className='btn btn-primary w-full' type="submit">Sign Up</button>
+        <button className='btn btn-primary w-full' type="submit">Login</button>
 
 
         {/* Navigate to Login Page} */}
         <div className='text-center'>
           <p className='text-base-content/60'>
-            Already have an account?{' '}
-            <button className='text-primary font-semibold hover:underline' onClick={goToLogin}>
-              Log In
+            Don't have an account?{' '}
+            <button className='text-primary font-semibold hover:underline' onClick={goToSignUp}>
+                Sign Up
             </button>
           </p>
         </div>
@@ -95,4 +95,4 @@ const SignUpPage = () => {
   )
 }
 
-export default SignUpPage
+export default LoginPage

@@ -5,13 +5,23 @@ export const getMessagesByChatIdQuery = async (chatId, limit, offset) => {
         SELECT *
         FROM "Messages" 
         WHERE chat_id = $1 
-        ORDER BY sent_at DESC 
-        LIMIT $2 
-        OFFSET $3
     `;
-  const result = await pool.query(query, [chatId, limit, offset]);
+  const result = await pool.query(query, [chatId]);
   return result.rows;
 }
+
+// export const getMessagesByChatIdQuery = async (chatId, limit, offset) => {
+//     const query = `
+//         SELECT *
+//         FROM "Messages" 
+//         WHERE chat_id = $1 
+//         ORDER BY sent_at DESC 
+//         LIMIT $2 
+//         OFFSET $3
+//     `;
+//   const result = await pool.query(query, [chatId, limit, offset]);
+//   return result.rows;
+// }
 
 export const deleteSelectedMessagesByIdQuery = async (messages) => {
 
@@ -39,12 +49,12 @@ export const deleteAllMessageQuery = async (userId) => {
   return result.rows;
 }
 
-export const saveMessagesQuery = async (userId, chatId) => {
+export const saveMessagesQuery = async (messageId, senderId, chatId, content, expireBy) => {
     const query = `
         INSERT INTO "Messages" (id, sender_id, chat_id, content, expire_by)
         VALUES ($1, $2, $3, $4, $5)
     `;
-  const result = await pool.query(query, [id, sender_id, chat_id, content, expire_by]);
+  const result = await pool.query(query, [messageId, senderId, chatId, content, expireBy]);
   return result.rows;
 }
 

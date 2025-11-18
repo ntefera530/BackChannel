@@ -14,7 +14,7 @@ export default function MessageProvider({ children }) {
     const limit = 10;
   
     useEffect(() => {
-
+      
     }, []);
  
     const changeSelectedChatId = async (chatId) => {

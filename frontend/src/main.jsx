@@ -6,17 +6,16 @@ import App from './App.jsx'
 import UserProvider from "./contexts/UserContext.jsx";
 import ChatsProvider from './contexts/ChatContext.jsx'
 import MessageProvider from './contexts/MessageContext.jsx'
+import WebSocketProvider from './contexts/WebSocketContext.jsx'
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>        
-    <MessageProvider>
-      <ChatsProvider>   
-        <BrowserRouter>
-          <UserProvider>
-            <App />    
-          </UserProvider>
-        </BrowserRouter>
-      </ChatsProvider>        
-    </MessageProvider>
-  </StrictMode>,
+createRoot(document.getElementById('root')).render(     
+    <WebSocketProvider>
+      <BrowserRouter>
+        <UserProvider> 
+          <ChatsProvider>   
+            <App />   
+          </ChatsProvider>   
+        </UserProvider>
+      </BrowserRouter>  
+    </WebSocketProvider>
 )

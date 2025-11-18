@@ -40,11 +40,12 @@ export const setUpWebSocket = (wss) => {
       clientsMap.set(clientId, ws);
 
       ws.on('message', (message) => {
-        const { id, type, content, sender_id, chat_id} = JSON.parse(message);
-
+        const { id, type, content, sender_id, chat_id, sent_at, expire_at} = JSON.parse(message);
+        console.log("Hello------>");       
+        console.log(expire_at);
         switch(type){
             case "sendMessageToUser":
-                sendMessageToUser(id, content, sender_id, chat_id, clientsMap);
+                sendMessageToUser(id, content, sender_id, chat_id, expire_at, sent_at, clientsMap);
             break;
 
             case "sendMessageToGroup": 
