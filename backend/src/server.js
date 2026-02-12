@@ -1,9 +1,9 @@
 import express from "express"
-import WebSocket from 'ws'
+
 import { WebSocketServer } from 'ws';
+import { startScheduler } from "./lib/scheduler.js";
 import { setUpWebSocket } from "./websockets/websocket.js";
 
-import { cleanupExpiredMessages } from "./workers/messageDeletionWorker.js";
 
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
@@ -15,18 +15,22 @@ import dotenv from "dotenv"
 import cookieParser from "cookie-parser";
 import http from "http"
 import cors from "cors";
-import Redis from 'ioredis';
-import {Queue} from 'bullmq';
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
+
 app.use(express.json())
 app.use(cookieParser());
+app.use(cors({
+  origin: 'http://localhost:5173', //frontend URL
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
-
-
+//crete HTTP Server
 const server = http.createServer(app);
 
 //need this to parse JSON bodies - Postman sends JSON
@@ -35,17 +39,9 @@ const server = http.createServer(app);
 // Allow all origins (for development only!)
 //app.use(cors());
 
-// THis delets messages that are set to expire, need to tset the expire date on front end TODO
-//setInterval(cleanupExpiredMessages, 60 * 1000 * 60 * 24); // run every day
-
 //If you want more control: ie adding coockies
-app.use(cors({
-  origin: 'http://localhost:5173', // your frontend URL
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
 
+//Routes
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/messages", messageRoutes);
@@ -56,7 +52,14 @@ app.use("/api/v1/friends", friendRoutes);
 const wss = new WebSocketServer({port: 8080});
 setUpWebSocket(wss);
 
-app.listen(PORT, () => {
-    console.log("Server is Listening on port: " + PORT)
-    console.log("WebSocket is Listening on port: 6000")
+// app.listen(PORT, async () => {
+//     console.log("Server is Listening on port: " + PORT);
+//     console.log("WebSocket is Listening on port: 6000");
+//     await startScheduler();
+// });
+
+server.listen(PORT, async () => {
+    console.log("Server is Listening on port: " + PORT);
+    console.log("WebSocket is Listening on port: 6000");
+    await startScheduler();
 });

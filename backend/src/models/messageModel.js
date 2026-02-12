@@ -61,7 +61,7 @@ export const saveMessagesQuery = async (messageId, senderId, chatId, content, ex
 export const cleanupExpiredMessagesQuery = async () => {
     const query = `
         DELETE FROM "Messages" 
-        WHERE expires_at <= NOW()
+        WHERE expire_by <= NOW()
     `;
   const result = await pool.query(query, []);
   return result.rows;
