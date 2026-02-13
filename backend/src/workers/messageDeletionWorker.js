@@ -9,7 +9,7 @@ const worker = new Worker(
 
     if (job.name === "delete-expired-messages") {
       const result = await cleanupExpiredMessagesQuery()
-      console.log(`Deleted ${result.rowCount} expired messages`);
+      console.log(`Deleted ${result.length} expired messages`);
     }
 
   },

@@ -1,8 +1,12 @@
 import { useState } from 'react';
 import { useChats } from '../contexts/ChatContext';
+import { useUser } from '../contexts/UserContext';
 import { User } from 'lucide-react';
+import defaultImage from '../assets/defaultUser.jpg';
+
 const SideBar = () => {
-    const { chats, selectedChatId, setSelectedChatId} = useChats();
+    const { chats, selectedChatId, setSelectedChatId, } = useChats();
+    const {uploadProfilePicture, profileImageUrl} = useUser();
     const [onlineUsers, setOnlineUsers] = useState([]);
 
     return (
@@ -27,7 +31,7 @@ const SideBar = () => {
                     >
                         <div className="relative mx-auto lg:mx-0">
                             <img
-                                src={"../assets/defaultUser.jpg"}
+                                src={profileImageUrl || defaultImage}
                                 alt="User Avatar"
                                 className="w-10 h-10 rounded-full object-cover"
                             />
@@ -38,9 +42,20 @@ const SideBar = () => {
                                 />
                             )}
                         </div>
-                        
+
+                        <div className="flex-1 text-left hidden lg:block">
+                            <p className="font-medium">{chat.name}</p>
+                        </div>
+
+
                     </button>
                 ))}
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => uploadProfilePicture(e.target.files[0])}
+                            />
+
             </div>
         </aside>
     );

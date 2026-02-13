@@ -12,6 +12,16 @@ export const getUserProfileByUsernameQuery = async (username) => {
   return result.rows[0];
 }
 
+export const getProfilePictureUrlByIdQuery = async (userId) => {
+    const query = `
+        SELECT profile_picture_url 
+        FROM "Users" 
+        WHERE id = $1
+    `;
+  const result = await pool.query(query, [userId]);
+  return result.rows[0];
+}
+
 export const getUserProfileByIdQuery = async (userId) => {
     const query = `
         SELECT * 

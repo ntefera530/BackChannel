@@ -14,6 +14,21 @@ export const getUserProfile = async (req, res) => {
     }
 }
 
+export const getProfilePictureUrl = async (req, res) => {
+    console.log("Get Profile Picture URL controller called ----");
+    try{
+        const userId = req.user.userId;
+
+        const profilePictureUrl = await userRepo.getProfilePictureUrlByIdQuery(userId);
+        console.log(profilePictureUrl)
+        return res.status(200).json({ profilePictureUrl });
+    }
+    catch(error){
+        console.error("Error in Get User Profile:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
 export const updateUsername = async (req, res) => {
     try{
         const userId = req.userId;
@@ -57,14 +72,17 @@ export const updatBio = async (req, res) => {
 //TODO Set up AWS
 export const updateProfilePicture = async (req, res) => {
     try{
-        const userId = req.userId;
-        const newPictureUrl = req.params.newPictureUrl;
+        const userId = req.user.userId;
+        const {newProfileImage} = req.body;
+
+        console.log("Update Profile Picture - UserID: ", userId);
+        console.log("Update Profile Picture - New Picture URL: ", newProfileImage);
 
         if(!userId){
             res.status(400).json({ message: "Invalid JWT" });
         }
 
-        await userRepo.updateProfilePictureQuery(userId, newPictureUrl);
+        await userRepo.updateProfilePictureQuery(userId, newProfileImage);
         return res.status(200).json({message: "Profile Pic Updated"});
     }
     catch(error){

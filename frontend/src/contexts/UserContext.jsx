@@ -10,11 +10,14 @@ export default function UserProvider({children}){
     const [userId, setUserId] = useState(null);
     const [username, setUsername] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [profileImageUrl, setProfileImageUrl] = useState(null);
+
     const navigate = useNavigate();
 
     useEffect(() => {
         checkAuth();
-    }, [username, userId]);
+        downloadProfilePicture();
+    }, [username, userId, profileImageUrl]);
 
     const login = async (username, password) => {
       try {
@@ -106,8 +109,91 @@ export default function UserProvider({children}){
         }
     }
 
+    const uploadProfilePicture = async (file) => {
+      try {
+        setLoading(true);
+        console.log("profile upload Start")
+        console.log("File to upload: ", file);
+
+        console.log(window.location.origin)
+
+        const response = await axios.get('http://localhost:5001/api/v1/uploads/profile/upload-url', {
+          params: { fileType: file.type },
+          withCredentials: true
+        });
+        console.log(" profile upload End")  
+        
+        const { uploadUrl, key } = response.data;
+        console.log("upload URL: ", uploadUrl);
+        console.log("Key for S3: ", key);
+
+        // Upload the file to S3
+        await axios.put(uploadUrl, file, {
+          headers: {
+            'Content-Type': file.type,
+          },
+        });
+
+        console.log(" Put file to S3 successful")
+
+        //Save the key to the user profile
+        await axios.put('http://localhost:5001/api/v1/users/me/profilePicture', { newProfileImage: key }, {  
+          withCredentials: true
+        });
+
+        console.log(" Save profile picture key to user profile successful")
+        
+      } catch (err) {
+        const errorMessage = err.response?.data?.message || 'Login failed';
+        console.log("ERROR in USER CONTEXT");
+        return { success: false, error: errorMessage };
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const downloadProfilePicture = async () => {
+      try {
+        setLoading(true);
+        console.log("Fetching profile picture URL");
+
+        // First, get the profile picture key from your backend
+        const userResponse = await axios.get('http://localhost:5001/api/v1/users/me/profilePicture', {
+          withCredentials: true,
+       });
+       
+       console.log("Profile picture key response: ", userResponse.data);
+      const profilePictureUrl = userResponse.data.profilePictureUrl.profile_picture_url; // assuming your backend returns the S3 key
+       console.log("Profile picture key: ", profilePictureUrl);
+      if (!profilePictureUrl) {
+        console.log("No profile picture set");
+        setProfileImageUrl(null);
+        return;
+      }
+
+      // Then, get the signed download URL for that key
+      const downloadResponse = await axios.get(
+        'http://localhost:5001/api/v1/uploads/profile/download-url',
+        {
+          params: { key: profilePictureUrl },
+          withCredentials: true,
+        }
+      );
+
+      const signedUrl = downloadResponse.data.signedUrl;
+      setProfileImageUrl(signedUrl);
+      console.log("Profile picture URL set:", signedUrl);
+
+      } catch (err) {
+        console.error("Error fetching profile picture:", err);
+        setProfileImageUrl(null);
+      } finally {
+      setLoading(false);
+      }
+    };
+
     return (
-        <UserContext.Provider value={{username,userId, login, logout}}>
+        <UserContext.Provider value={{username,userId, login, logout, uploadProfilePicture, profileImageUrl}}>
             {children}
         </UserContext.Provider>
     )

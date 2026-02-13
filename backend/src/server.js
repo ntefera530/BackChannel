@@ -10,6 +10,7 @@ import userRoutes from "./routes/userRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
 import friendRoutes from "./routes/friendRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
+import uploadRoutes from "./routes/uploadRoutes.js";
 
 import dotenv from "dotenv"
 import cookieParser from "cookie-parser";
@@ -20,6 +21,7 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
 
 app.use(express.json())
 app.use(cookieParser());
@@ -39,7 +41,7 @@ const server = http.createServer(app);
 // Allow all origins (for development only!)
 //app.use(cors());
 
-//If you want more control: ie adding coockies
+
 
 //Routes
 app.use("/api/v1/auth", authRoutes);
@@ -47,6 +49,7 @@ app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/messages", messageRoutes);
 app.use("/api/v1/chats", chatRoutes);
 app.use("/api/v1/friends", friendRoutes);
+app.use("/api/v1/uploads", uploadRoutes);
 
 //Creates WebSocket Server
 const wss = new WebSocketServer({port: 8080});
@@ -58,7 +61,7 @@ setUpWebSocket(wss);
 //     await startScheduler();
 // });
 
-server.listen(PORT, async () => {
+app.listen(PORT, async () => {
     console.log("Server is Listening on port: " + PORT);
     console.log("WebSocket is Listening on port: 6000");
     await startScheduler();

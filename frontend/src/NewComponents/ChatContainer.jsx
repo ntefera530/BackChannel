@@ -4,6 +4,7 @@ import { useUser } from '../contexts/UserContext';
 import ChatHeader from './ChatHeader';
 import MessageInput from './MessageInput';
 import { formatMessageTimestamp } from '../lib/utils';
+import defaultImage from '../assets/defaultUser.jpg';
 
 const ChatContainer = () => {
     const {messages, getMessagesByChatId, selectedChatId} = useChats();
@@ -41,7 +42,7 @@ const ChatContainer = () => {
                         <div className="chat-image avatar">
                             <div className="size-10 rounded-full border">
                                 <img
-                                    src={message.sender_id === userId ?  profilePicUrl || "../assets/defaultUser.jpg" : OtherProfilePicUrl || "../assets/defaultUser.jpg"}
+                                    src={message.sender_id === userId ?  profilePicUrl || defaultImage : OtherProfilePicUrl || defaultImage}
                                     alt="Prfile Picture"
                                 />
                             </div>
