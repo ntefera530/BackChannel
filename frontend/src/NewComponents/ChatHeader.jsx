@@ -17,7 +17,7 @@ const ChatHeader = () => {
   }, [selectedChatId]);
 
   return (
-    <div className="border-b border-base-300 w-full p-5 overflow-x-auto">
+    <div className="border-b border-base-300 w-full p-3 overflow-x-auto">
       <div className="flex gap-8">
         {participants.map((participant) => (
             <div 

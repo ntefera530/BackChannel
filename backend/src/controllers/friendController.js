@@ -7,7 +7,7 @@ export const addFriend = async (req, res) => {
     try{
         const userId = req.user.userId;
         const username = req.user.username;
-        const friendUsername = req.params.friendUsername;
+        const {friendUsername} = req.body;
 
         const friendObject = await getUserIdByUsernameQuery(friendUsername);
 
@@ -19,7 +19,7 @@ export const addFriend = async (req, res) => {
         
         await friendRepo.addFriendQuery(normal.user_id, normal.friend_id);
 
-        return res.status(200).json({ message: "Friend Added" });
+        return res.status(200).json({ message: "Friend Added", username: friendUsername });
     }
     catch(error){
         console.error("Error Adding Friend:", error);
@@ -29,9 +29,12 @@ export const addFriend = async (req, res) => {
 
 export const deleteFriend = async (req, res) => {
     try{
+        console.log('Delete Friend');
         const userId = req.user.userId;
         const username = req.user.username;
-        const friendUsername = req.params.friendUsername;
+        const {friendUsername} = req.body;
+        console.log(`User ${username} wants to delete friend with username: ${friendUsername}`);
+
         const friendObject = await getUserIdByUsernameQuery(friendUsername);
         if(!friendObject || friendObject.length === 0){
             return res.status(404).json({message: "user not found"});
@@ -41,8 +44,8 @@ export const deleteFriend = async (req, res) => {
         console.log(`User ${userId} wants to delete ${friendId}`);
         const normal = normalizeFriendship(userId, friendId);
 
-        await deleteFriendQuery(normal.user_id, normal.friend_id);
-        return res.status(200).json({ message: "Friend Deleted" });
+        await friendRepo.deleteFriendQuery(normal.user_id, normal.friend_id);
+        return res.status(200).json({ message: "Friend Deleted", username: friendUsername });
     }
     catch(error){
         console.error("Error Deleting Friend:", error);

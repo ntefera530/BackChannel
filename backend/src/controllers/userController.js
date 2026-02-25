@@ -22,8 +22,8 @@ export const getProfilePictureUrl = async (req, res) => {
         //TODO - Add check to make sure userId is the same as currentUserId or that the userId belongs to a friend of the current user
         
         const profilePictureUrl = await userRepo.getProfilePictureUrlByIdQuery(userId);
-        //console.log(profilePictureUrl)
-        return res.status(200).json({ profilePictureUrl });
+        // console.log(profilePictureUrl)
+        return res.status(200).json({ profilePictureUrl: profilePictureUrl.profile_picture_url });
     }
     catch(error){
         console.error("Error in Get User Profile:", error);

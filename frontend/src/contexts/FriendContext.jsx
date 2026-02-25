@@ -17,6 +17,7 @@ export default function FriendsProvider({ children }) {
         setLoading(true);
         try {
           const res = await axios.get("http://localhost:5001/api/v1/friends/me");
+          console.log("Friends fetched:", res.data);
           console.log(res.data)
           setFriends(res.data);
         } catch (err) {
@@ -26,12 +27,15 @@ export default function FriendsProvider({ children }) {
         }
     }
 
-    const addFriend = async (friendId) => {
+    const addFriend = async (friendUsername) => {
         setLoading(true);
+        console.log("Adding friend with username:", friendUsername);
         try {
-          const res = await axios.post(`http://localhost:5001/api/v1/friends/me/${friendId}`);
-          const data = await res.json();
-          setFriends(data);
+          const res = await axios.post(`http://localhost:5001/api/v1/friends/me`, { friendUsername });
+          const addedFriend = res.data.username;
+
+          console.log("Friend added:", res);
+          setFriends(prevFriends => [...prevFriends, { username: addedFriend }]);
         } catch (err) {
           console.error("Error fetching friends:", err);
         } finally {
@@ -39,12 +43,17 @@ export default function FriendsProvider({ children }) {
         }
     }
 
-    const deleteFriend = async (friendId) => {
+    const deleteFriend = async (friendUsername) => {
         setLoading(true);
         try {
-          const res = await axios.delete(`http://localhost:5001/api/v1/friends/me/${friendId}`);
-          const data = await res.json();
-          setFriends(data);
+          const res = await axios.delete(`http://localhost:5001/api/v1/friends/me`,
+          { 
+            data: { friendUsername }
+          });
+          console.log("Friend deleted:", res);    
+          const deletedFriend = res.data.username;
+          setFriends(prevFriends => prevFriends.filter(friend => friend.username !== deletedFriend));
+          
         } catch (err) {
           console.error("Error fetching friends:", err);
         } finally {

@@ -22,7 +22,7 @@ export const getAllChats = async (req, res) => {
             return res.status(200).json(groupChats);
         }
         const allMessages = await chatRepo.getAllChatsQuery(userId);
-        console.log(allMessages);
+        //console.log(allMessages);
         return res.status(200).json(allMessages);
     }
     catch(error){
@@ -58,8 +58,6 @@ export const getParticipantsByChatId = async (req, res) => {
         const {chatId} = req.params;
 
         const participants = await chatRepo.getChatParticipantsQuery(chatId);
-        console.log("----------------------------------------------------------------44444444444444444444444444444444444----------------------------")     
-        console.log(participants);
 
         //sign urls for each participant's profile picture
         for(let i = 0; i < participants.length; i++){
