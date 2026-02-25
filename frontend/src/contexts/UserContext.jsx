@@ -15,8 +15,8 @@ export default function UserProvider({children}){
     const navigate = useNavigate();
 
     useEffect(() => {
-        checkAuth();
-        downloadProfilePicture();
+      downloadProfilePicture(userId);
+      checkAuth();
     }, [username, userId, profileImageUrl]);
 
     const login = async (username, password) => {
@@ -152,20 +152,20 @@ export default function UserProvider({children}){
       }
     };
 
-    const downloadProfilePicture = async () => {
+    const downloadProfilePicture = async (userId) => {
       try {
         setLoading(true);
         console.log("Fetching profile picture URL");
 
         // First, get the profile picture key from your backend
-        const userResponse = await axios.get('http://localhost:5001/api/v1/users/me/profilePicture', {
+        const userResponse = await axios.get(`http://localhost:5001/api/v1/users/${userId}/profilePicture`, {
           withCredentials: true,
        });
        
-       console.log("Profile picture key response: ", userResponse.data);
-      const profilePictureUrl = userResponse.data.profilePictureUrl.profile_picture_url; // assuming your backend returns the S3 key
-       console.log("Profile picture key: ", profilePictureUrl);
-      if (!profilePictureUrl) {
+      console.log("Profile picture key response: ", userResponse.data);
+      const unsignedUrl = userResponse.data.profilePictureUrl.profile_picture_url; // assuming your backend returns the S3 key
+       console.log("Profile picture key: ", unsignedUrl);
+      if (!unsignedUrl) {
         console.log("No profile picture set");
         setProfileImageUrl(null);
         return;
@@ -175,14 +175,14 @@ export default function UserProvider({children}){
       const downloadResponse = await axios.get(
         'http://localhost:5001/api/v1/uploads/profile/download-url',
         {
-          params: { key: profilePictureUrl },
+          params: { key: unsignedUrl },
           withCredentials: true,
         }
       );
 
       const signedUrl = downloadResponse.data.signedUrl;
       setProfileImageUrl(signedUrl);
-      console.log("Profile picture URL set:", signedUrl);
+      //console.log("Profile picture URL set:", signedUrl);
 
       } catch (err) {
         console.error("Error fetching profile picture:", err);
@@ -192,8 +192,10 @@ export default function UserProvider({children}){
       }
     };
 
+
+
     return (
-        <UserContext.Provider value={{username,userId, login, logout, uploadProfilePicture, profileImageUrl}}>
+        <UserContext.Provider value={{username,userId, login, logout, downloadProfilePicture, uploadProfilePicture, profileImageUrl}}>
             {children}
         </UserContext.Provider>
     )

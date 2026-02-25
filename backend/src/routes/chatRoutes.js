@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.get("/", protectRoute, chatController.getAllChats);
 router.get("/:chatId/messages", protectRoute, chatController.getMessagesByChatId); 
+router.get("/:chatId/participants", protectRoute, chatController.getParticipantsByChatId);
 
 router.post("/", protectRoute, chatController.createChat);
 router.post("/:chatId/participants", protectRoute, chatController.addParticipantsToChat);
@@ -15,6 +16,5 @@ router.delete("/:chatId/participants/me", protectRoute, chatController.leaveGrou
 router.delete("/:chatId/participant", protectRoute, chatController.kickUsersFromGroupChat);
 router.delete("/:chatId/messages/me", protectRoute, chatController.deleteUserMessagesByChatId);  // Delete All Messages in Chat
 router.delete("/:chatId/messages/selected-messages", protectRoute, chatController.deletSelectedMessages);
-
 
 export default router;

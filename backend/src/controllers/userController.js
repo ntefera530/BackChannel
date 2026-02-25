@@ -5,7 +5,7 @@ export const getUserProfile = async (req, res) => {
         const username = req.params.username;
 
         const currentUser = await userRepo.getUserProfileByUsernameQuery(username);
-        console.log(currentUser)
+        //console.log(currentUser)
         return res.status(200).json(currentUser);
     }
     catch(error){
@@ -17,10 +17,12 @@ export const getUserProfile = async (req, res) => {
 export const getProfilePictureUrl = async (req, res) => {
     console.log("Get Profile Picture URL controller called ----");
     try{
-        const userId = req.user.userId;
-
+        const currentUserId = req.user.userId;
+        const {userId} = req.params;
+        //TODO - Add check to make sure userId is the same as currentUserId or that the userId belongs to a friend of the current user
+        
         const profilePictureUrl = await userRepo.getProfilePictureUrlByIdQuery(userId);
-        console.log(profilePictureUrl)
+        //console.log(profilePictureUrl)
         return res.status(200).json({ profilePictureUrl });
     }
     catch(error){

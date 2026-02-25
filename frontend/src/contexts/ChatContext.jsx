@@ -8,8 +8,6 @@ import { v4 as uuidv4 } from 'uuid'; // Import v4 for random UUIDs
 
 import { format } from 'date-fns';
 
-
-
 export default function ChatsProvider({ children }) {
     const wsRef = useWebSocket();
     const {userId} = useUser(); //my User Context
@@ -18,11 +16,17 @@ export default function ChatsProvider({ children }) {
     const [loading, setLoading] = useState(true);
     const [selectedChatId, setSelectedChatId] = useState(null);
 
-    //const [selectedChatId, setSelectedChatId] = useState("");
-    const [messages, setMessages] = useState([]);
-    //const [loading, setLoading] = useState(true);
-    const [offset, setOffset] = useState(0);
 
+    const [messages, setMessages] = useState([]);
+    const [participants, setParticipants] = useState([]);
+
+
+
+
+
+
+
+    const [offset, setOffset] = useState(0);
     const limit = 10;
   
     useEffect(() => {
@@ -100,6 +104,22 @@ export default function ChatsProvider({ children }) {
         }
     }
 
+    const getChatParticipantsByChatId = async (selectedChatId) => {
+        setLoading(true);
+        try {
+          const res = await axios.get(`http://localhost:5001/api/v1/chats/${selectedChatId}/participants`);
+
+          //Get Signed URLs for each participant's profile picture
+          console.log("Participants before fetching profile pictures:", res.data.participants);
+          //setParticipants([...res.data.participants]);
+          setParticipants(res.data.participants.map(p => ({ ...p })));
+        } catch (err) {
+          console.error("Error fetching participants:", err);
+        } finally {
+          setLoading(false);
+        }
+    }
+
     const createGroupChat = async (name) => {
         setLoading(true);
         try {
@@ -115,46 +135,6 @@ export default function ChatsProvider({ children }) {
           setLoading(false);
         }
     }
-
-    // const changeSelectedChatId = async (chatId) => {
-    //     setLoading(true);
-    //     try {
-    //         setSelectedChat(chatId)
-    //         //console.log(selectedChatId);
-    //         getDirectMessagesByFriendId(chatId);
-    //     } catch (err) {
-    //         console.error("Error Changing Chat Id:", err);
-    //     } 
-    // }
-
-    // const getDirectMessagesByFriendId = async (friendId) => {
-    //     setLoading(true);
-
-    //     try {
-    //         console.log("1")
-    //       const res = await axios.get(`http://localhost:5001/api/v1/chats/me/${friendId}`);
-    //         console.log("2")
-
-    //       const data = res.data
-    //                   console.log("3")
-    //       const chatId = data.json();
-    //       console.log("chatId (might be null: ", res);
-
-    //       const res2 = await axios.get(`http://localhost:5001/api/v1/messages/me/${chatId}`, {
-    //             params: {limit, offset},
-    //       });
-    //                   console.log("25")
-
-
-    //       console.log(res, "and", res2)
-    //       setMessages(res2)
-          
-    //     } catch (err) {
-    //       console.error("Error fetching friends:", err);
-    //     } finally {
-    //       setLoading(false);
-    //     }
-    // }
 
     const getMessagesByChatId = async (selectedChatId) => {
       setLoading(true);
@@ -178,7 +158,7 @@ export default function ChatsProvider({ children }) {
     }
 
     return (
-      <ChatsContext.Provider value={{ chats, getChats, createGroupChat, loading, selectedChatId, setSelectedChatId, messages, getMessagesByChatId, sendMessage }}>
+      <ChatsContext.Provider value={{ participants, chats, getChats, createGroupChat, loading, selectedChatId, setSelectedChatId, messages, getMessagesByChatId, sendMessage, getChatParticipantsByChatId }}>
         {children}
       </ChatsContext.Provider>
     );

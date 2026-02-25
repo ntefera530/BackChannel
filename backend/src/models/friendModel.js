@@ -21,18 +21,6 @@ export const deleteFriendQuery = async (userId, friendId) => {
 
 export const getAllFriendsQuery = async (userId) => {
     const query = `
-        SELECT 
-            CASE WHEN user_id = $1 
-                THEN friend_id 
-            ELSE user_id 
-            END 
-        AS friend_id 
-        FROM "Friendships" 
-        WHERE user_id = $1 
-        OR friend_id = $1;
-    `;
-
-    const query2 = `
         SELECT u.id, u.username, u.bio, u.profile_picture_url
         FROM "Users" u
         JOIN "Friendships" f ON (
@@ -41,6 +29,6 @@ export const getAllFriendsQuery = async (userId) => {
             (f.friend_id = $1 AND u.id = f.user_id)
         );
     `;
-  const result = await pool.query(query2, [userId]);
+  const result = await pool.query(query, [userId]);
   return result.rows;
 }

@@ -6,11 +6,11 @@ const router = express.Router();
 
 router.get("/:username", userController.getUserProfile);
 router.get("/me/messages", userController.getAllUserMessages);
-router.get("/me/profilePicture", protectRoute, userController.getProfilePictureUrl);
+router.get("/:userId/profilePicture", protectRoute, userController.getProfilePictureUrl);
 
 router.put("/me/username", protectRoute, userController.updateUsername);
 router.put("/me/password", protectRoute, userController.updatePassword);
-router.put("/me/profilePicture",protectRoute, userController.updateProfilePicture);
+router.put("/me/profilePicture", protectRoute, userController.updateProfilePicture);
 
 router.put("/me/bio",protectRoute, userController.updateProfilePicture);
 

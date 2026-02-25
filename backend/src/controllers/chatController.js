@@ -4,10 +4,10 @@ import * as userRepo from "../models/userModel.js"
 
 import { normalizeFriendship } from '../lib/utils.js';
 import { v4 as uuidv4 } from "uuid"; //v4 is the most commonly used random UUID
-
+import {signUrl} from "./uploadController.js"
 
 export const getAllChats = async (req, res) => {
-    console.log("Get All Chat")
+    console.log("Get All Chat <---")
 
     try{
         const userId = req.user.userId;
@@ -22,6 +22,7 @@ export const getAllChats = async (req, res) => {
             return res.status(200).json(groupChats);
         }
         const allMessages = await chatRepo.getAllChatsQuery(userId);
+        console.log(allMessages);
         return res.status(200).json(allMessages);
     }
     catch(error){
@@ -45,6 +46,31 @@ export const getMessagesByChatId = async (req, res) => {
     }
     catch(error){
         console.error("Error Getting Messages:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+export const getParticipantsByChatId = async (req, res) => {
+    console.log("get Participants");
+
+    try{
+        //const userId = req.user.userId;
+        const {chatId} = req.params;
+
+        const participants = await chatRepo.getChatParticipantsQuery(chatId);
+        console.log("----------------------------------------------------------------44444444444444444444444444444444444----------------------------")     
+        console.log(participants);
+
+        //sign urls for each participant's profile picture
+        for(let i = 0; i < participants.length; i++){
+            const key = participants[i].profile_picture_url;
+            participants[i].profile_picture_url = await signUrl(key);
+        }
+  
+        return res.status(200).json({ participants });
+    }
+    catch(error){
+        console.error("Error Getting Participants:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 }

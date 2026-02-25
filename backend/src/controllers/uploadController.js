@@ -58,3 +58,28 @@ export const getProfileDownloadUrl = async (req, res) => {
     res.status(500).json({ message: "Error generating download URL" });
   }
 }
+
+
+export const signUrl = async (unsignedUrlKey) => {
+   try {
+
+    if (!unsignedUrlKey){
+        return null;
+    }
+
+    const command = new GetObjectCommand({
+      Bucket: process.env.AWS_S3_BUCKET_NAME,
+      Key: unsignedUrlKey,
+    });
+
+    const signedUrl = await getSignedUrl(s3, command, {
+      expiresIn: 300,
+    });
+
+    return signedUrl;
+
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+}
