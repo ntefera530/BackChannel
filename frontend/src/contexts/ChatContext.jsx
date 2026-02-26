@@ -21,11 +21,6 @@ export default function ChatsProvider({ children }) {
     const [participants, setParticipants] = useState([]);
 
 
-
-
-
-
-
     const [offset, setOffset] = useState(0);
     const limit = 10;
   

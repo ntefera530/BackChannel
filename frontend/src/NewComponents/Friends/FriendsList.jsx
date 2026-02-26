@@ -1,5 +1,5 @@
 import  { useEffect, useState } from 'react'
-import { useFriends } from '../contexts/FriendContext'
+import { useFriends } from '../../contexts/FriendContext'
 import { Delete, CircleX } from 'lucide-react';
 
 const FriendsList = () => {

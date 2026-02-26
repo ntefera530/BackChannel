@@ -1,6 +1,6 @@
 import React from 'react'
 import { useState } from 'react';
-import { useFriends } from '../contexts/FriendContext';
+import { useFriends } from '../../contexts/FriendContext';
 import { CirclePlus } from 'lucide-react';
 
 const FriendSearch = () => {

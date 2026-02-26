@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useChats } from '../contexts/ChatContext';
 import { useUser } from '../contexts/UserContext';
-import { User, Settings, ContactRound, BadgePlus } from 'lucide-react';
+import { User, Settings, ContactRound, BadgePlus, Delete, CircleX } from 'lucide-react';
 import defaultChatImage from '../assets/defaultChat.png';
 import defaultUserImage from '../assets/defaultUser.jpg';
 
@@ -30,6 +30,10 @@ const SideBar = ({setSelectedView}) => {
         setSelectedChatId(chatId);
     }
 
+    const handleDeleteChatClick = (chatId) => {
+        console.log("Delete chat with id:", chatId);
+    }
+
     return (
         <aside className='h-full w-20 lg:w-72 border-r boarder-base-300 flex flex-col transition-all duration-200'>
             <div className="border-b border-base-300 w-full p-5">
@@ -54,6 +58,7 @@ const SideBar = ({setSelectedView}) => {
 
                     </button>                
                 {chats.map((chat) => (
+                    <div key={chat.id} className="flex items-center justify-between">
                     <button
                         key={chat.id}
                         onClick={() => handleViewChatClick(chat.chat_id)}
@@ -82,13 +87,18 @@ const SideBar = ({setSelectedView}) => {
                         </div>
 
 
-                    </button>
+                        </button>
+
+                        <button
+                            onClick={() => handleDeleteChatClick(chat.id)}
+                            className="hover:bg-base-300 transition-colors text-red-500"
+                        >
+
+                            <Delete />
+                        </button>
+                    </div>
                 ))}
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => uploadProfilePicture(e.target.files[0])}
-                            />
+
 
             </div>
 

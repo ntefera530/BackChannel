@@ -2,7 +2,7 @@ import ChatHeader from './ChatHeader';
 import MessageInput from './MessageInput';
 import MessageList from './MessageList';
 import { useEffect } from 'react';
-import { useChats } from '../contexts/ChatContext';
+import { useChats } from '../../contexts/ChatContext';
 
 const ChatContainer = () => {
     const {selectedChatId} = useChats();

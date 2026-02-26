@@ -2,9 +2,10 @@ import {useState} from 'react';
 import { useChats } from '../contexts/ChatContext';
 import Sidebar from '../NewComponents/SideBar';
 import NoChatSelected from '../NewComponents/NoChatSelected';
-import ChatContainer from '../NewComponents/ChatContainer';
-import FriendsContainer  from '../NewComponents/FriendsContainer';
-import SettingsContainer from '../NewComponents/SettingsContainer';
+import ChatContainer from '../NewComponents/Chatting/ChatContainer';
+import FriendsContainer  from '../NewComponents/Friends/FriendsContainer';
+import SettingsContainer from '../NewComponents/Settings/SettingsContainer';
+import CreateChatContainer from '../NewComponents/CreateChat/CreateChatContainer';
 
 const HomePage = () => {
     const { selectedChatId } = useChats();
@@ -13,6 +14,7 @@ const HomePage = () => {
     const renderContent = () => {
         if(selectedView === 'friends') return <FriendsContainer/>;
         if(selectedView === 'settings') return <SettingsContainer/>;
+        if(selectedView === 'createChat') return <CreateChatContainer/>;
         
         if(!selectedChatId) return <NoChatSelected/>;
         return <ChatContainer/>;

@@ -1,6 +1,6 @@
 import React from 'react'
 import { useState, useRef } from 'react'
-import { useChats } from '../contexts/ChatContext';
+import { useChats } from '../../contexts/ChatContext';
 import { X , Image, Send} from 'lucide-react';
 
 const MessageInput = () => {

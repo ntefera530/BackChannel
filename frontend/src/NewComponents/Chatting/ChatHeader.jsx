@@ -2,11 +2,11 @@ import React from 'react'
 import { useEffect } from 'react';
 
 
-import { useChats } from '../contexts/ChatContext';
-import { useUser } from '../contexts/UserContext';
+import { useChats } from '../../contexts/ChatContext';
+import { useUser } from '../../contexts/UserContext';
 
 import MessageInput from './MessageInput';
-import defaultUserImage from '../assets/defaultUser.jpg';
+import defaultUserImage from '../../assets/defaultUser.jpg';
 
 
 const ChatHeader = () => {

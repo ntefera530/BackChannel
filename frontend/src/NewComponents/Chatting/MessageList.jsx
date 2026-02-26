@@ -1,11 +1,11 @@
 import React from 'react'
 import { useEffect, useRef} from 'react';
 
-import { useChats } from '../contexts/ChatContext';
-import { useUser } from '../contexts/UserContext';
+import { useChats } from '../../contexts/ChatContext';
+import { useUser } from '../../contexts/UserContext';
 
-import { formatMessageTimestamp } from '../lib/utils';
-import defaultUserImage from '../assets/defaultUser.jpg';
+import { formatMessageTimestamp } from '../../lib/utils';
+import defaultUserImage from '../../assets/defaultUser.jpg';
 
 const MessageList = () => {
     const {messages, getMessagesByChatId, selectedChatId} = useChats();
