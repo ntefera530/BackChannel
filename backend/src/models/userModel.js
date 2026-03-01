@@ -54,6 +54,28 @@ export const getAllMessagesQuery = async (userId, limit, offset) => {
   return result.rows;
 }
 
+export const updateUserDeleteSettingsByUserIdQuery = async (userId, delete_time_seconds) => {
+    const query = ` 
+        UPDATE "Users" 
+        SET delete_timer_seconds = $2
+        WHERE id = $1
+    `;
+  const result = await pool.query(query, [userId, delete_time_seconds]);
+  return result.rows[0];
+}
+
+
+export const getUserDeleteSettingsByUserIdQuery = async (userId) => {
+    const query = `
+        SELECT delete_timer_seconds 
+        FROM "Users" 
+        WHERE id = $1
+    `;
+  const result = await pool.query(query, [userId]);
+  return result.rows[0];
+}
+
+
 // ------------------------------------- Update -------------------------------------------------------------------------------------
 
 export const updateUsernameQuery = async (userId, newUsername) => {
@@ -100,10 +122,14 @@ export const deleteUserProfileByIdQuery = async (userId) => {
 }
 
 
-
-
-
-
+export const deleteAllMessagesByUserIdQuery = async (userId) => {
+    const query = `
+        DELETE FROM "Messages" 
+        WHERE sender_id = $1
+    `;
+  const result = await pool.query(query, [userId]);
+  return result.rows;
+}
 
 
 

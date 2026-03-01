@@ -14,6 +14,34 @@ export const getUserProfile = async (req, res) => {
     }
 }
 
+export const getUserDeleteSettings = async (req, res) => {
+    try{
+        const userId = req.user.userId;
+
+        const delete_time_seconds = await userRepo.getUserDeleteSettingsByUserIdQuery(userId);
+        //console.log(currentUser)
+        return res.status(200).json(delete_time_seconds);
+    }
+    catch(error){
+        console.error("Error in Get User Delete Settings:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+export const updateUserDeleteSettings = async (req, res) => {
+    try{
+        const userId = req.user.userId;
+        const delete_time_seconds = req.body.deleteTimerSeconds;
+        await userRepo.updateUserDeleteSettingsByUserIdQuery(userId, delete_time_seconds);
+        //console.log(currentUser)
+        return res.status(200).json({message: "Delete Timer Updated", delete_time_seconds});
+    }
+    catch(error){
+        console.error("Error in Update User Delete Settings:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
 export const getProfilePictureUrl = async (req, res) => {
     console.log("Get Profile Picture URL controller called ----");
     try{
@@ -95,7 +123,7 @@ export const updateProfilePicture = async (req, res) => {
 
 export const deleteUserProfile = async (req, res) => {
     try{
-        const userId = req.userId;
+        const userId = req.user.userId;
 
         if(!userId){
             res.status(400).json({ message: "Invalid JWT" });
@@ -112,18 +140,18 @@ export const deleteUserProfile = async (req, res) => {
 
 export const deleteAllUserMessages = async (req, res) => {
     try{
-        const userId = req.userId;
+        const userId = req.user.userId;
 
         if(!userId){
             res.status(400).json({ message: "Invalid JWT" });
         }
 
         //TODO: Fix this function in userRepo
-        await userRepo.deleteAllUserMessagesQuery(userId);
-        return res.status(200).json({ message: "User Profile Deleted" });
+        await userRepo.deleteAllMessagesByUserIdQuery(userId);
+        return res.status(200).json({ message: "All User Messages Deleted" });
     }
     catch(error){
-        console.error("Error Deleting User Profile:", error);
+        console.error("Error Deleting All User Messages:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 }

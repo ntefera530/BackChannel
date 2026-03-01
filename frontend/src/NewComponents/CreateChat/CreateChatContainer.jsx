@@ -8,6 +8,11 @@ const CreateChatContainer = () => {
     const [chatName, setChatName] = useState('');
     const [participants, setParticipants] = useState([]);
 
+    const handleCreateChat = () => {
+        console.log('Creating chat with name:', chatName);
+        console.log('Participants:', participants);
+    }
+
   return (
     <div>
         <CreateChatHeader />
@@ -15,7 +20,12 @@ const CreateChatContainer = () => {
         <ChatNameInput chatName={chatName} setChatName={setChatName} />
         <AddParticipants participants={participants} setParticipants={setParticipants} />
         <div className="button-container mt-4">
-            <button className="bg-blue-500 text-white px-4 py-2 rounded">Create Chat</button>
+            <button 
+              className="bg-blue-500 text-white px-4 py-2 rounded"
+              onClick={() => {handleCreateChat}}
+            >
+              Create Chat
+            </button>
         </div>
     </div>
   )

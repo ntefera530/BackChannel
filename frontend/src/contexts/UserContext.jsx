@@ -3,6 +3,7 @@ import { useContext, createContext, useState} from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 axios.defaults.withCredentials = true;
+import { login, signup, logout, checkAuth, getUserSettings } from '../api/userApi';
 
 const UserContext = createContext();
 
@@ -11,6 +12,7 @@ export default function UserProvider({children}){
     const [username, setUsername] = useState(null);
     const [loading, setLoading] = useState(true);
     const [profileImageUrl, setProfileImageUrl] = useState(null);
+    const [deleteTimerSeconds, setDeleteTimerSeconds] = useState(null);
 
     const navigate = useNavigate();
 
@@ -19,6 +21,68 @@ export default function UserProvider({children}){
       checkAuth();
     }, [username, userId, profileImageUrl]);
 
+    useEffect(() => {
+      getUserSettings();
+      console.log("Delete timer seconds in context: ", deleteTimerSeconds);
+    }, [deleteTimerSeconds]);
+
+    const handleLogin = async (username, password) => {
+      const response = await login(username, password);
+      
+      if(!response.success){
+        console.log("Login failed: ", response.error);
+        return;
+      }
+      setUsername(response.username);
+      setUserId(response.userId);
+
+      navigate("/home");   
+    }
+
+    const handleSignup = async (username, password) => {
+      const response = await signup(username, password);
+      if(!response.success){
+        console.log("Signup failed: ", response.error);
+        return;
+      }
+
+      setUsername(response.username);
+      setUserId(response.userId);
+
+      navigate("/home");
+    }
+
+    const handleLogout = async () => {
+      await logout();
+      setUsername(null);
+      setUserId(null);
+      navigate("/");
+    }
+
+    const handleAuthentication = async () => {
+      const response = await checkAuth();  
+
+      if(!response.success){
+        console.log("Check auth failed: ", response.error);
+        setUsername(null);
+        setUserId(null);
+        navigate("/login");
+      }
+
+      setUsername(response.data.authUser.username);
+      setUserId(response.data.authUser.userId);
+    }
+
+    const handleGetUserSettings = async () => {
+      const response = await getUserSettings();
+      if(!response.success){
+        console.log("Get user settings failed: ", response.error);    
+        return;
+      }
+      setDeleteTimerSeconds(response.data.deleteTimerSeconds);
+    }
+
+    // ----------------- Refarctor API calls to use these handlers instead of calling API directly in components -----------------
     const login = async (username, password) => {
       try {
         setLoading(true);
@@ -107,8 +171,45 @@ export default function UserProvider({children}){
         }finally{
             setLoading(false);
         }
+    };
+
+    const getUserSettings = async () => {
+      console.log("Getting User Settings for user: ", userId);
+        try{
+          const response = await axios.get('http://localhost:5001/api/v1/users/me/settings', {
+            withCredentials: true
+          });
+          console.log("User settings response: -------------------->>>>", response.data);
+          setDeleteTimerSeconds(response.data.delete_timer_seconds);
+        }
+        catch(error){
+          console.log('Error getting user settings: ', error);
+        }finally{
+          console.log("Finished getting user settings");
+          setLoading(false);
+        }
     }
 
+    const updateUserSettings = async (newDeleteTimerSeconds) => {
+      try {
+        setLoading(true);
+        console.log("Updating user settings for user: ", userId);
+        const response = await axios.put('http://localhost:5001/api/v1/users/me/settings', {
+          deleteTimerSeconds: newDeleteTimerSeconds
+        }, {
+          withCredentials: true
+        });
+        setDeleteTimerSeconds(response.data.deleteTimerSeconds);
+      } catch (error) {
+        console.log('Error updating user settings: ', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+
+
+    //--------------------------------------------------
     const uploadProfilePicture = async (file) => {
       try {
         setLoading(true);
@@ -192,10 +293,24 @@ export default function UserProvider({children}){
       }
     };
 
+    const deleteAllUserMessages = async () => {
+        console.log("Delete all messages for user: ", userId);
+        try {
+          setLoading(true);
+          const response = await axios.delete('http://localhost:5001/api/v1/users/me/messages', {
+            withCredentials: true
+          });
+          console.log("Delete messages response: ", response.data);
+        } catch (err) {          const errorMessage = err.response?.data?.message || 'Delete messages failed';
+          console.log("ERROR in USER CONTEXT - deleteAllUserMessages: ", errorMessage);
+        } finally {
+          setLoading(false);
+        }
+    }
 
 
     return (
-        <UserContext.Provider value={{username,userId, login, logout, downloadProfilePicture, uploadProfilePicture, profileImageUrl}}>
+        <UserContext.Provider value={{username,userId, login, logout, deleteTimerSeconds, updateUserSettings, setDeleteTimerSeconds, downloadProfilePicture, uploadProfilePicture, deleteAllUserMessages, profileImageUrl}}>
             {children}
         </UserContext.Provider>
     )
