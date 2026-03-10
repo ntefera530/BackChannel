@@ -33,7 +33,7 @@ export const getAllChats = async (req, res) => {
 
 export const getMessagesByChatId = async (req, res) => {
     console.log("get Messages");
-
+    //TODO - add check to make sure user is a participant in the chat before getting messages
     try{
         const userId = req.user.userId;
         const {chatId} = req.params;

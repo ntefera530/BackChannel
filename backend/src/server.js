@@ -47,6 +47,8 @@ const server = http.createServer(app);
 const wss = new WebSocketServer({server});
 setUpWebSocket(wss);
 
+//TODO - start worker thread for background tasks like message cleanup, notification sending, etc.
+
 server.listen(PORT, async () => {
     console.log("Server is Listening on port: " + PORT); //Both HTTP and WebSocket servers are running on the same port - use upgrade header to differentiate between them 
     await startScheduler();

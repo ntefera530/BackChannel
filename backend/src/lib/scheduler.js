@@ -7,7 +7,7 @@ export async function startScheduler() {
     "delete-expired-messages",
     {},
     {
-      repeat: { every: 30000 }, // every 5 seconds
+      repeat: { every: 30000 }, // every 30 seconds
       removeOnComplete: true,
     }
   );

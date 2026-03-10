@@ -1,4 +1,3 @@
-import pool from '../lib/db.js';
 import * as messageRepo from "../models/messageModel.js"
 
 //TODO - get all messages user has sent in app

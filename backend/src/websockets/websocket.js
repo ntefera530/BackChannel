@@ -30,6 +30,9 @@ export const setUpWebSocket = (wss) => {
       ws.on('message', (message) => {
         try{
           const { id, type, content, sender_id, chat_id, sent_at, expire_at} = JSON.parse(message);
+
+          //TODO add validation for message content and type to prevent malformed messages from crashing the server
+          
           switch(type){
             case "sendMessageToUser":
                 sendMessageToUser(id, content, sender_id, chat_id, expire_at, sent_at, clientsMap);

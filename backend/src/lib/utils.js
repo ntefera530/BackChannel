@@ -1,7 +1,4 @@
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
-import cookieParser from "cookie-parser";
-
 
 // Create JWT
 export const createJWT = (username, userId, res) => {
@@ -10,19 +7,16 @@ export const createJWT = (username, userId, res) => {
         process.env.JWT_SECRET,
         { expiresIn: process.env.JWT_EXPIRES_IN }
     )
-
+    
     //sends the JWT token in the response as a cookie
     res.cookie("jwt", token, {
         maxAge: 7 * 24 * 60 * 60 * 1000, // MS
         httpOnly: true, // prevent XSS attacks cross-site scripting attacks
-        //sameSite: "strict", // CSRF attacks cross-site request forgery attacks        
-        //secure: process.env.NODE_ENV !== "development", // Use secure cookies in production
-        sameSite: 'lax',  // TODO: this allows csrf attacks, need to protect in others ways sinse i need this to send cookie over wesockets
-        secure: false //TODO need for websocket conection but need to fix for https
-
-
-      
+        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+        secure: process.env.NODE_ENV === 'production' 
     });
+
+    
 
     return token;
 };
