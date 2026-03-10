@@ -22,7 +22,6 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-
 app.use(express.json())
 app.use(cookieParser());
 app.use(cors({
@@ -32,16 +31,8 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-//crete HTTP Server
-const server = http.createServer(app);
-
-//need this to parse JSON bodies - Postman sends JSON
-
-
 // Allow all origins (for development only!)
 //app.use(cors());
-
-
 
 //Routes
 app.use("/api/v1/auth", authRoutes);
@@ -51,18 +42,12 @@ app.use("/api/v1/chats", chatRoutes);
 app.use("/api/v1/friends", friendRoutes);
 app.use("/api/v1/uploads", uploadRoutes);
 
-//Creates WebSocket Server
-const wss = new WebSocketServer({port: 8080});
+//Starts HTTP and WebSocket server
+const server = http.createServer(app);
+const wss = new WebSocketServer({server});
 setUpWebSocket(wss);
 
-// app.listen(PORT, async () => {
-//     console.log("Server is Listening on port: " + PORT);
-//     console.log("WebSocket is Listening on port: 6000");
-//     await startScheduler();
-// });
-
-app.listen(PORT, async () => {
-    console.log("Server is Listening on port: " + PORT);
-    console.log("WebSocket is Listening on port: 6000");
+server.listen(PORT, async () => {
+    console.log("Server is Listening on port: " + PORT); //Both HTTP and WebSocket servers are running on the same port - use upgrade header to differentiate between them 
     await startScheduler();
 });
