@@ -117,7 +117,7 @@ export const addParticipantsToChat = async (req, res) => {
 export const leaveGroupChat = async (req, res) => {
     console.log("Leave Group Chat")
     try{
-        const currentUserId = req.userId;
+        const currentUserId = req.user.userId;
         const {chatId} = req.params;
 
         const chatOwner = await chatRepo.getChatOwnerByIdQuery(chatId);
@@ -198,7 +198,7 @@ export const deletSelectedMessages = async (req, res) => {
 
     try{
         const {messages} = req.body.messages;
-        await messageRepo.deleteSelectedMessagesByIdQuery(message);
+        await messageRepo.deleteSelectedMessagesByIdQuery(messages);
 
         return res.status(200).json({ message: "Delete Message" });
     }

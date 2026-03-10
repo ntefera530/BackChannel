@@ -13,7 +13,8 @@ export const getAllMessages = async (req, res) => {
         const offset = parseInt(req.query.offset) || 0;
 
 
-        const messages = await messageRepo.getAllMessagesQuery(userId, limit, offset);
+        //const messages = await messageRepo.getAllMessagesQuery(userId, limit, offset);
+        const messages = "";
         return res.status(200).json({ messages });
     }
     catch(error){
@@ -65,7 +66,8 @@ export const deleteMessagesByChatId = async (req, res) => {
 
     try{
         const {chatId} = req.params;
-        await messageRepo.deleteAllMessagesQuery(userId, chatId);
+        const userId = req.user.userId;
+        await messageRepo.deleteAllMessagesQuery(chatId, userId);
         return res.status(200).json({ message: "Delete All Messages" });
     }
     catch(error){

@@ -1,42 +1,42 @@
 import pool from '../lib/db.js';
 
-export const getMessagesByChatIdQuery = async (chatId, limit, offset) => {
-    const query = `
-        SELECT *
-        FROM "Messages" 
-        WHERE chat_id = $1 
-    `;
-  const result = await pool.query(query, [chatId]);
-  return result.rows;
-}
-
 // export const getMessagesByChatIdQuery = async (chatId, limit, offset) => {
 //     const query = `
 //         SELECT *
 //         FROM "Messages" 
 //         WHERE chat_id = $1 
-//         ORDER BY sent_at DESC 
-//         LIMIT $2 
-//         OFFSET $3
 //     `;
-//   const result = await pool.query(query, [chatId, limit, offset]);
+//   const result = await pool.query(query, [chatId]);
 //   return result.rows;
 // }
 
-export const deleteSelectedMessagesByIdQuery = async (messages) => {
+export const getMessagesByChatIdQuery = async (chatId, limit, offset) => {
+    const query = `
+        SELECT *
+        FROM "Messages" 
+        WHERE chat_id = $1 
+        ORDER BY sent_at DESC 
+        LIMIT $2 
+        OFFSET $3
+    `;
+  const result = await pool.query(query, [chatId, limit, offset]);
+  return result.rows;
+}
 
-  if (!messagesIds || messagesIds.length === 0) {
+export const deleteSelectedMessagesByIdQuery = async (messageIds) => {
+
+  if (!messageIds || messageIds.length === 0) {
     return []; // Nothing to delete
   }
 
-  const postgreSQLArray = messages.map((_, i) => `$${i + 1}`).join(', ');
+  const postgreSQLArray = messageIds.map((_, i) => `$${i + 1}`).join(', ');
 
   const query = `
     DELETE FROM "Messages" 
     WHERE id IN (${postgreSQLArray})
     RETURNING *;
   `;
-  const result = await pool.query(query, [...messages]);
+  const result = await pool.query(query, [...messageIds]);
   return result.rows;
 }
 
@@ -67,9 +67,9 @@ export const cleanupExpiredMessagesQuery = async () => {
   return result.rows;
 }
 
-export const deleteAllMessagesQuery = async (userId, chatId) => {
+export const deleteAllMessagesQuery = async (chatId, userId) => {
     const query = `
-        DELETE FROM "Messags" 
+        DELETE FROM "Messages" 
         WHERE chat_id = $1 
         AND sender_id = $2
     `;
@@ -79,7 +79,7 @@ export const deleteAllMessagesQuery = async (userId, chatId) => {
 
 export const deleteMessagesByChatIdQuery = async (chatId) => {
     const query = `
-        DELETE FROM "Messags" 
+        DELETE FROM "Messages" 
         WHERE chat_id = $1 
     `;
   const result = await pool.query(query, [chatId]);
@@ -88,7 +88,7 @@ export const deleteMessagesByChatIdQuery = async (chatId) => {
 
 export const deleteUserMessagesByChatIdQuery = async (chatId, userId) => {
     const query = `
-        DELETE FROM "Messags" 
+        DELETE FROM "Messages" 
         WHERE chat_id = $1
         AND sender_id = $2
     `;
