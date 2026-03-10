@@ -15,9 +15,7 @@ export const createJWT = (username, userId, res) => {
         sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
         secure: process.env.NODE_ENV === 'production' 
     });
-
     
-
     return token;
 };
 
