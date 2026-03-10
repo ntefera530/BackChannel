@@ -197,7 +197,9 @@ export const deletSelectedMessages = async (req, res) => {
     console.log("Delete Selected  Message");
 
     try{
-        const {messages} = req.body.messages;
+        //const {messages} = req.body.messages;
+        const {messages} = req.messages;
+        
         await messageRepo.deleteSelectedMessagesByIdQuery(messages);
 
         return res.status(200).json({ message: "Delete Message" });

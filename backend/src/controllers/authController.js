@@ -53,10 +53,11 @@ export const login = async (req, res) => {
         
         //TODO - check returnt type again
         const user = await userRepo.getUserProfileByUsernameQuery(username);
-        if (!user || user.length === 0) {
+        console.log("Login controller - user found:", user);
+        if (!user) {
             return res.status(404).json({ error: "No user with that username" });
         }
-
+        console.log("Login controller - user found:", user);
         const isPasswordCorrect = await bcrypt.compare(password, user.password);
         if(!isPasswordCorrect){
             return res.status(401).json({ error: "Username or Password is Incorrect" });
