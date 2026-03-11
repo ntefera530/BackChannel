@@ -66,20 +66,31 @@ export default function UserProvider({children}){
     }
 
     const handleAuthentication = async () => {
-      const response = await authApi.checkAuth();  
+      try{
+        setLoading(true);
+        const response = await authApi.checkAuth();  
 
-      if(!response.status || response.status !== 200){
-        console.log("Check auth failed: ", response.error);
+        if(!response.status || response.status !== 200){
+          console.log("Check auth failed: ", response.error);
+          setUsername(null);
+          setUserId(null);
+          navigate("/login");
+          return;
+        }
+
+        setUsername(response.data.authUser.username);
+        setUserId(response.data.authUser.userId);
+        }
+      catch(err){
+        console.log("Error during authentication check: ", err);
         setUsername(null);
         setUserId(null);
         navigate("/login");
-        return;
+      }finally{
+        setLoading(false);
       }
-
-      setUsername(response.data.authUser.username);
-      setUserId(response.data.authUser.userId);
     }
-
+    
     const handleUpdateUserSettings = async (newDeleteTimerSeconds) => {
       const response = await userApi.updateUserSettings(newDeleteTimerSeconds);
       if(!response.status || response.status !== 200){
@@ -141,7 +152,7 @@ export default function UserProvider({children}){
 
 
     return (
-        <UserContext.Provider value={{username, userId, profileImageUrl, deleteTimerSeconds,
+        <UserContext.Provider value={{username, userId, profileImageUrl, deleteTimerSeconds, loading,
                                       handleLogin, handleSignup, handleLogout, handleAuthentication, 
                                       handleGetUserSettings, handleUpdateUserSettings, 
                                       handleProfilePictureUpload,  handleProfilePictureDownload,

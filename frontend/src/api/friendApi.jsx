@@ -24,7 +24,7 @@ export const addFriend = async (friendUsername) => {
 
 export const deleteFriend = async (friendUsername) => {
     try {
-        const response = await api.delete(`/api/v1/friends/me`, { friendUsername });
+        const response = await api.delete(`/api/v1/friends/me`, { data: { friendUsername } });
         return response;
     } catch (err) {
         console.error("Error deleting friend:", err);

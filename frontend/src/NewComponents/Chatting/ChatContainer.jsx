@@ -6,9 +6,6 @@ import { useChats } from '../../contexts/ChatContext';
 
 const ChatContainer = () => {
     const {selectedChatId} = useChats();
-    useEffect(() => {
-
-    }, [selectedChatId]);
     
     return (
         <div className="flex-1 flex flex-col overflow-auto">

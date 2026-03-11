@@ -8,7 +8,7 @@ import * as chatApi from '../api/chatApi';
 const ChatsContext = createContext();
 
 export default function ChatsProvider({ children }) {
-    const wsRef = useWebSocket();
+    const { socketRef: wsRef, wsReady } = useWebSocket();
     const {userId, deleteTimerSeconds} = useUser(); //my User Context
 
     const [chats, setChats] = useState([]);
@@ -49,14 +49,18 @@ export default function ChatsProvider({ children }) {
       if (!ws) return;
       const recieveMessage = (event) => {
         const messageData = JSON.parse(event.data);
-        console.log("Received WS message:", messageData); 
+        console.log("Received WS message:", messageData);
         if (messageData.chat_id === selectedChatIdRef.current) {
-          setMessages(messages => [...messages, messageData]);
+          setMessages(messages => {
+            // Prevent duplicates: optimistic message was already added locally by the sender
+            if (messages.some(m => m.id === messageData.id)) return messages;
+            return [...messages, messageData];
+          });
         }
       };
       ws.addEventListener('message', recieveMessage);
       return () => ws.removeEventListener('message', recieveMessage);
-    }, [wsRef]);
+    }, [wsReady]); // re-subscribe whenever a fresh socket connection opens
 
     const loadMoreMessages = () => {
         if (!hasMore) return Promise.resolve();

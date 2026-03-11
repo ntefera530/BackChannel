@@ -4,12 +4,12 @@ import FriendsHeader from './FriendsHeader';
 
 const FriendsContainer = () => {
     return (
-        <div className="flex-1 flex flex-col overflow-auto"> 
-            <FriendsHeader/>
-            <FriendsList/>
-            <FriendSearch/>
+        <div className="flex-1 flex flex-col overflow-hidden bg-base-100">
+            <FriendsHeader />
+            <FriendsList />
+            <FriendSearch />
         </div>
     );
-}
+};
 
 export default FriendsContainer;

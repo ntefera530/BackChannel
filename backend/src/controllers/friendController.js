@@ -33,6 +33,7 @@ export const deleteFriend = async (req, res) => {
         const userId = req.user.userId;
         const username = req.user.username;
         const {friendUsername} = req.body;
+        
         console.log(`User ${username} wants to delete friend with username: ${friendUsername}`);
 
         const friendObject = await getUserIdByUsernameQuery(friendUsername);

@@ -4,95 +4,95 @@ import { useState } from 'react';
 import { Lock, User } from 'lucide-react';
 
 const LoginPage = () => {
-  let [username, setUsername] = useState("");
-  let [password, setPassword] = useState("");
-  const {handleLogin} = useUser(); //my User Context
-
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const { handleLogin } = useUser();
   const navigate = useNavigate();
 
-  const goToSignUp = () => {
-    navigate("/signup");
-  }
-
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    handleLogin(username, password)
+    handleLogin(username, password);
     setUsername("");
     setPassword("");
-  }
+  };
 
-  const handleChangeUsername = (event) => {
-    setUsername(event.target.value);
-  }
-
-  const handleChangePassword = (event) => {
-    setPassword(event.target.value);
-  }
-  
   return (
-    <div className= "min-h-screen">
-      <div >Welcome to BackChannel</div>
+    <div className="auth-page">
 
-      <form onSubmit={handleSubmit} className='space-y-6'>
-
-        {/* Username Field} */}
-        <div className='form-control'>
-          <label className='label'>
-            <span className='label-text font-medium'>Username</span>
-          </label>
-
-          <div className='relative'>
-            <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
-              <User className='size-5 text-base-content/40' />
-            </div>
-            <input
-              type="text"
-              placeholder="Username"
-              className= {'input input-bordered w-full pl-10'}
-              value={username}
-              onChange={handleChangeUsername}
-            >  
-            </input>
-          </div>
+      {/* Left brand panel */}
+      <div className="auth-brand">
+        <div className="brand-logo">BackChannel</div>
+        <div className="brand-tagline">
+          Private conversations that leave no trace. Say what you mean.
         </div>
 
-        {/* Password Field} */}
-        <div className='form-control'>
-          <label className='label'>
-            <span className='label-text font-medium'>Password</span>
-          </label>
-          <div className='relative'>
-            <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
-              <Lock className='size-5 text-base-content/40' />
-            </div>
-            <input
-              type="password"
-              placeholder="Password"
-              className= {'input input-bordered w-full pl-10'}
-              value={password}
-              onChange={handleChangePassword}
-            >  
-            </input>
+        <div className="brand-decoration">
+          <div className="brand-message-preview">
+            Messages that disappear when you're done with them 👋
+          </div>
+          <div className="brand-message-preview right">
+            Finally, a chat app that respects privacy ✨
+          </div>
+          <div className="brand-message-preview">
+            No logs. No history. Just the conversation.
           </div>
         </div>
+      </div>
 
-        {/* Submit Button} */}
-        <button className='btn btn-primary w-full' type="submit">Login</button>
+      {/* Right form panel */}
+      <div className="auth-form-panel">
+        <div className="auth-form-card">
+          <div className="auth-form-title">Welcome back</div>
+          <div className="auth-form-subtitle">Sign in to your BackChannel account</div>
 
+          <form onSubmit={handleSubmit}>
 
-        {/* Navigate to Login Page} */}
-        <div className='text-center'>
-          <p className='text-base-content/60'>
-            Don't have an account?{' '}
-            <button className='text-primary font-semibold hover:underline' onClick={goToSignUp}>
-                Sign Up
+            <div className="auth-field">
+              <label>Username</label>
+              <div style={{ position: 'relative' }}>
+                <User className="auth-input-icon" size={16} />
+                <input
+                  type="text"
+                  className="auth-input"
+                  placeholder="your_username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  autoComplete="username"
+                />
+              </div>
+            </div>
+
+            <div className="auth-field">
+              <label>Password</label>
+              <div style={{ position: 'relative' }}>
+                <Lock className="auth-input-icon" size={16} />
+                <input
+                  type="password"
+                  className="auth-input"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
+                />
+              </div>
+            </div>
+
+            <button type="submit" className="auth-submit-btn">
+              Sign in
             </button>
-          </p>
+          </form>
+
+          <div className="auth-switch">
+            Don't have an account?{' '}
+            <button className="auth-switch-link" onClick={() => navigate('/signup')}>
+              Create one
+            </button>
+          </div>
         </div>
+      </div>
 
-      </form>
     </div>
-  )
-}
+  );
+};
 
-export default LoginPage
+export default LoginPage;
