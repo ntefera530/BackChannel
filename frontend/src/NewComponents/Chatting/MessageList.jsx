@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { useEffect, useRef} from 'react';
 
 import { useChats } from '../../contexts/ChatContext';
@@ -8,23 +8,46 @@ import { formatMessageTimestamp } from '../../lib/utils';
 import defaultUserImage from '../../assets/defaultUser.jpg';
 
 const MessageList = () => {
-    const {messages, getMessagesByChatId, selectedChatId} = useChats();
+    const {messages, hasMore, loadMoreMessages, participants} = useChats();
     const {userId, profileImageUrl} = useUser();
 
     const bottomRef = useRef(null);
+    const containerRef = useRef(null);
+    const shouldScrollRef = useRef(true); // ← controls whether to scroll to bottom
 
-    useEffect(() => {
-        getMessagesByChatId(selectedChatId)
-    }, [selectedChatId]);
+    // Helper to get a participant's picture
+    const getParticipantImage = (senderId) => {
+        if (senderId === userId) return profileImageUrl || defaultUserImage;
+        const participant = participants.find(p => p.id === senderId);
+        return participant?.profile_picture_url || defaultUserImage;
+    }
 
-    useEffect(() => {
-        requestAnimationFrame(() => {
-            bottomRef.current.scrollIntoView({ behavior: "smooth" });
-        });    
-    }, [messages]);
+    const handleLoadMore = () => {
+        shouldScrollRef.current = false; // ← don't scroll on load more
+        const container = containerRef.current;
+        const scrollHeightBefore = container.scrollHeight;
+    
+        loadMoreMessages().then(() => {
+            requestAnimationFrame(() => {
+                container.scrollTop = container.scrollHeight - scrollHeightBefore;
+            });
+        });
+    }
+
+useEffect(() => {
+    if (shouldScrollRef.current) {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+    shouldScrollRef.current = true; // ← reset for next message
+}, [messages]);
 
     return (
-    <div className= "flex-1 overflow-y-auto px-4 space-y-4">
+    <div ref={containerRef} className="flex-1 overflow-y-auto px-4 space-y-4">
+        {hasMore && (
+            <button onClick={handleLoadMore} className="btn btn-sm btn-ghost w-full">
+                Load older messages
+            </button>
+        )}
         {messages.map((message) => (
             <div
                 key={message.id}
@@ -33,7 +56,7 @@ const MessageList = () => {
                 <div className="chat-image avatar">
                     <div className="size-10 rounded-full border">
                         <img
-                            src={message.sender_id === userId ?  profileImageUrl || defaultUserImage : profileImageUrl || defaultUserImage}
+                            src={getParticipantImage(message.sender_id)}
                             alt="Profile Picture"
                         />
                     </div>

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import {useUser} from '../contexts/UserContext';
-import {useMessages} from '../contexts/MessageContext';
+import { useChats } from '../contexts/ChatContext';
 import { useContext } from 'react';
 
 import Cookie from 'js-cookie'
@@ -14,7 +14,7 @@ export default function ChatPage() {
   const [userText, setUserText] = useState("");
   const wsRef = useRef(null);
   const {userId, username} = useUser(); //my User Context
-  const {setSelectedChatId, selectedChatId, } = useMessages()
+  const {setSelectedChatId, selectedChatId, } = useChats()
 
   useEffect(() => {
     //const token = localStorage.getItem('jwt');

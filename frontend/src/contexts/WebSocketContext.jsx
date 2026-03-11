@@ -1,15 +1,17 @@
 import { createContext, useContext, useEffect, useRef } from "react";
+import { useUser } from "./UserContext";
 
 const WebSocketContext = createContext(null);
 
 export default function WebSocketProvider({children}){
 
     const socketRef = useRef(null);
+    const { userId } = useUser();
 
     useEffect(() => {
         // Initialize WebSocket connection
 
-        const ws = new WebSocket('ws://localhost:8080');
+        const ws = new WebSocket('ws://localhost:5001');
         socketRef.current = ws;
 
         ws.onopen = () => console.log('Connected to WS server');
@@ -18,7 +20,7 @@ export default function WebSocketProvider({children}){
 
         return () => ws.close();
 
-    }, []);
+    }, [userId]);
 
 
 

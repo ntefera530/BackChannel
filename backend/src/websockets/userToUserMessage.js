@@ -13,11 +13,11 @@ export const sendMessageToUser = async (id, content, sender_id, chat_id, expire_
         await saveMessagesQuery(id, sender_id, chat_id, content, expire_by);
         const participants = await getChatParticipantsQuery(chat_id);
 
-        console.log(participants);
+        console.log("participants: -->", participants);
 
         participants.forEach(participant =>{
 
-            const participantId = participant.user_id;
+            const participantId = participant.id;
             const participantWs = clientsMap.get(participantId);
             const message = {
                 id: id,

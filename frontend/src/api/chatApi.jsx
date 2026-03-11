@@ -12,7 +12,7 @@ export const getChats = async () => {
 
 export const getChatParticipantsByChatId = async (selectedChatId) => {
     try {
-        const response = await api.get(`api/v1/chats/${selectedChatId}/participants`);
+        const response = await api.get(`/api/v1/chats/${selectedChatId}/participants`);
         return response;
     } catch (err) {
         console.error("Error fetching participants:", err);
@@ -22,7 +22,7 @@ export const getChatParticipantsByChatId = async (selectedChatId) => {
 
 export const createGroupChat = async (name) => {
     try {
-        const response = await api.post("api/v1/chats/me", {
+        const response = await api.post("/api/v1/chats/me", {
             name: name,
             isGroup: true
         });
@@ -35,7 +35,7 @@ export const createGroupChat = async (name) => {
 
 export const getMessagesByChatId = async (selectedChatId, limit, offset) => {
     try {
-        const response = await api.get(`http://localhost:5001/api/v1/chats/${selectedChatId}/messages`, {
+        const response = await api.get(`/api/v1/chats/${selectedChatId}/messages`, {
             params: {limit, offset},
         });
         return response;

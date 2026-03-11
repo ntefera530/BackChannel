@@ -145,7 +145,7 @@ export const getChatOwnerByIdQuery = async (chatId) => {
 // 11. Get Chat Participants by Chat Id
 export const getChatParticipantsQuery = async (chatId) => {
     const query = `
-        SELECT u.username, u.profile_picture_url
+        SELECT u.username, u.id, u.profile_picture_url
         FROM "Users" u JOIN "Chat Participants" chp
         ON u.id = chp.user_id
         WHERE chp.chat_id = $1

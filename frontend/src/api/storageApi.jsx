@@ -36,11 +36,6 @@ export const uploadChatMedia = async (file) => {
 }
 
 //--------------------------------------------------------------------------
-export const downloadProfilePicture = async (userId) => {
-    const response = await api.get(`/api/v1/users/${userId}/profilePicture`);
-    return response.data.profilePictureUrl.profile_picture_url;
-}
-
 export const getSignedUrl = async (key) => {
     const response = await api.get('/api/v1/uploads/download-url', {
         params: { key }
@@ -49,7 +44,9 @@ export const getSignedUrl = async (key) => {
 }
 
 export const getProfilePicture = async (userId) => {
-    const key = await downloadProfilePicture(userId);
+    const response = await api.get(`/api/v1/users/${userId}/profilePicture`);
+    console.log("getProfilePicture response: ", response.data);
+    const key = response.data.profilePictureUrl;
     if (!key) return null;
     return await getSignedUrl(key);
 }

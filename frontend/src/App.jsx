@@ -1,11 +1,7 @@
 import { Routes, Route} from "react-router-dom";
 
 import ChatPage from "./pages/ChatPage";
-import SignUpPage from "./pages/SignUpPage";
-import LoginPage from "./pages/LoginPage";
-import FrontPage from "./Pages/FrontPage";
 import FriendPage from "./Pages/FriendPage";
-import HomePage from "./Pages/HomePage";
 import SettingsPage from "./Pages/SettingsPage";
 import CreateChatPage from "./Pages/CreateChatPage";
 

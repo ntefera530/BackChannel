@@ -6,7 +6,6 @@ import App from './App.jsx'
 import UserProvider from "./contexts/UserContext.jsx";
 import ChatsProvider from './contexts/ChatContext.jsx';
 import FriendsProvider from './contexts/FriendContext.jsx'
-import MessageProvider from './contexts/MessageContext.jsx'
 import WebSocketProvider from './contexts/WebSocketContext.jsx'
 
 createRoot(document.getElementById('root')).render(

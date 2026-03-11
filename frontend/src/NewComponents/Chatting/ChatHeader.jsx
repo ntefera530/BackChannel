@@ -10,10 +10,10 @@ import defaultUserImage from '../../assets/defaultUser.jpg';
 
 
 const ChatHeader = () => {
-  const {participants, selectedChatId, getChatParticipantsByChatId } = useChats();
+  const {participants, selectedChatId, handleGetChatParticipants } = useChats();
 
   useEffect(() => {
-    getChatParticipantsByChatId(selectedChatId);
+    handleGetChatParticipants(selectedChatId);
   }, [selectedChatId]);
 
   return (

@@ -56,7 +56,7 @@ export default function UserProvider({children}){
 
     const handleLogout = async () => {
       const response = await authApi.logout();
-      if(!response.success){
+      if(!response.status || response.status !== 200){
         console.log("Logout failed: ", response.error);
         return;
       }
@@ -80,18 +80,18 @@ export default function UserProvider({children}){
       setUserId(response.data.authUser.userId);
     }
 
-    const handleGetUserSettings = async () => {
-      const response = await userApi.getUserSettings();
-      if(!response.success){
-        console.log("Get user settings failed: ", response.error);    
+    const handleUpdateUserSettings = async (newDeleteTimerSeconds) => {
+      const response = await userApi.updateUserSettings(newDeleteTimerSeconds);
+      if(!response.status || response.status !== 200){
+        console.log("Update user settings failed: ", response.error);    
         return;
       }
       setDeleteTimerSeconds(response.data.deleteTimerSeconds);
     }
 
-    const handleUpdateUserSettings = async (newDeleteTimerSeconds) => {
-      const response = await userApi.updateUserSettings(newDeleteTimerSeconds);
-      if(!response.success){
+    const handleGetUserSettings = async () => {
+      const response = await userApi.getUserSettings();
+      if(!response.status || response.status !== 200){
         console.log("Get user settings failed: ", response.error);    
         return;
       }
@@ -111,7 +111,9 @@ export default function UserProvider({children}){
     const handleProfilePictureDownload = async () => {
       try {
           setLoading(true);
+          console.log("attempting to fetch profile picture for userId: ", userId);
           const signedUrl = await storageApi.getProfilePicture(userId);
+          //console.log("Fetched signed URL for profile picture: ", signedUrl);
           setProfileImageUrl(signedUrl);
       } catch (err) {
           console.error("Error fetching profile picture:", err);
@@ -129,7 +131,8 @@ export default function UserProvider({children}){
             withCredentials: true
           });
           console.log("Delete messages response: ", response.data);
-        } catch (err) {          const errorMessage = err.response?.data?.message || 'Delete messages failed';
+        } catch (err) {          
+          const errorMessage = err.response?.data?.message || 'Delete messages failed';
           console.log("ERROR in USER CONTEXT - deleteAllUserMessages: ", errorMessage);
         } finally {
           setLoading(false);
