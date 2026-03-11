@@ -6,7 +6,7 @@ import { Lock, User } from 'lucide-react';
 const LoginPage = () => {
   let [username, setUsername] = useState("");
   let [password, setPassword] = useState("");
-  const {login} = useUser(); //my User Context
+  const {handleLogin} = useUser(); //my User Context
 
   const navigate = useNavigate();
 
@@ -16,7 +16,7 @@ const LoginPage = () => {
 
   const handleSubmit = async(e) => {
     e.preventDefault();
-    login(username, password)
+    handleLogin(username, password)
     setUsername("");
     setPassword("");
   }

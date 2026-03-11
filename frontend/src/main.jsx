@@ -9,17 +9,17 @@ import FriendsProvider from './contexts/FriendContext.jsx'
 import MessageProvider from './contexts/MessageContext.jsx'
 import WebSocketProvider from './contexts/WebSocketContext.jsx'
 
-createRoot(document.getElementById('root')).render(     
-    <WebSocketProvider>
-      <BrowserRouter>
-        <UserProvider> 
+createRoot(document.getElementById('root')).render(
+    <BrowserRouter>   
+      <UserProvider>
+        <WebSocketProvider>
           <FriendsProvider>
             <ChatsProvider>   
               <App />   
             </ChatsProvider>
           </FriendsProvider>   
-        </UserProvider>
-      </BrowserRouter>  
-    </WebSocketProvider>
+        </WebSocketProvider>
+      </UserProvider>
+    </BrowserRouter>   
 )
 

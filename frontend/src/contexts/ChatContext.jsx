@@ -1,16 +1,15 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import axios from 'axios';
-axios.defaults.withCredentials = true;
 import { useWebSocket } from "./WebSocketContext";
 import {useUser} from '../contexts/UserContext';
-const ChatsContext = createContext();
 import { v4 as uuidv4 } from 'uuid'; // Import v4 for random UUIDs
+import * as chatApi from '../api/chatApi';
 
-import { format } from 'date-fns';
+
+const ChatsContext = createContext();
 
 export default function ChatsProvider({ children }) {
     const wsRef = useWebSocket();
-    const {userId} = useUser(); //my User Context
+    const {userId, deleteTimerSeconds} = useUser(); //my User Context
 
     const [chats, setChats] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -23,31 +22,46 @@ export default function ChatsProvider({ children }) {
 
     const [offset, setOffset] = useState(0);
     const limit = 10;
-  
+
+    useEffect(() => { handleGetChats(); }, []);
+
     useEffect(() => {
-      getChats();
-
-      //Recieve Messages - must be inside useEffect to mount only once
       const ws = wsRef.current;
-      if(!ws){
-        console.error("WebSocket not connected");
-        return;
-      }
-
+      if (!ws) return;
       const recieveMessage = (event) => {
         const messageData = JSON.parse(event.data);
         console.log("Received WS message:", messageData); 
-        setMessages(messages => [...messages, messageData]);
+        if (messageData.chat_id === selectedChatId) {
+          setMessages(messages => [...messages, messageData]);
+        }
       };
-
-
       ws.addEventListener('message', recieveMessage);
+      return () => ws.removeEventListener('message', recieveMessage);
+    }, [wsRef]);
+  
+    // useEffect(() => {
 
-      return () => {
-        ws.removeEventListener('message', recieveMessage);
-      }
+    //   //Recieve Messages - must be inside useEffect to mount only once
+    //   const ws = wsRef.current;
+    //   if(!ws){
+    //     console.error("WebSocket not connected");
+    //     return;
+    //   }
 
-    }, [wsRef, selectedChatId]);
+    //   const recieveMessage = (event) => {
+    //     const messageData = JSON.parse(event.data);
+    //     console.log("Received WS message:", messageData); 
+    //     setMessages(messages => [...messages, messageData]);
+    //   };
+
+
+    //   ws.addEventListener('message', recieveMessage);
+
+    //   return () => {
+    //     ws.removeEventListener('message', recieveMessage);
+    //   }
+
+    // }, [wsRef, selectedChatId]);
 
     //SEND Message
     const sendMessage = (content) => {
@@ -57,9 +71,6 @@ export default function ChatsProvider({ children }) {
         return;
       }
 
-      const now = new Date();
-      
-
       // Send formattedTimestamp to your backend API
 
       const message = {
@@ -68,8 +79,8 @@ export default function ChatsProvider({ children }) {
         content: content, 
         sender_id: userId,
         chat_id: selectedChatId,
-        expire_at: now,
-        sent_at: now
+        expire_at: new Date(Date.now() + deleteTimerSeconds * 1000),
+        sent_at: new Date()
       }
 
       if(ws.readyState === WebSocket.OPEN) {
@@ -84,76 +95,46 @@ export default function ChatsProvider({ children }) {
       }
     }
 
-
-
-    const getChats = async () => {
-        setLoading(true);
-        try {
-          const res = await axios.get("http://localhost:5001/api/v1/chats?type=all");
-          console.log(res.data)
-          setChats(res.data);
-        } catch (err) {
-          console.error("Error fetching friends:", err);
-        } finally {
-          setLoading(false);
-        }
-    }
-
-    const getChatParticipantsByChatId = async (selectedChatId) => {
-        setLoading(true);
-        try {
-          const res = await axios.get(`http://localhost:5001/api/v1/chats/${selectedChatId}/participants`);
-
-          //Get Signed URLs for each participant's profile picture
-          console.log("Participants before fetching profile pictures:", res.data.participants);
-          //setParticipants([...res.data.participants]);
-          setParticipants(res.data.participants.map(p => ({ ...p })));
-        } catch (err) {
-          console.error("Error fetching participants:", err);
-        } finally {
-          setLoading(false);
-        }
-    }
-
-    const createGroupChat = async (name) => {
-        setLoading(true);
-        try {
-          const res = await axios.post("http://localhost:5001/api/v1/chats/me",{
-            name: name,
-            isGroup: true,
-          });
-          console.log(res.data)
-          setChats(res.data);
-        } catch (err) {
-          console.error("Error fetching friends:", err);
-        } finally {
-          setLoading(false);
-        }
-    }
-
-    const getMessagesByChatId = async (selectedChatId) => {
-      setLoading(true);
-
+    const handleGetChats = async  () => {
       try {
-        const res = await axios.get(`http://localhost:5001/api/v1/chats/${selectedChatId}/messages`);
+        const response = await chatApi.getChats();
+        setChats(response.data);
+      } catch (error) {
+        console.error("Error fetching chats:", error);
+      }
+    }
 
-        const res2 = await axios.get(`http://localhost:5001/api/v1/chats/${selectedChatId}/messages`, {
-          params: {limit, offset},
-        });
+    const handleGetChatParticipants = async  (selectedChatId) => {
+      try {
+        const response = await chatApi.getChatParticipantsByChatId(selectedChatId);
+        setParticipants(response.data);
+      } catch (error) {
+        console.error("Error fetching chat participants:", error);
+      }
+    }
 
+    const handleCreateGroupChat = async (name) => {
+      try {
+        const response = await chatApi.createGroupChat(name);
+        setChats(response.data);
+      } catch (error) {
+        console.error("Error creating group chat:", error);
+      }
+    }
 
-        console.log(res, "and", res2)
-        setMessages(res2.data.messages);
-          
-      } catch (err) {
-        console.error("Error fetching friends:", err);
-      } finally {
-        setLoading(false);
-      }  
+    const handleGetChatMessages = async (selectedChatId, limit, offset) => {
+      try {
+        const response = await chatApi.getChatMessagesByChatId(selectedChatId, limit, offset);
+        setMessages(response.data);
+      } catch (error) {
+        console.error("Error fetching chat messages:", error);
+      }
     }
 
     return (
-      <ChatsContext.Provider value={{ participants, chats, getChats, createGroupChat, loading, selectedChatId, setSelectedChatId, messages, getMessagesByChatId, sendMessage, getChatParticipantsByChatId }}>
+      <ChatsContext.Provider value={{ participants, chats, loading, selectedChatId, messages,
+                                      handleGetChats, handleGetChatParticipants, handleCreateGroupChat, handleGetChatMessages,
+                                      setSelectedChatId, sendMessage }}>
         {children}
       </ChatsContext.Provider>
     );

@@ -33,7 +33,8 @@ export default function UserProvider({children}){
 
     const handleLogin = async (username, password) => {
       const response = await authApi.login(username, password);
-      if(!response.success){
+      console.log("Login response: ", response);
+      if(!response.status || response.status !== 200){
         console.log("Login failed: ", response.error);
         return;
       }
@@ -67,7 +68,7 @@ export default function UserProvider({children}){
     const handleAuthentication = async () => {
       const response = await authApi.checkAuth();  
 
-      if(!response.success){
+      if(!response.status || response.status !== 200){
         console.log("Check auth failed: ", response.error);
         setUsername(null);
         setUserId(null);
