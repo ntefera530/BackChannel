@@ -1,8 +1,11 @@
 import express from "express"
 
 import { WebSocketServer } from 'ws';
+import { SocketIOServer } from 'socket.io';
+
 import { startScheduler } from "./lib/scheduler.js";
 import { setUpWebSocket } from "./websockets/websocket.js";
+import { setUpSocketIO } from "./websockets/websocket.js";
 
 
 import authRoutes from "./routes/authRoutes.js";
@@ -42,8 +45,21 @@ app.use("/api/v1/chats", chatRoutes);
 app.use("/api/v1/friends", friendRoutes);
 app.use("/api/v1/uploads", uploadRoutes);
 
-//Starts HTTP and WebSocket server
+//Starts HTTP 
 const server = http.createServer(app);
+
+//Start Socket.IO server
+/*
+const io = new SocketIOServer(server, {
+    cors: {
+        origin: 'http://localhost:5173',
+        credentials: true,
+    }
+});
+setUpSocketIO(io);
+*/
+
+//Start WebSocket server
 const wss = new WebSocketServer({server});
 setUpWebSocket(wss);
 
@@ -51,5 +67,5 @@ setUpWebSocket(wss);
 
 server.listen(PORT, async () => {
     console.log("Server is Listening on port: " + PORT); //Both HTTP and WebSocket servers are running on the same port - use upgrade header to differentiate between them 
-    await startScheduler();
+    //await startScheduler();
 });
