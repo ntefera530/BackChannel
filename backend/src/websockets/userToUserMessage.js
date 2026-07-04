@@ -28,12 +28,17 @@ export const sendMessageToUser = async (id, content, sender_id, chat_id, expire_
                 sent_at: sent_at
             }
 
-            if(!participantWs || participantWs.readyState !== WebSocket.OPEN){
-                console.log(`userToUserMessage.js - Participant ${participantId} websocket not connected`);
-            }
-            else{
-                participantWs.send(JSON.stringify(message)); 
-            }
+            // if(!participantWs || participantWs.readyState !== WebSocket.OPEN){
+            //     console.log(`userToUserMessage.js - Participant ${participantId} websocket not connected`);
+            // }
+            // else{
+            //     participantWs.send(JSON.stringify(message)); 
+            // }
+
+            participants.forEach(participant => {
+                io.to(participant.id).emit("newMessage", message);
+            });
+            
         });
     }
     catch(error){
