@@ -6,12 +6,12 @@ import { Lock, User } from 'lucide-react';
 const SignUpPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const { signup } = useUser();
+  const { handleSignup } = useUser();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    signup(username, password);
+    handleSignup(username, password);
     setUsername("");
     setPassword("");
   };

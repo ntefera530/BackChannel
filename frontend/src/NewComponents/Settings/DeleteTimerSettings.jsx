@@ -11,7 +11,7 @@ const options = [
 ];
 
 const DeleteTimerSettings = () => {
-    const { deleteTimerSeconds, updateUserSettings } = useUser();
+    const { deleteTimerSeconds, handleUpdateUserSettings } = useUser();
     const [selectedValue, setSelectedValue] = useState(null);
     const [saved, setSaved] = useState(false);
 
@@ -26,7 +26,7 @@ const DeleteTimerSettings = () => {
     };
 
     const handleSave = () => {
-        updateUserSettings(selectedValue);
+        handleUpdateUserSettings(selectedValue);
         setSaved(true);
         setTimeout(() => setSaved(false), 2000);
     };

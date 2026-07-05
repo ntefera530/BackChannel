@@ -26,14 +26,13 @@ export const signup = async (req, res) => {
         if(!result){
             const newUser = await userRepo.createUserProfileQuery(username, hashedPassword);
             const userId = newUser[0].id;
-            createJWT(username,userId,res);   
+            createJWT(username,userId,res);
+            return res.status(200).json({ message: "New User Created", username, userId });
         }
         else {
             return res.status(400).json({ error: "That username already exists" });
         }
-
-        //TODO send the new user without password? 
-        return res.status(200).json({ message: "New User Created" });
+        
     } 
     catch (error) {
         console.log("error in signup controller: ", error.message);

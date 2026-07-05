@@ -3,7 +3,7 @@ import { Trash2, Users } from 'lucide-react';
 import defaultUserImage from '../../assets/defaultUser.jpg';
 
 const FriendsList = () => {
-    const { friends, deleteFriend } = useFriends();
+    const { friends, handleDeleteFriend } = useFriends();
 
     if (friends.length === 0) {
         return (
@@ -37,7 +37,7 @@ const FriendsList = () => {
                     </div>
 
                     <button
-                        onClick={() => deleteFriend(friend.username)}
+                        onClick={() => handleDeleteFriend(friend.username)}
                         className="opacity-0 group-hover:opacity-100 w-7 h-7 flex items-center 
                             justify-center rounded-lg hover:bg-error/10 text-base-content/30 
                             hover:text-error transition-all flex-shrink-0"

@@ -18,7 +18,7 @@ export default function WebSocketProvider({children}){
 
         //const ws = new WebSocket('ws://localhost:5001');
 
-        const socket = io('http://localhost:5001', { withCredentials: true });
+        const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5001', { withCredentials: true });
         socketRef.current = socket;
 
         // ws.onopen = () => {

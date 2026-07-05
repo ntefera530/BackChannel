@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useContext, createContext, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../api/api';
 
 //TODo - delete this
 import axios from 'axios';
@@ -34,12 +35,14 @@ export default function UserProvider({children}){
     const handleLogin = async (username, password) => {
       const response = await authApi.login(username, password);
       console.log("Login response: ", response);
+
       if(!response.status || response.status !== 200){
         console.log("Login failed: ", response.error);
         return;
       }
-      setUsername(response.username);
-      setUserId(response.userId);
+
+      setUsername(response.data.username);
+      setUserId(response.data.userId);
       navigate("/home");   
     }
 
@@ -49,8 +52,8 @@ export default function UserProvider({children}){
         console.log("Signup failed: ", response.error);
         return;
       }
-      setUsername(response.username);
-      setUserId(response.userId);
+      setUsername(response.data.username);
+      setUserId(response.data.userId);
       navigate("/home");
     }
 
