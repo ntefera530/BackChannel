@@ -86,6 +86,8 @@ export const getParticipantsByChatId = async (req, res) => {
 
 export const createChat = async (req, res) => {
     console.log("CreateGroupChat");
+
+    const client = await pool.connect(); // Get a client from the pool
     try{
         const {type} = req.query;
         const {title, participants, expiresAt} = req.body;
@@ -101,12 +103,17 @@ export const createChat = async (req, res) => {
         const participantIds = Array.from(new Set([...(participants || []), owner]));
         
         await chatRepo.addAllChatParticipantByIdQuery(participantIds, groupChatUuid);
+        await client.query('COMMIT');
 
         return res.status(200).json(groupChat);
     }
     catch(error){
+        await client.query('ROLLBACK');
         console.error("Error Creating Group Chat:", error);
         res.status(500).json({ message: "Internal server error" });
+    }
+    finally {
+        client.release(); // Release the client back to the pool
     }
 }
 
