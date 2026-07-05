@@ -1,4 +1,5 @@
 import * as userRepo from '../models/userModel.js'
+import bcrypt from 'bcryptjs';
 
 export const getUserProfile = async (req, res) => {
     try{
@@ -65,7 +66,7 @@ export const updateUsername = async (req, res) => {
         const newUsername = req.body.newUsername;
 
         if(!userId){
-            res.status(400).json({ message: "Invalid JWT" });
+            return res.status(400).json({ message: "Invalid JWT" });
         }
 
         await userRepo.updateUsernameQuery(userId, newUsername);
@@ -83,7 +84,7 @@ export const updatePassword = async (req, res) => {
         const newPassword = req.body.newPassword;
 
         if(!userId){
-            res.status(400).json({ message: "Invalid JWT" });
+            return res.status(400).json({ message: "Invalid JWT" });
         }
         if(!newPassword || newPassword.length < 6){
             return res.status(400).json({ message: "Password must be at least 6 characters" });
@@ -130,7 +131,7 @@ export const updateProfilePicture = async (req, res) => {
         console.log("Update Profile Picture - New Picture URL: ", newProfileImage);
 
         if(!userId){
-            res.status(400).json({ message: "Invalid JWT" });
+            return res.status(400).json({ message: "Invalid JWT" });
         }
 
         await userRepo.updateProfilePictureQuery(userId, newProfileImage);
@@ -147,7 +148,7 @@ export const deleteUserProfile = async (req, res) => {
         const userId = req.user.userId;
 
         if(!userId){
-            res.status(400).json({ message: "Invalid JWT" });
+            return res.status(400).json({ message: "Invalid JWT" });
         }
 
         await userRepo.deleteUserProfileByIdQuery(userId);
@@ -164,7 +165,7 @@ export const deleteAllUserMessages = async (req, res) => {
         const userId = req.user.userId;
 
         if(!userId){
-            res.status(400).json({ message: "Invalid JWT" });
+            return res.status(400).json({ message: "Invalid JWT" });
         }
 
         //TODO: Fix this function in userRepo
@@ -182,15 +183,15 @@ export const getAllUserMessages = async (req, res) => {
         const userId = req.user.userId;
 
         if(!userId){
-            res.status(400).json({ message: "Invalid JWT" });
+            return res.status(400).json({ message: "Invalid JWT" });
         }
 
         //TODO: Fix this function in userRepo
-        await userRepo.getAllUserMessagesQuery(userId);
-        return res.status(200).json({ message: "User Profile Deleted" });
+        const userMessages = await userRepo.getAllUserMessagesQuery(userId);
+        return res.status(200).json({ messages: userMessages });
     }
     catch(error){
-        console.error("Error Deleting User Profile:", error);
+        console.error("Error Getting All User Messages:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 }

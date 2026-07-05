@@ -4,7 +4,7 @@ import pool from '../lib/db.js';
 
 export const getUserProfileByUsernameQuery = async (username) => {
     const query = `
-        SELECT * 
+        SELECT id, username, bio, profile_picture_url 
         FROM "Users" 
         WHERE username = $1
     `;
@@ -24,7 +24,7 @@ export const getProfilePictureUrlByIdQuery = async (userId) => {
 
 export const getUserProfileByIdQuery = async (userId) => {
     const query = `
-        SELECT * 
+        SELECT id, username, bio, profile_picture_url 
         FROM "Users" 
         WHERE id = $1
     `;

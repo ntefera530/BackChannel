@@ -5,6 +5,7 @@ export const createGroupChatQuery = async (uuid, name, isGroup, userId, expiresO
   const query = `
       INSERT INTO "Chats" (id, name, is_group_chat, owner, expires_on) 
       VALUES ($1, $2, $3, $4, $5)
+      RETURNING *
   `;
   const result = await pool.query(query, [uuid, name, isGroup, userId, expiresOn]);
   return result.rows;
@@ -155,14 +156,15 @@ export const getChatParticipantsQuery = async (chatId) => {
 }
 
 // 12. Get Direct Message Id by Friend Id
-export const getDmChatIdByFriendIdQuery = async (userId, friendId) => {
-    const query = `
-        SELECT c.id
-        From "Chats" c JOIN " 
-        WHERE user_id = $1 
-        AND friend_id = $2
-        AND is_group_chat = false
-    `;
-  const result = await pool.query(query, [userId, friendId]);
-  return result.rows;
-}
+//TODO: This function is not working, need to fix it
+// export const getDmChatIdByFriendIdQuery = async (userId, friendId) => {
+//     const query = `
+//         SELECT c.id
+//         From "Chats" c JOIN " "Chat Participants" cp1 ON c.id = cp1.chat_id
+//         WHERE user_id = $1 
+//         AND friend_id = $2
+//         AND is_group_chat = false
+//     `;
+//   const result = await pool.query(query, [userId, friendId]);
+//   return result.rows;
+// }

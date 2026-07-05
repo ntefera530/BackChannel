@@ -29,14 +29,12 @@ export const deleteSelectedMessagesByIdQuery = async (messageIds) => {
     return []; // Nothing to delete
   }
 
-  const postgreSQLArray = messageIds.map((_, i) => `$${i + 1}`).join(', ');
-
   const query = `
     DELETE FROM "Messages" 
-    WHERE id IN (${postgreSQLArray})
+    WHERE id = ANY($1::uuid[])
     RETURNING *;
   `;
-  const result = await pool.query(query, [...messageIds]);
+  const result = await pool.query(query, [messageIds]);
   return result.rows;
 }
 

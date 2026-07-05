@@ -6,6 +6,8 @@ import { normalizeFriendship } from '../lib/utils.js';
 import { v4 as uuidv4 } from "uuid"; //v4 is the most commonly used random UUID
 import {signUrl} from "./uploadController.js"
 
+import pool from "../lib/db.js";
+
 export const getAllChats = async (req, res) => {
     console.log("Get All Chat <---")
 
@@ -123,6 +125,10 @@ export const addParticipantsToChat = async (req, res) => {
     try{
         const {chatId} = req.params;
         const {participants} = req.body;
+        
+        const userId = req.user.userId;
+        if (!(await assertIsParticipant(chatId, userId, res))) return;
+
         await chatRepo.addAllChatParticipantByIdQuery(participants, chatId);
 
         return res.status(200).json({ message: "Chat Participants Added" });
@@ -141,7 +147,7 @@ export const leaveGroupChat = async (req, res) => {
         const {chatId} = req.params;
 
         const chatOwner = await chatRepo.getChatOwnerByIdQuery(chatId);
-        if(!chatOwner){
+        if(!chatOwner || chatOwner.length === 0 || chatOwner[0].owner === null){
             return res.status(403).json({ message: "Cannot Leave DMs" });
         }
 
@@ -167,7 +173,12 @@ export const kickUsersFromGroupChat = async (req, res) => {
         const currentUserId = req.user.userId;
         const participants = req.body.participants;
 
-        const chatOwner = await chatRepo.getChatOwnerByIdQuery(chatId);        
+        const chatOwner = await chatRepo.getChatOwnerByIdQuery(chatId);
+
+        if (!chatOwner || chatOwner.length === 0) {
+            return res.status(404).json({ message: "Chat not found" });
+        }
+
         const chatOwnerId = chatOwner[0].owner;
 
         if(currentUserId !== chatOwnerId){
@@ -193,7 +204,7 @@ export const deleteGroupChat = async (req, res) => {
         const {chatId} = req.params;
 
         const chatOwner = await chatRepo.getChatOwnerByIdQuery(chatId);
-        if(!chatOwner){
+        if(!chatOwner || chatOwner.length === 0 || chatOwner[0].owner === null){
             return res.status(403).json({ message: "Cannot Delete DMs" });
         }
 
@@ -217,7 +228,7 @@ export const deletSelectedMessages = async (req, res) => {
     console.log("Delete Selected  Message");
 
     try{
-        const {messages} = req.body.messages;
+        const {messages} = req.body;
 
         await messageRepo.deleteSelectedMessagesByIdQuery(messages);
 
@@ -234,6 +245,12 @@ export const  deleteMessagesByChatId = async (req, res) => {
 
     try{
         const {chatId} = req.params;
+        const userId = req.user.userId;
+
+        const chatOwner = await chatRepo.getChatOwnerByIdQuery(chatId);
+        if (!chatOwner?.length || chatOwner[0].owner !== userId) {
+            return res.status(403).json({ message: "Only the owner can do this" });
+        }
 
         const messages = await messageRepo.deleteMessagesByChatIdQuery(chatId);
         return res.status(200).json({ messages });

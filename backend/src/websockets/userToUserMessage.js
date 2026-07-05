@@ -3,7 +3,7 @@ import pool from '../lib/db.js';
 import { saveMessagesQuery } from "../models/messageModel.js";
 import { getChatParticipantsQuery } from "../models/chatModel.js";
 
-export const sendMessageToUser = async (id, content, sender_id, chat_id, expire_by, sent_at, clientsMap) => {
+export const sendMessageToUser = async (id, content, sender_id, chat_id, expire_by, sent_at, io) => {
     console.log(`User ${sender_id} --> Chat "${chat_id}", Content: ${content}, ID: ${id}`);
     console.log(` Message ID: ${id}`);
     console.log(`Expire: ${expire_by}`);
@@ -27,13 +27,6 @@ export const sendMessageToUser = async (id, content, sender_id, chat_id, expire_
                 expire_at: expire_by,
                 sent_at: sent_at
             }
-
-            // if(!participantWs || participantWs.readyState !== WebSocket.OPEN){
-            //     console.log(`userToUserMessage.js - Participant ${participantId} websocket not connected`);
-            // }
-            // else{
-            //     participantWs.send(JSON.stringify(message)); 
-            // }
 
             participants.forEach(participant => {
                 io.to(participant.id).emit("newMessage", message);
