@@ -12,7 +12,7 @@ router.put("/me/username", protectRoute, userController.updateUsername);
 router.put("/me/password", protectRoute, userController.updatePassword);
 router.put("/me/profilePicture", protectRoute, userController.updateProfilePicture);
 
-router.put("/me/bio",protectRoute, userController.updateProfilePicture);
+//router.put("/me/bio",protectRoute, userController.updateProfilePicture);
 
 
 router.delete("/me", protectRoute, userController.deleteUserProfile);

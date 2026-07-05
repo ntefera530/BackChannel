@@ -40,6 +40,7 @@ export const getMessagesByChatId = async (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const offset = parseInt(req.query.offset) || 0;
 
+        if (!(await assertIsParticipant(chatId, userId, res))) return;
 
         const messages = await messageRepo.getMessagesByChatIdQuery(chatId, limit, offset);
         return res.status(200).json({ messages });
@@ -54,18 +55,26 @@ export const getParticipantsByChatId = async (req, res) => {
     console.log("get Participants");
 
     try{
-        //const userId = req.user.userId;
+        const userId = req.user.userId;
         const {chatId} = req.params;
 
+        if (!(await assertIsParticipant(chatId, userId, res))) return;
         const participants = await chatRepo.getChatParticipantsQuery(chatId);
 
         //sign urls for each participant's profile picture
-        for(let i = 0; i < participants.length; i++){
-            const key = participants[i].profile_picture_url;
-            participants[i].profile_picture_url = await signUrl(key);
-        }
+        // for(let i = 0; i < participants.length; i++){
+        //     const key = participants[i].profile_picture_url;
+        //     participants[i].profile_picture_url = await signUrl(key);
+        // }
+
+        const signedParticipants = await Promise.all(
+            participants.map(async (participant) => ({
+                ...participant,
+                profile_picture_url: await signUrl(participant.profile_picture_url),
+            }))
+        );
   
-        return res.status(200).json({ participants });
+        return res.status(200).json({ participants: signedParticipants });
     }
     catch(error){
         console.error("Error Getting Participants:", error);
@@ -79,15 +88,19 @@ export const createChat = async (req, res) => {
     console.log("CreateGroupChat");
     try{
         const {type} = req.query;
-        const {title, participants, expiresAt, owner} = req.body;
+        const {title, participants, expiresAt} = req.body;
+        const owner = req.user.userId;
 
         const isGroupChat = type === 'group' ? true : false;
         const groupChatUuid = uuidv4();
 
+        await client.query('BEGIN');
         const groupChat = await chatRepo.createGroupChatQuery(groupChatUuid, title, isGroupChat, owner, expiresAt);
 
         //Adds owner as a participant in their own chat
-        await chatRepo.addAllChatParticipantByIdQuery(participants, groupChatUuid);
+        const participantIds = Array.from(new Set([...(participants || []), owner]));
+        
+        await chatRepo.addAllChatParticipantByIdQuery(participantIds, groupChatUuid);
 
         return res.status(200).json(groupChat);
     }
@@ -197,9 +210,8 @@ export const deletSelectedMessages = async (req, res) => {
     console.log("Delete Selected  Message");
 
     try{
-        //const {messages} = req.body.messages;
-        const {messages} = req.messages;
-        
+        const {messages} = req.body.messages;
+
         await messageRepo.deleteSelectedMessagesByIdQuery(messages);
 
         return res.status(200).json({ message: "Delete Message" });
@@ -240,3 +252,14 @@ export const  deleteUserMessagesByChatId = async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 }
+
+//verify is a participant in chat before allowing actions
+const assertIsParticipant = async (chatId, userId, res) => {
+    const participants = await chatRepo.getChatParticipantsQuery(chatId);
+    const isMember = participants.some(p => p.id === userId);
+    if (!isMember) {
+        res.status(403).json({ message: "You are not a participant in this chat" });
+        return false;
+    }
+    return true;
+};
