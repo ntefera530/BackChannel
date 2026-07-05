@@ -44,12 +44,31 @@ export default function ChatsProvider({ children }) {
       selectedChatIdRef.current = selectedChatId;
     }, [selectedChatId]);
 
+    //OLD WEBSOCKET
+    // useEffect(() => {
+    //   const ws = wsRef.current;
+    //   if (!ws) return;
+    //   const recieveMessage = (event) => {
+    //     const messageData = JSON.parse(event.data);
+    //     console.log("Received WS message:", messageData);
+    //     if (messageData.chat_id === selectedChatIdRef.current) {
+    //       setMessages(messages => {
+    //         // Prevent duplicates: optimistic message was already added locally by the sender
+    //         if (messages.some(m => m.id === messageData.id)) return messages;
+    //         return [...messages, messageData];
+    //       });
+    //     }
+    //   };
+    //   ws.addEventListener('message', recieveMessage);
+    //   return () => ws.removeEventListener('message', recieveMessage);
+    // }, [wsReady]); // re-subscribe whenever a fresh socket connection opens
+
     useEffect(() => {
-      const ws = wsRef.current;
-      if (!ws) return;
-      const recieveMessage = (event) => {
-        const messageData = JSON.parse(event.data);
-        console.log("Received WS message:", messageData);
+      const socket = wsRef.current;
+      if (!socket) return;
+      // Named event instead of a generic 'message' listener + JSON.parse.
+      const receiveMessage = (messageData) => {
+        console.log("Received newMessage:", messageData);
         if (messageData.chat_id === selectedChatIdRef.current) {
           setMessages(messages => {
             // Prevent duplicates: optimistic message was already added locally by the sender
@@ -58,8 +77,8 @@ export default function ChatsProvider({ children }) {
           });
         }
       };
-      ws.addEventListener('message', recieveMessage);
-      return () => ws.removeEventListener('message', recieveMessage);
+      socket.on('newMessage', receiveMessage);
+      return () => socket.off('newMessage', receiveMessage);
     }, [wsReady]); // re-subscribe whenever a fresh socket connection opens
 
     const loadMoreMessages = () => {
@@ -70,18 +89,47 @@ export default function ChatsProvider({ children }) {
         return handleGetChatMessages(selectedChatId, limit, newOffset);
     }
 
-    //SEND Message
+    //OLD SEND Message
+    // const sendMessage = (content) => {
+    //   const ws = wsRef.current;
+    //   if(!ws){
+    //     console.error("WebSocket not connected");
+    //     return;
+    //   }
+
+    //   // Send formattedTimestamp to your backend API
+
+    //   const message = {
+    //     type: 'sendMessageToUser',
+    //     id: uuidv4(),
+    //     content: content, 
+    //     sender_id: userId,
+    //     chat_id: selectedChatId,
+    //     expire_at: new Date(Date.now() + deleteTimerSeconds * 1000),
+    //     sent_at: new Date()
+    //   }
+
+    //   if(ws.readyState === WebSocket.OPEN) {
+    //     ws.send(JSON.stringify(message));
+
+    //     //Add message locally for instant UI update
+    //     setMessages(messages => [...messages, message]);
+    //   }
+    //   else{
+    //     //TODO: Handle reconnection logic
+    //     console.log("WebSocket not open. Ready state:", ws.readyState);
+    //   }
+    // }
+
     const sendMessage = (content) => {
-      const ws = wsRef.current;
-      if(!ws){
-        console.error("WebSocket not connected");
+      const socket = wsRef.current;
+      if(!socket){
+        console.error("Socket.IO not connected");
         return;
       }
 
-      // Send formattedTimestamp to your backend API
 
       const message = {
-        type: 'sendMessageToUser',
         id: uuidv4(),
         content: content, 
         sender_id: userId,
@@ -90,15 +138,13 @@ export default function ChatsProvider({ children }) {
         sent_at: new Date()
       }
 
-      if(ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify(message));
-
-        //Add message locally for instant UI update
-        setMessages(messages => [...messages, message]);
+      if(socket.connected) {
+        socket.emit('sendMessageToUser', message);
+        setMessages(messages => [...messages, message]); // Optimistic UI update
       }
       else{
         //TODO: Handle reconnection logic
-        console.log("WebSocket not open. Ready state:", ws.readyState);
+        console.log("Socket.IO not connected");
       }
     }
 

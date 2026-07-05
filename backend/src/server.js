@@ -1,9 +1,9 @@
 import express from "express"
 
 import { WebSocketServer } from 'ws';
-import { SocketIOServer } from 'socket.io';
+import { Server } from 'socket.io';
 
-import { startScheduler } from "./lib/scheduler.js";
+//import { startScheduler } from "./lib/scheduler.js";
 import { setUpWebSocket } from "./websockets/websocket.js";
 import { setUpSocketIO } from "./websockets/websocket.js";
 
@@ -49,19 +49,17 @@ app.use("/api/v1/uploads", uploadRoutes);
 const server = http.createServer(app);
 
 //Start Socket.IO server
-/*
-const io = new SocketIOServer(server, {
+const io = new Server(server, {
     cors: {
         origin: 'http://localhost:5173',
         credentials: true,
     }
 });
 setUpSocketIO(io);
-*/
 
 //Start WebSocket server
-const wss = new WebSocketServer({server});
-setUpWebSocket(wss);
+//const wss = new WebSocketServer({server});
+//setUpWebSocket(wss);
 
 //TODO - start worker thread for background tasks like message cleanup, notification sending, etc.
 

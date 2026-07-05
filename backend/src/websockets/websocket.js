@@ -1,7 +1,7 @@
 import { sendMessageToUser } from "./userToUserMessage.js";
 import jwt from "jsonwebtoken"
 import cookie from 'cookie';
-import * as rtc from "../lib/callState.js"
+//import * as rtc from "../lib/callState.js"
 
 export const setUpWebSocket = (wss) => {
 
@@ -114,18 +114,20 @@ export const setUpSocketIO = (io) => {
     console.log('websocket.js - Client connected:', clientId);
 
     socket.join(clientId); // Join a room with the user's ID
+
+    //TODO add message validation
+
+    socket.on("sendMessageToUser", ({ id, content, sender_id, chat_id, sent_at, expire_at }) => {
+      sendMessageToUser(id, content, sender_id, chat_id, expire_at, sent_at, io);
+    });
+
+    //TODO - add RTC capabilities for video calls
+
+    socket.on('disconnect', () => {
+      console.log('websocket.js - Client disconnected:', clientId);
+    });
   });
 
-  //TODO add message validation
 
-  socket.on("sendMessageToUser", ({ id, content, sender_id, chat_id, sent_at, expire_at }) => {
-    sendMessageToUser(id, content, sender_id, chat_id, expire_at, sent_at, io);
-  });
-
-  //TODO - add RTC capabilities for video calls
-
-  socket.on('disconnect', () => {
-    console.log('websocket.js - Client disconnected:', clientId);
-  });
   
 }

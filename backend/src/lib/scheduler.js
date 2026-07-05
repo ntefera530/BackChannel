@@ -1,16 +1,16 @@
-import { messageDeletionQueue } from "../queues/messageDeletionQueue.js";
+// import { messageDeletionQueue } from "../queues/messageDeletionQueue.js";
 
 
-export async function startScheduler() {
+// export async function startScheduler() {
 
-  await messageDeletionQueue.add(
-    "delete-expired-messages",
-    {},
-    {
-      repeat: { every: 30000 }, // every 30 seconds
-      removeOnComplete: true,
-    }
-  );
+//   await messageDeletionQueue.add(
+//     "delete-expired-messages",
+//     {},
+//     {
+//       repeat: { every: 30000 }, // every 30 seconds
+//       removeOnComplete: true,
+//     }
+//   );
 
-  console.log("Scheduler started");
-}
+//   console.log("Scheduler started");
+// }
