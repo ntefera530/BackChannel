@@ -109,6 +109,15 @@ export const updateProfilePictureQuery = async (userId, profilePictureUrl, ) => 
   return result.rows;
 }
 
+export const updateBioQuery = async (userId, newBio) => {
+    const query = `
+        UPDATE "Users"
+        SET bio = $1
+        WHERE id = $2
+    `;
+  const result = await pool.query(query, [newBio, userId]);
+  return result.rows;
+}
 
 // ------------------------------------- Delete -------------------------------------------------------------------------------------
 

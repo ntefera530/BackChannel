@@ -61,7 +61,7 @@ export const getProfilePictureUrl = async (req, res) => {
 
 export const updateUsername = async (req, res) => {
     try{
-        const userId = req.userId;
+        const userId = req.user.userId;
         const newUsername = req.body.newUsername;
 
         if(!userId){
@@ -85,8 +85,14 @@ export const updatePassword = async (req, res) => {
         if(!userId){
             res.status(400).json({ message: "Invalid JWT" });
         }
+        if(!newPassword || newPassword.length < 6){
+            return res.status(400).json({ message: "Password must be at least 6 characters" });
+        }
 
-        await userRepo.updatePasswordQuery(userId, newPassword);
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        await userRepo.updatePasswordQuery(userId, hashedPassword);
         return res.status(200).json({ message: "Password Updated" });
     }
     catch(error){
@@ -96,7 +102,22 @@ export const updatePassword = async (req, res) => {
 }
 
 //TODO
-export const updatBio = async (req, res) => {
+export const updateBio = async (req, res) => {
+    try{
+        const userId = req.user.userId;
+        const { newBio } = req.body;
+ 
+        if(!userId){
+            return res.status(400).json({ message: "Invalid JWT" });
+        }
+ 
+        await userRepo.updateBioQuery(userId, newBio);
+        return res.status(200).json({ message: "Bio Updated" });
+    }
+    catch(error){
+        console.error("Error in Update Bio:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
 }
 
 //TODO Set up AWS
@@ -158,7 +179,7 @@ export const deleteAllUserMessages = async (req, res) => {
 
 export const getAllUserMessages = async (req, res) => {
     try{
-        const userId = req.userId;
+        const userId = req.user.userId;
 
         if(!userId){
             res.status(400).json({ message: "Invalid JWT" });
