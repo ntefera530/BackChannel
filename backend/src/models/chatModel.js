@@ -168,3 +168,35 @@ export const getChatParticipantsQuery = async (chatId) => {
 //   const result = await pool.query(query, [userId, friendId]);
 //   return result.rows;
 // }
+
+export const getChatParticipantsCountQuery = async (chatId) => {
+  const query = `
+      SELECT COUNT(*) AS participant_count
+      FROM "Chat Participants"
+      WHERE chat_id = $1
+  `;
+  const result = await pool.query(query, [chatId]);
+  return result.rows[0].participant_count;
+}
+
+export const isUserChatParticipantQuery = async (chatId, userId) => {
+  const query = `
+    SELECT 1
+    FROM "Chat Participants"
+    WHERE chat_id = $1 
+    AND user_id = $2
+  `;
+  const result = await pool.query(query, [chatId, userId]);
+  return result.rows.length > 0;
+}
+
+export const isUserChatOwnerQuery = async (chatId, userId) => {
+  const query = `
+    SELECT 1
+    FROM "Chats"
+    WHERE id = $1
+    AND owner = $2
+  `;
+  const result = await pool.query(query, [chatId, userId]);
+  return result.rows.length > 0;
+}

@@ -8,6 +8,38 @@ import {signUrl} from "./uploadController.js"
 
 import pool from "../lib/db.js";
 
+const MAX_GROUP_SIZE = 50;
+
+
+export const addParticipantsToGroupChat = async (req, res) => {
+    console.log("Add Participants To Chat");
+
+    try{
+        const {chatId} = req.params;
+        const {participants} = req.body;
+
+        if (!Array.isArray(participants) || participants.length === 0) {
+            return res.status(400).json({ message: "No participants provided" });
+        }
+
+        const currentCount = await chatRepo.getChatParticipantsCountQuery(chatId);
+        const newParticipants = new Set(participants);
+
+        if (currentCount + newParticipants.size > MAX_GROUP_SIZE) {
+            return res.status(400).json({
+                message: `Group chats are limited to ${MAX_GROUP_SIZE} members. This chat has ${currentCount}, cannot add ${newParticipants.size} more.`
+            });
+        }
+
+        await chatRepo.addAllChatParticipantByIdQuery(participants, chatId);
+        return res.status(200).json({ message: "Chat Participants Added" });
+    }
+    catch(error){
+        console.error("Error Adding Chat:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+//_____________________________________________________________________________________________________________________________________________________________
 export const getAllChats = async (req, res) => {
     console.log("Get All Chat <---")
 
@@ -32,6 +64,7 @@ export const getAllChats = async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 }
+
 
 export const getMessagesByChatId = async (req, res) => {
     console.log("get Messages");
@@ -86,7 +119,7 @@ export const getParticipantsByChatId = async (req, res) => {
 
 //---------------------------------------------------------------------------------------
 
-export const createChat = async (req, res) => {
+export const createGroupChat = async (req, res) => {
     console.log("CreateGroupChat");
 
     const client = await pool.connect(); // Get a client from the pool
@@ -119,25 +152,13 @@ export const createChat = async (req, res) => {
     }
 }
 
-export const addParticipantsToChat = async (req, res) => {
-    console.log("Add Participants To Chat");
-
-    try{
-        const {chatId} = req.params;
-        const {participants} = req.body;
-        
-        const userId = req.user.userId;
-        if (!(await assertIsParticipant(chatId, userId, res))) return;
-
-        await chatRepo.addAllChatParticipantByIdQuery(participants, chatId);
-
-        return res.status(200).json({ message: "Chat Participants Added" });
-    }
-    catch(error){
-        console.error("Error Adding Chat:", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
+//TODO
+export const createDirectMessage = async (req, res) => {
+    console.log("CreateDirectMessage");
+    return res.status(200).json({ message: "Direct Message Created" });
 }
+
+
 //---------------------------------------------------------------------------------------
 
 export const leaveGroupChat = async (req, res) => {
@@ -165,19 +186,16 @@ export const leaveGroupChat = async (req, res) => {
     }
 }
 
-export const kickUsersFromGroupChat = async (req, res) => {
+export const kickUserFromGroupChat = async (req, res) => {
     console.log("Kick From Group")
 
     try{
         const {chatId} = req.params;
-        const currentUserId = req.user.userId;
         const participants = req.body.participants;
 
-        const chatOwner = await chatRepo.getChatOwnerByIdQuery(chatId);
+        const owner = await chatRepo.getChatOwnerByIdQuery(chatId);
 
-        if (!chatOwner || chatOwner.length === 0) {
-            return res.status(404).json({ message: "Chat not found" });
-        }
+
 
         const chatOwnerId = chatOwner[0].owner;
 
@@ -224,7 +242,13 @@ export const deleteGroupChat = async (req, res) => {
     }  
 }
 
-export const deletSelectedMessages = async (req, res) => {
+//TODO
+export const deleteDirectMessage = async (req, res) => {
+    console.log("Delete Direct Message")
+    return res.status(200).json({ message: "Direct Message Deleted" });
+}
+
+export const deleteUserSelectedMessages = async (req, res) => {
     console.log("Delete Selected  Message");
 
     try{
@@ -277,13 +301,3 @@ export const  deleteUserMessagesByChatId = async (req, res) => {
     }
 }
 
-//verify is a participant in chat before allowing actions
-const assertIsParticipant = async (chatId, userId, res) => {
-    const participants = await chatRepo.getChatParticipantsQuery(chatId);
-    const isMember = participants.some(p => p.id === userId);
-    if (!isMember) {
-        res.status(403).json({ message: "You are not a participant in this chat" });
-        return false;
-    }
-    return true;
-};
