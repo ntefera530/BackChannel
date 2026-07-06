@@ -8,8 +8,42 @@ import {signUrl} from "./uploadController.js"
 
 import pool from "../lib/db.js";
 
-const MAX_GROUP_SIZE = 50;
+const MAX_GROUP_SIZE = 25;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ---------------------------------------------------------------- OLD --------------------------------
 
 export const addParticipantsToGroupChat = async (req, res) => {
     console.log("Add Participants To Chat");
@@ -65,17 +99,16 @@ export const getAllChats = async (req, res) => {
     }
 }
 
-
+//Updated
 export const getMessagesByChatId = async (req, res) => {
     console.log("get Messages");
-    //TODO - add check to make sure user is a participant in the chat before getting messages
+
     try{
         const userId = req.user.userId;
         const {chatId} = req.params;
+
         const limit = parseInt(req.query.limit) || 10;
         const offset = parseInt(req.query.offset) || 0;
-
-        if (!(await assertIsParticipant(chatId, userId, res))) return;
 
         const messages = await messageRepo.getMessagesByChatIdQuery(chatId, limit, offset);
         return res.status(200).json({ messages });
@@ -155,6 +188,33 @@ export const createGroupChat = async (req, res) => {
 //TODO
 export const createDirectMessage = async (req, res) => {
     console.log("CreateDirectMessage");
+    const client = await pool.connect(); // Get a client from the pool
+    try{
+        const {type} = req.query;
+        const user1 = req.user.userId;
+        const {title, user2, expiresAt} = req.body;
+        
+
+        const isDM = type === 'direct' ? true : false;
+        const dmUuid = uuidv4();
+
+        await client.query('BEGIN');
+        const directMessage = await chatRepo.createDirectMessageQuery(dmUuid, user1, user2, null, expiresAt);
+
+        
+        await chatRepo.addAllChatParticipantByIdQuery(participantIds, groupChatUuid);
+        await client.query('COMMIT');
+
+        return res.status(200).json(directMessage);
+    }
+    catch(error){
+        await client.query('ROLLBACK');
+        console.error("Error Creating Group Chat:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+    finally {
+        client.release(); // Release the client back to the pool
+    }
     return res.status(200).json({ message: "Direct Message Created" });
 }
 
@@ -164,23 +224,33 @@ export const createDirectMessage = async (req, res) => {
 export const leaveGroupChat = async (req, res) => {
     console.log("Leave Group Chat")
     try{
-        const currentUserId = req.user.userId;
-        const {chatId} = req.params;
+        const userId = req.user.userId;
+        const {chatId } = req.params;
+        const deleteMessages = req.query.deleteMessages === 'true';
 
         const chatOwner = await chatRepo.getChatOwnerByIdQuery(chatId);
+
         if(!chatOwner || chatOwner.length === 0 || chatOwner[0].owner === null){
             return res.status(403).json({ message: "Cannot Leave DMs" });
         }
 
+        
         const chatOwnerId = chatOwner[0].owner;
         if(currentUserId === chatOwnerId){
             return res.status(403).json({ message: "Owners cannot leave thier group chats" });
         }
 
-        await chatRepo.removeChatParticipantByIdQuery(chatId, currentUserId);
+        //TODO - wrap in a transaction
+        await chatRepo.removeChatParticipantByIdQuery(chatId, userId);
+
+        if(deleteMessages){     
+            await messageRepo.deleteUserMessagesByChatIdQuery(chatId, userId);
+        }
+
         return res.status(200).json({ message: "Left group" });
     }
     catch(error){
+        //Todo - Rollback transaction if needed
         console.error("Error Leaving Group:", error);
         res.status(500).json({ message: "Internal server error" });
     }
@@ -193,16 +263,6 @@ export const kickUserFromGroupChat = async (req, res) => {
         const {chatId} = req.params;
         const participants = req.body.participants;
 
-        const owner = await chatRepo.getChatOwnerByIdQuery(chatId);
-
-
-
-        const chatOwnerId = chatOwner[0].owner;
-
-        if(currentUserId !== chatOwnerId){
-            return res.status(403).json({ message: "Only the owner can kick users from the group chat" });
-        }
-
         const result = await chatRepo.removeParticipantsFromChatQuery(participants, chatId);
 
         console.log(result)
@@ -214,27 +274,16 @@ export const kickUserFromGroupChat = async (req, res) => {
     }
 }
 
+//Updated
 export const deleteGroupChat = async (req, res) => {
     console.log("Delete Group Chat")
 
     try{
-        const currentUserId = req.user.userId;
         const {chatId} = req.params;
-
-        const chatOwner = await chatRepo.getChatOwnerByIdQuery(chatId);
-        if(!chatOwner || chatOwner.length === 0 || chatOwner[0].owner === null){
-            return res.status(403).json({ message: "Cannot Delete DMs" });
-        }
-
-        const chatOwnerId = chatOwner[0].owner;
-
-        if(currentUserId !== chatOwnerId){
-            return res.status(403).json({ message: "Only the owner can delete the group chat" });
-        }
 
         await chatRepo.deleteChatByIdQuery(chatId);
 
-        return res.status(200).json({ message: "Chat Deleted" });
+        return res.status(200).json({ message: "Group Chat Deleted" });
     }
     catch(error){
         console.error("Error Deleting Chat:", error);
@@ -242,17 +291,30 @@ export const deleteGroupChat = async (req, res) => {
     }  
 }
 
-//TODO
+//Updated
 export const deleteDirectMessage = async (req, res) => {
     console.log("Delete Direct Message")
+
+    try{
+        const {chatId} = req.params;
+
+        await chatRepo.deleteChatByIdQuery(chatId);
+
+        return res.status(200).json({ message: "Direct Message Deleted" });
+    }
+    catch(error){
+        console.error("Error Deleting Chat:", error);
+        res.status(500).json({ message: "Internal server error" });
+    } 
     return res.status(200).json({ message: "Direct Message Deleted" });
 }
 
-export const deleteUserSelectedMessages = async (req, res) => {
+export const deleteUserSelectedMessage = async (req, res) => {
     console.log("Delete Selected  Message");
 
     try{
         const {messages} = req.body;
+        const { messageId } = req.params;
 
         await messageRepo.deleteSelectedMessagesByIdQuery(messages);
 
@@ -264,28 +326,8 @@ export const deleteUserSelectedMessages = async (req, res) => {
     }
 }
 
-export const  deleteMessagesByChatId = async (req, res) => {
-    console.log("Delete Messages");
-
-    try{
-        const {chatId} = req.params;
-        const userId = req.user.userId;
-
-        const chatOwner = await chatRepo.getChatOwnerByIdQuery(chatId);
-        if (!chatOwner?.length || chatOwner[0].owner !== userId) {
-            return res.status(403).json({ message: "Only the owner can do this" });
-        }
-
-        const messages = await messageRepo.deleteMessagesByChatIdQuery(chatId);
-        return res.status(200).json({ messages });
-    }
-    catch(error){
-        console.error("Error Getting Messages:", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-}
-
-export const  deleteUserMessagesByChatId = async (req, res) => {
+//Updated
+export const deleteUserMessagesByChatId = async (req, res) => {
     console.log("Delete All Messages IN Chat");
 
     try{
@@ -296,7 +338,7 @@ export const  deleteUserMessagesByChatId = async (req, res) => {
         return res.status(200).json({ messages });
     }
     catch(error){
-        console.error("Error Getting Messages:", error);
+        console.error("Error Deleting User Messages:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 }

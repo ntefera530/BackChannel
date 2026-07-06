@@ -1,7 +1,6 @@
 import pool from '../lib/db.js';
 
-// 1. Create Chat -- is_Group = true for group chat, false for DM
-export const createGroupChatQuery = async (uuid, name, isGroup, userId, expiresOn) => {
+export const createGroupChat = async (uuid, name, isGroup, userId, expiresOn) => {
   const query = `
       INSERT INTO "Chats" (id, name, is_group_chat, owner, expires_on) 
       VALUES ($1, $2, $3, $4, $5)
@@ -11,14 +10,40 @@ export const createGroupChatQuery = async (uuid, name, isGroup, userId, expiresO
   return result.rows;
 }
 
-export const createDirectMessageQuery = async (directMessageUuid, isGroupChat) => {
+export const createDirectMessageQuery = async (uuid, name, isGroup, userId, expiresOn) => {
   const query = `
       INSERT INTO "Chats" (id, is_group_chat) 
-      VALUES ($1, $2)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING *
   `;
-  const result = await pool.query(query, [directMessageUuid, isGroupChat]);
+  const result = await pool.query(query, [uuid, null, false, userId, expiresOn]);
   return result.rows;
 }
+
+export const deleteChatQuery = async (chatId) => {
+  const query = `
+    DELETE FROM "Chats" 
+    WHERE id = $1
+  `;
+  
+  const result = await pool.query(query, [chatId]);
+  return result.rows;
+}
+
+export const deleteAllUsersChatsQuery = async (userId) => {
+  const query = `
+      DELETE FROM "Chats" 
+      WHERE owner_id = $1
+  `;
+  const result = await pool.query(query, [userId]);
+  return result.rows;
+}
+
+
+
+
+
+
 
 // 2. Add Participants to Chat
 export const addAllChatParticipantByIdQuery = async (participantsIdArray, chatId) => {
@@ -78,26 +103,6 @@ export const deleteChatParticipantsQuery = async (chatId, ownerId) => {
   return result.rows;
 }
 
-// 5. Delete Chat (owner only)
-export const deleteChatByIdQuery = async (chatId,) => {
-  const query = `
-    DELETE FROM "Chats" 
-    WHERE id = $1
-  `;
-  
-  const result = await pool.query(query, [chatId]);
-  return result.rows;
-}
-
-// 6. Delete ALl Chats
-export const deleteALlChatsQuery = async (userId) => {
-  const query = `
-      DELETE FROM "Chats" 
-      WHERE owner_id = $1
-  `;
-  const result = await pool.query(query, [userId]);
-  return result.rows;
-}
 
 // 7. Get all Chats for User
 export const getAllChatsQuery = async (userId) => {
@@ -132,8 +137,7 @@ export const getGroupChatsQuery = async (userId) => {
   return result.rows;
 }
 
-// 10. Get Chat Owner by Chat Id
-export const getChatOwnerByIdQuery = async (chatId) => {
+export const getGroupChatOwner = async (chatId) => {
   const query = `
     SELECT owner
     FROM "Chats"
@@ -143,7 +147,6 @@ export const getChatOwnerByIdQuery = async (chatId) => {
   return result.rows;
 }
 
-// 11. Get Chat Participants by Chat Id
 export const getChatParticipantsQuery = async (chatId) => {
     const query = `
         SELECT u.username, u.id, u.profile_picture_url
@@ -179,7 +182,9 @@ export const getChatParticipantsCountQuery = async (chatId) => {
   return result.rows[0].participant_count;
 }
 
-export const isUserChatParticipantQuery = async (chatId, userId) => {
+
+
+export const isUserChatParticipant = async (chatId, userId) => {
   const query = `
     SELECT 1
     FROM "Chat Participants"
@@ -190,7 +195,7 @@ export const isUserChatParticipantQuery = async (chatId, userId) => {
   return result.rows.length > 0;
 }
 
-export const isUserChatOwnerQuery = async (chatId, userId) => {
+export const isUserChatOwner = async (chatId, userId) => {
   const query = `
     SELECT 1
     FROM "Chats"

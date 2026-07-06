@@ -19,6 +19,8 @@ import dotenv from "dotenv"
 import cookieParser from "cookie-parser";
 import http from "http"
 import cors from "cors";
+import logger from "./lib/logger.js";
+import pinoHttp from "pino-http";
 
 dotenv.config();
 
@@ -34,6 +36,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
+app.use(pinoHttp({ logger }));
 // Allow all origins (for development only!)
 //app.use(cors());
 
