@@ -10,7 +10,7 @@ export const createGroupChat = async (uuid, name, isGroup, userId, expiresOn) =>
   return result.rows;
 }
 
-export const createDirectMessageQuery = async (uuid, name, isGroup, userId, expiresOn) => {
+export const createDirectMessage = async (uuid, name, isGroup, userId, expiresOn) => {
   const query = `
       INSERT INTO "Chats" (id, is_group_chat) 
       VALUES ($1, $2, $3, $4, $5)
@@ -20,7 +20,7 @@ export const createDirectMessageQuery = async (uuid, name, isGroup, userId, expi
   return result.rows;
 }
 
-export const deleteChatQuery = async (chatId) => {
+export const deleteChat = async (chatId) => {
   const query = `
     DELETE FROM "Chats" 
     WHERE id = $1
@@ -30,7 +30,13 @@ export const deleteChatQuery = async (chatId) => {
   return result.rows;
 }
 
-export const deleteAllUsersChatsQuery = async (userId) => {
+
+
+
+
+
+
+export const deleteAllUsersChats = async (userId) => {
   const query = `
       DELETE FROM "Chats" 
       WHERE owner_id = $1
@@ -103,9 +109,7 @@ export const deleteChatParticipantsQuery = async (chatId, ownerId) => {
   return result.rows;
 }
 
-
-// 7. Get all Chats for User
-export const getAllChatsQuery = async (userId) => {
+export const getAllChatsForUser= async (userId) => {
   const query = `
       SELECT *
       FROM "Chats" c JOIN "Chat Participants" chp 
