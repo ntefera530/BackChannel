@@ -1,5 +1,49 @@
 import pool from '../lib/db.js';
 
+export const deleteUserChatMessages = async (chatId, userId, db = pool) => {
+    const query = `
+        DELETE FROM "Messages"
+        WHERE chat_id = $1
+        AND sender_id = $2
+        RETURNING *
+    `;
+    const result = await db.query(query, [chatId, userId]);
+    return result.rows;
+}
+
+export const deleteChatMessage = async (chatId, messageId, db = pool) => {
+    const query = `
+        DELETE FROM "Messages"
+        WHERE chat_id = $1
+        AND id = $2
+        RETURNING *
+    `;
+    const result = await db.query(query, [chatId, messageId]);
+    return result.rows;
+} 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//______________________________________________________________________OLD QUERIES______________________________________________________________________
 // export const getMessagesByChatIdQuery = async (chatId, limit, offset) => {
 //     const query = `
 //         SELECT *
