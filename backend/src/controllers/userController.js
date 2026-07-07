@@ -1,63 +1,51 @@
 import * as userRepo from '../models/userModel.js'
 import bcrypt from 'bcryptjs';
 
-export const getUserProfile = async (req, res) => {
-    try{
-        const username = req.params.username;
 
-        const currentUser = await userRepo.getUserProfileByUsernameQuery(username);
-        //console.log(currentUser)
-        return res.status(200).json(currentUser);
-    }
-    catch(error){
-        console.error("Error in Get User Profile:", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-}
-
-export const getUserDeleteSettings = async (req, res) => {
+export const getDeletionSettings = async (req, res) => {
     try{
         const userId = req.user.userId;
+        const delete_time_seconds = await userRepo.getUserDeletionSettings(userId);
 
-        const delete_time_seconds = await userRepo.getUserDeleteSettingsByUserIdQuery(userId);
-        //console.log(currentUser)
         return res.status(200).json(delete_time_seconds);
     }
     catch(error){
-        console.error("Error in Get User Delete Settings:", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-}
-
-export const updateUserDeleteSettings = async (req, res) => {
-    try{
-        const userId = req.user.userId;
-        const delete_time_seconds = req.body.deleteTimerSeconds;
-        await userRepo.updateUserDeleteSettingsByUserIdQuery(userId, delete_time_seconds);
-        //console.log(currentUser)
-        return res.status(200).json({message: "Delete Timer Updated", delete_time_seconds});
-    }
-    catch(error){
-        console.error("Error in Update User Delete Settings:", error);
+        console.error("Error Getting User Deletion Settings:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 }
 
 export const getProfilePictureUrl = async (req, res) => {
-    console.log("Get Profile Picture URL controller called ----");
     try{
         const currentUserId = req.user.userId;
         const {userId} = req.params;
-        //TODO - Add check to make sure userId is the same as currentUserId or that the userId belongs to a friend of the current user
         
-        const profilePictureUrl = await userRepo.getProfilePictureUrlByIdQuery(userId);
-        console.log(profilePictureUrl)
+        const profilePictureUrl = await userRepo.getProfilePictureUrl(userId);
+        if (!profilePictureUrl) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
         return res.status(200).json({ profilePictureUrl: profilePictureUrl.profile_picture_url });
     }
     catch(error){
-        console.error("Error in Get User Profile:", error);
+        console.error("Error Getting Profile Picture Url:", error);
         res.status(500).json({ message: "Internal server error" });
     }
+}
+
+
+export const updateDeletionSettings = async (req, res) => {
+    try{
+        const userId = req.user.userId;
+        const delete_time_seconds = req.body.deleteTimerSeconds;
+
+        await userRepo.updateUserDeletionSettings(userId, delete_time_seconds);
+        return res.status(200).json({message: "Delete Timer Updated", delete_time_seconds});
+    }
+    catch(error){
+        console.error("Error Updating User Deletion Settings:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }   
 }
 
 export const updateUsername = async (req, res) => {
@@ -69,40 +57,74 @@ export const updateUsername = async (req, res) => {
             return res.status(400).json({ message: "Invalid JWT" });
         }
 
-        await userRepo.updateUsernameQuery(userId, newUsername);
+        let result = await userRepo.getUserProfileByUsername(newUsername);
+        if(result){
+            return res.status(400).json({ message: "Username already Taken"});
+        }
+
+        await userRepo.updateUsername(userId, newUsername);
         return res.status(200).json({ message: "Username Updated" });
     }
     catch(error){
-        console.error("Error in Update Username:", error);
+        console.error("Error Updating Username:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 }
 
 export const updatePassword = async (req, res) => {
     try{
-        const userId = req.userId;
-        const newPassword = req.body.newPassword;
+        const userId = req.user.userId;
+        const { currentPassword, newPassword } = req.body;
 
         if(!userId){
             return res.status(400).json({ message: "Invalid JWT" });
         }
+
         if(!newPassword || newPassword.length < 6){
             return res.status(400).json({ message: "Password must be at least 6 characters" });
         }
 
+        const user = await userRepo.getUserProfileById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const isPasswordCorrect = await bcrypt.compare(currentPassword, user.password);
+        if(!isPasswordCorrect){
+            return res.status(401).json({ message: "Incorrect Password" });
+        }
+
+
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(newPassword, salt);
 
-        await userRepo.updatePasswordQuery(userId, hashedPassword);
+        await userRepo.updatePassword(userId, hashedPassword);
         return res.status(200).json({ message: "Password Updated" });
     }
     catch(error){
-        console.error("Error in Update Password:", error);
+        console.error("Error Updating Password:", error);
         res.status(500).json({ message: "Internal server error" });
-    }
+    }   
 }
 
-//TODO
+export const updateProfilePictureUrl = async (req, res) => {
+    try{
+        const userId = req.user.userId;
+        const {newImageUrl} = req.body;
+
+        if(!userId){
+            return res.status(400).json({ message: "Invalid JWT" });
+        }
+
+        await userRepo.updateProfilePictureUrl(userId, newImageUrl);
+        return res.status(200).json({message: "Profile Pic Updated"});
+    }
+    catch(error){
+        console.error("Error Updating Profile Pic:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }   
+}
+
 export const updateBio = async (req, res) => {
     try{
         const userId = req.user.userId;
@@ -112,38 +134,17 @@ export const updateBio = async (req, res) => {
             return res.status(400).json({ message: "Invalid JWT" });
         }
  
-        await userRepo.updateBioQuery(userId, newBio);
+        await userRepo.updateBio(userId, newBio);
         return res.status(200).json({ message: "Bio Updated" });
     }
     catch(error){
         console.error("Error in Update Bio:", error);
         res.status(500).json({ message: "Internal server error" });
-    }
+    }   
 }
 
-//TODO Set up AWS
-export const updateProfilePicture = async (req, res) => {
-    try{
-        const userId = req.user.userId;
-        const {newProfileImage} = req.body;
 
-        console.log("Update Profile Picture - UserID: ", userId);
-        console.log("Update Profile Picture - New Picture URL: ", newProfileImage);
-
-        if(!userId){
-            return res.status(400).json({ message: "Invalid JWT" });
-        }
-
-        await userRepo.updateProfilePictureQuery(userId, newProfileImage);
-        return res.status(200).json({message: "Profile Pic Updated"});
-    }
-    catch(error){
-        console.error("Error in Update Profile Pic:", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-}
-
-export const deleteUserProfile = async (req, res) => {
+export const deleteProfile = async (req, res) => {
     try{
         const userId = req.user.userId;
 
@@ -151,16 +152,17 @@ export const deleteUserProfile = async (req, res) => {
             return res.status(400).json({ message: "Invalid JWT" });
         }
 
-        await userRepo.deleteUserProfileByIdQuery(userId);
+        //TODO - verify proper DB cascade deletion setup
+        await userRepo.deleteUserProfile(userId);
         return res.status(200).json({ message: "User Profile Deleted" });
     }
     catch(error){
         console.error("Error Deleting User Profile:", error);
         res.status(500).json({ message: "Internal server error" });
-    }
+    }   
 }
 
-export const deleteAllUserMessages = async (req, res) => {
+export const deleteAllMessagesFromUser = async (req, res) => {
     try{
         const userId = req.user.userId;
 
@@ -168,30 +170,13 @@ export const deleteAllUserMessages = async (req, res) => {
             return res.status(400).json({ message: "Invalid JWT" });
         }
 
-        //TODO: Fix this function in userRepo
-        await userRepo.deleteAllMessagesByUserIdQuery(userId);
+        //TOOO verify decision before executing
+        await userRepo.deleteAllMessagesFromUser(userId);
+
         return res.status(200).json({ message: "All User Messages Deleted" });
     }
     catch(error){
         console.error("Error Deleting All User Messages:", error);
         res.status(500).json({ message: "Internal server error" });
-    }
-}
-
-export const getAllUserMessages = async (req, res) => {
-    try{
-        const userId = req.user.userId;
-
-        if(!userId){
-            return res.status(400).json({ message: "Invalid JWT" });
-        }
-
-        //TODO: Fix this function in userRepo
-        const userMessages = await userRepo.getAllUserMessagesQuery(userId);
-        return res.status(200).json({ messages: userMessages });
-    }
-    catch(error){
-        console.error("Error Getting All User Messages:", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
+    }    
 }

@@ -4,18 +4,17 @@ import * as userController from "../controllers/userController.js";
 
 const router = express.Router();
 
-router.get("/me/settings", protectRoute, userController.getUserDeleteSettings);
-router.get("/:userId/profilePicture", protectRoute, userController.getProfilePictureUrl);
+router.get("/me/deletion-settings",    protectRoute, userController.getDeletionSettings);
+router.get("/:userId/profile-picture", protectRoute, userController.getProfilePictureUrl);
+//router.get("/:userId",                 userController.getUserProfile);
 
-router.put("/me/settings", protectRoute, userController.updateUserDeleteSettings);
-router.put("/me/username", protectRoute, userController.updateUsername);
-router.put("/me/password", protectRoute, userController.updatePassword);
-router.put("/me/profilePicture", protectRoute, userController.updateProfilePicture);
+router.put("/me/deletion-settings",  protectRoute, userController.updateDeletionSettings);
+router.put("/me/username",           protectRoute, userController.updateUsername);
+router.put("/me/password",           protectRoute, userController.updatePassword);
+router.put("/me/profile-picture",   protectRoute, userController.updateProfilePictureUrl);
+router.put("/me/bio",                protectRoute, userController.updateBio);
 
-router.put("/me/bio", protectRoute, userController.updateBio);
-
-
-router.delete("/me", protectRoute, userController.deleteUserProfile);
-router.delete("/me/messages", protectRoute, userController.deleteAllUserMessages);
+router.delete("/me",          protectRoute, userController.deleteProfile);
+router.delete("/me/messages", protectRoute, userController.deleteAllMessagesFromUser);
 
 export default router;

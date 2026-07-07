@@ -1,153 +1,121 @@
 import pool from '../lib/db.js';
 
-// ------------------------------------- GET -------------------------------------------------------------------------------------
 
-export const getUserProfileByUsernameQuery = async (username) => {
-    const query = `
-        SELECT id, username, bio, profile_picture_url 
-        FROM "Users" 
-        WHERE username = $1
-    `;
-  const result = await pool.query(query, [username]);
+export const getUserDeletionSettings = async (userId, db = pool) => {
+  const query = `
+      SELECT delete_timer_seconds 
+      FROM "Users" 
+      WHERE id = $1
+  `;
+  const result = await db.query(query, [userId]);
+  return result.rows[0];
+}
+ 
+export const getProfilePictureUrl = async (userId, db = pool) => {
+  const query = `
+      SELECT profile_picture_url 
+      FROM "Users" 
+      WHERE id = $1
+  `;
+  const result = await db.query(query, [userId]);
   return result.rows[0];
 }
 
-export const getProfilePictureUrlByIdQuery = async (userId) => {
-    const query = `
-        SELECT profile_picture_url 
-        FROM "Users" 
-        WHERE id = $1
-    `;
-  const result = await pool.query(query, [userId]);
+export const updateUserDeletionSettings = async (userId, delete_time_seconds, db = pool) => {
+  const query = `
+      UPDATE "Users"  
+      SET delete_timer_seconds = $2
+      WHERE id = $1
+  `;
+  const result = await db.query(query, [userId, delete_time_seconds]);
   return result.rows[0];
 }
 
-export const getUserProfileByIdQuery = async (userId) => {
-    const query = `
-        SELECT id, username, bio, profile_picture_url 
-        FROM "Users" 
-        WHERE id = $1
-    `;
-  const result = await pool.query(query, [userId]);
-  return result.rows;
-}
-
-export const getUserIdByUsernameQuery = async (username) => {
-    const query = `
-        Select id 
-        FROM "Users" 
-        WHERE username = $1
-    `;
-  const result = await pool.query(query, [username]);
-  return result.rows;
-}
-
-export const getAllMessagesQuery = async (userId, limit, offset) => {
-    const query = `
-        SELECT *
-        FROM "Messages" 
-        WHERE user_id = $1 
-        LIMIT $2 
-        OFFSET $3
-    `;
-  const result = await pool.query(query, [userId, limit, offset]);
-  return result.rows;
-}
-
-export const updateUserDeleteSettingsByUserIdQuery = async (userId, delete_time_seconds) => {
-    const query = ` 
-        UPDATE "Users" 
-        SET delete_timer_seconds = $2
-        WHERE id = $1
-    `;
-  const result = await pool.query(query, [userId, delete_time_seconds]);
+export const updateUsername = async (userId, username, db = pool) => {
+  const query = `
+      UPDATE "Users"  
+      SET username = $2
+      WHERE id = $1
+  `;
+  const result = await db.query(query, [userId, username]);
   return result.rows[0];
 }
 
-
-export const getUserDeleteSettingsByUserIdQuery = async (userId) => {
-    const query = `
-        SELECT delete_timer_seconds 
-        FROM "Users" 
-        WHERE id = $1
-    `;
-  const result = await pool.query(query, [userId]);
+export const updatePassword = async (userId, password, db = pool) => {
+  const query = `
+      UPDATE "Users"  
+      SET password = $2
+      WHERE id = $1
+  `;
+  const result = await db.query(query, [userId, password]);
   return result.rows[0];
 }
 
-
-// ------------------------------------- Update -------------------------------------------------------------------------------------
-
-export const updateUsernameQuery = async (userId, newUsername) => {
-    const query = `
-        UPDATE "Users"  
-        SET username = $1
-        WHERE id = $2
-    `;
-  const result = await pool.query(query, [newUsername, userId]);
-  return result.rows;
+export const updateProfilePictureUrl = async (userId, profilePictureUrl, db = pool) => {
+  const query = `
+      UPDATE "Users"  
+      SET profile_picture_url = $2
+      WHERE id = $1
+  `;
+  const result = await db.query(query, [userId, profilePictureUrl]);
+  return result.rows[0];
 }
 
-export const updatePasswordQuery = async (userId, newPassword) => {
-    const query = `
-        UPDATE "Users"  
-        SET password = $1
-        WHERE id = $2
-    `;
-  const result = await pool.query(query, [newPassword, userId]);
-  return result.rows;
+export const updateBio = async (userId, bio, db = pool) => {
+  const query = `
+      UPDATE "Users"  
+      SET bio = $2
+      WHERE id = $1
+  `;
+  const result = await db.query(query, [userId, bio]);
+  return result.rows[0];
 }
 
-
-export const updateProfilePictureQuery = async (userId, profilePictureUrl, ) => {
-    const query = `
-        UPDATE "Users"  
-        SET profile_picture_url = $1
-        WHERE id = $2
-    `;
-  const result = await pool.query(query, [profilePictureUrl, userId]);
-  return result.rows;
-}
-
-export const updateBioQuery = async (userId, newBio) => {
-    const query = `
-        UPDATE "Users"
-        SET bio = $1
-        WHERE id = $2
-    `;
-  const result = await pool.query(query, [newBio, userId]);
-  return result.rows;
-}
-
-// ------------------------------------- Delete -------------------------------------------------------------------------------------
-
-export const deleteUserProfileByIdQuery = async (userId) => {
-    const query = `
-        DELETE FROM "Users" 
-        WHERE id = $1
-    `;
-  const result = await pool.query(query, [userId]);
-  return result.rows;
+export const deleteUserProfile = async (userId, db = pool) => {
+  const query = `
+      DELETE FROM "Users" 
+      WHERE id = $1
+  `;
+  const result = await db.query(query, [userId]);
+  return result.rows;  
 }
 
 
-export const deleteAllMessagesByUserIdQuery = async (userId) => {
-    const query = `
-        DELETE FROM "Messages" 
-        WHERE sender_id = $1
-    `;
-  const result = await pool.query(query, [userId]);
-  return result.rows;
+export const deleteAllMessagesFromUser = async (userId, db = pool) => {
+  const query = `
+      DELETE FROM "Messages" 
+      WHERE sender_id = $1
+  `;
+  const result = await db.query(query, [userId]);
+  return result.rows;  
 }
 
+export const getUserProfileByUsername = async (username, db = pool) => {
+  const query = `
+      SELECT id, username, password, bio, profile_picture_url 
+      FROM "Users" 
+      WHERE username = $1
+  `;
+  const result = await db.query(query, [username]);
+  return result.rows[0];
+} 
 
+export const getUserProfileById = async (userId, db = pool) => {
+  const query = `
+      SELECT id, username, password, bio, profile_picture_url 
+      FROM "Users" 
+      WHERE id = $1
+  `;
+  const result = await db.query(query, [userId]);
+  return result.rows[0];
+}
 
-export const createUserProfileQuery = async (username, hashedPassword) => {
+export const createUserProfile= async (username, hashedPassword, db = pool) => {
   const query = `
       INSERT INTO "Users" (username, password) 
       VALUES ($1, $2) 
       RETURNING *
   `;
-const result = await pool.query(query, [username, hashedPassword]);
-return result.rows;
-}
+  const result = await db.query(query, [username, hashedPassword]);
+  return result.rows;
+} 

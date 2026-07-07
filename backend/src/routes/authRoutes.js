@@ -5,9 +5,9 @@ import * as authController from "../controllers/authController.js";
 const router = express.Router();
 
 //TODO add rate limiting to prevent brute-force attacks
-router.post("/signup", authController.signup);
-router.post("/login", authController.login);
-router.post("/logout",  authController.logout);
-router.post("/me",  protectRoute, authController.authenticate);
+router.post("/signup",                authController.signup);
+router.post("/login",                 authController.login);
+router.post("/logout",                authController.logout);
+router.post("/me",      protectRoute, authController.authenticate);
 
 export default router;
