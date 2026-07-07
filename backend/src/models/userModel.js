@@ -110,7 +110,7 @@ export const getUserProfileById = async (userId, db = pool) => {
   return result.rows[0];
 }
 
-export const createUserProfile= async (username, hashedPassword, db = pool) => {
+export const createUserProfile = async (username, hashedPassword, db = pool) => {
   const query = `
       INSERT INTO "Users" (username, password) 
       VALUES ($1, $2) 
@@ -119,3 +119,13 @@ export const createUserProfile= async (username, hashedPassword, db = pool) => {
   const result = await db.query(query, [username, hashedPassword]);
   return result.rows;
 } 
+
+export const getUserIdFromUsername = async (username, db = pool) => {
+  const query = `
+      SELECT id 
+      FROM "Users" 
+      WHERE username = $1
+  `;
+  const result = await db.query(query, [username]);
+  return result.rows[0]; 
+}
