@@ -74,7 +74,7 @@ export const updateUsername = async (req, res) => {
 export const updatePassword = async (req, res) => {
     try{
         const userId = req.user.userId;
-        const { currentPassword, newPassword } = req.body;
+        const { oldPassword, newPassword } = req.body;
 
         if(!userId){
             return res.status(400).json({ message: "Invalid JWT" });
@@ -89,7 +89,7 @@ export const updatePassword = async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
-        const isPasswordCorrect = await bcrypt.compare(currentPassword, user.password);
+        const isPasswordCorrect = await bcrypt.compare(oldPassword, user.password);
         if(!isPasswordCorrect){
             return res.status(401).json({ message: "Incorrect Password" });
         }
@@ -144,7 +144,7 @@ export const updateBio = async (req, res) => {
 }
 
 
-export const deleteProfile = async (req, res) => {
+export const deleteAccount = async (req, res) => {
     try{
         const userId = req.user.userId;
 
@@ -153,7 +153,7 @@ export const deleteProfile = async (req, res) => {
         }
 
         //TODO - verify proper DB cascade deletion setup
-        await userRepo.deleteUserProfile(userId);
+        await userRepo.deleteUserAccount(userId);
         return res.status(200).json({ message: "User Profile Deleted" });
     }
     catch(error){

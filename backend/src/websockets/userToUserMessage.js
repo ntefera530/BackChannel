@@ -1,7 +1,7 @@
 import WebSocket from "ws";
 import pool from '../lib/db.js';
 import { saveMessagesQuery } from "../models/messageModel.js";
-import { getChatParticipantsQuery } from "../models/chatModel.js";
+import { getChatParticipants } from "../models/chatModel.js";
 
 export const sendMessageToUser = async (id, content, sender_id, chat_id, expire_by, sent_at, io) => {
     console.log(`User ${sender_id} --> Chat "${chat_id}", Content: ${content}, ID: ${id}`);
@@ -11,7 +11,7 @@ export const sendMessageToUser = async (id, content, sender_id, chat_id, expire_
     try{
 
         await saveMessagesQuery(id, sender_id, chat_id, content, expire_by);
-        const participants = await getChatParticipantsQuery(chat_id);
+        const participants = await getChatParticipants(chat_id);
 
         console.log("participants: -->", participants);
 

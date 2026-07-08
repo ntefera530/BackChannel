@@ -6,10 +6,8 @@ export const login = async (username, password) => {
     return response;  
   } catch (err) {
     const errorMessage = err.response?.data?.message || 'Login failed';
-    console.log("ERROR in USER CONTEXT");
     return { success: false, error: errorMessage };
-  }
-  
+  } 
 };
 
 export const signup = async (username, password) => {
@@ -20,7 +18,6 @@ export const signup = async (username, password) => {
 
   } catch (err) {
     const errorMessage = err.response?.data?.message || 'Signup failed';
-    console.log("ERROR in USER CONTEXT");
     return { success: false, error: errorMessage };
   }
 };
@@ -31,7 +28,6 @@ export const logout = async () => {
     return response;
   } catch (err) {
     const errorMessage = err.response?.data?.message || 'Logout failed';
-    console.log("ERROR in USER CONTEXT");
     return { success: false, error: errorMessage };
   }
 };
@@ -42,7 +38,6 @@ export const checkAuth = async () => {
     return response;
   }
   catch(error){
-    console.log("ERROR in checkAuth");
     const errorMessage = error.response?.data?.message || 'Check auth failed';
     return { success: false, error: errorMessage }; 
   }

@@ -11,10 +11,10 @@ router.get("/:userId/profile-picture", protectRoute, userController.getProfilePi
 router.put("/me/deletion-settings",  protectRoute, userController.updateDeletionSettings);
 router.put("/me/username",           protectRoute, userController.updateUsername);
 router.put("/me/password",           protectRoute, userController.updatePassword);
-router.put("/me/profile-picture",   protectRoute, userController.updateProfilePictureUrl);
+router.put("/me/profile-picture",    protectRoute, userController.updateProfilePictureUrl);
 router.put("/me/bio",                protectRoute, userController.updateBio);
 
-router.delete("/me",          protectRoute, userController.deleteProfile);
+router.delete("/me",          protectRoute, userController.deleteAccount);
 router.delete("/me/messages", protectRoute, userController.deleteAllMessagesFromUser);
 
 export default router;

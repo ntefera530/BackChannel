@@ -117,8 +117,6 @@ export const createDirectMessage = async (req, res) => {
 
 }
 
-
-
 export const addUserToGroupChat = async (req, res) => {
     try{
         const {chatId, userId} = req.params;

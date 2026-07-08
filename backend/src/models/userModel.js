@@ -71,7 +71,7 @@ export const updateBio = async (userId, bio, db = pool) => {
   return result.rows[0];
 }
 
-export const deleteUserProfile = async (userId, db = pool) => {
+export const deleteUserAccount = async (userId, db = pool) => {
   const query = `
       DELETE FROM "Users" 
       WHERE id = $1
