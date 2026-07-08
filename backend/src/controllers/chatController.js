@@ -42,7 +42,7 @@ export const getChatMessages = async (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const offset = parseInt(req.query.offset) || 0;
 
-        const messages = await messageRepo.getChatMessages(chatId, limit, offset);
+        const messages = await chatRepo.getChatMessages(chatId, limit, offset);
         return res.status(200).json({ messages });
     }
     catch(error){

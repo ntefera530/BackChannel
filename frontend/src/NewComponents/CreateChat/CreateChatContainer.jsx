@@ -14,6 +14,8 @@ const CreateChatContainer = () => {
     const handleCreateChat = () => {
         if (!chatName.trim()) return;
         handleCreateGroupChat(chatName, participants, chatImage);
+
+        //TODO go to chat
     };
 
     const isValid = chatName.trim().length > 0;

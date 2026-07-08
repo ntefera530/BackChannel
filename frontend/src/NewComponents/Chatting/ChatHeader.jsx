@@ -4,14 +4,14 @@ import { useUser } from '../../contexts/UserContext';
 import defaultUserImage from '../../assets/defaultUser.jpg';
 
 const ChatHeader = () => {
-    const { participants, selectedChatId, handleGetChatParticipants, chats } = useChats();
+    const { participants, selectedChatId, handleGetChatParticipants, groupChats, directMessages } = useChats();
     const { userId } = useUser();
 
     useEffect(() => {
         handleGetChatParticipants(selectedChatId);
     }, [selectedChatId]);
 
-    const currentChat = chats.find(c => c.chat_id === selectedChatId);
+    const currentChat = groupChats.find(c => c.chat_id === selectedChatId) || directMessages.find(c => c.chat_id === selectedChatId);
     const otherParticipants = participants.filter(p => p.id !== userId);
 
     return (

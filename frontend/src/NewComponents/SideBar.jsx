@@ -1,20 +1,36 @@
 import { useState } from 'react';
 import { useChats } from '../contexts/ChatContext';
 import { useUser } from '../contexts/UserContext';
-import { Settings, ContactRound, BadgePlus, Trash2 } from 'lucide-react';
+import { Settings, ContactRound, BadgePlus, Trash2, Users, User } from 'lucide-react';
 import defaultChatImage from '../assets/defaultChat.png';
 import defaultUserImage from '../assets/defaultUser.jpg';
 
 const SideBar = ({ setSelectedView }) => {
-    const { chats, selectedChatId, setSelectedChatId } = useChats();
+    const { groupChats, directMessages, selectedChatId, setSelectedChatId } = useChats();
     const { username, profileImageUrl } = useUser();
     const [onlineUsers] = useState([]);
 
+    // 'groups' | 'dms' — controls which list is shown and what "create" does
+    const [chatType, setChatType] = useState('groups')
+
     const handleSettingsClick = () => { setSelectedChatId(null); setSelectedView('settings'); };
     const handleFriendsClick = () => { setSelectedChatId(null); setSelectedView('friends'); };
-    const handleCreateChatClick = () => { setSelectedChatId(null); setSelectedView('createChat'); };
+
+    const handleCreateChatClick = () => { 
+        setSelectedChatId(null); 
+        
+        if(chatType === 'groups'){
+            setSelectedView('createGroupChat')
+        }else{
+            setSelectedView('createDirectMessage');
+        };
+
+    }    
     const handleViewChatClick = (chatId) => { setSelectedView(null); setSelectedChatId(chatId); };
     const handleDeleteChatClick = (e, chatId) => { e.stopPropagation(); console.log("Delete chat:", chatId); };
+
+    const activeList = chatType === 'groups' ? groupChats : directMessages;
+    const emptyLabel = chatType === 'groups' ? <>No chats yet.<br />Create one to get started.</> : <>No DMs yet.<br />Create one to get started.</>;
 
     return (
         <aside
@@ -35,29 +51,50 @@ const SideBar = ({ setSelectedView }) => {
                     onClick={handleCreateChatClick}
                     className="flex items-center justify-center w-8 h-8 rounded-lg 
                         bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
-                    title="New chat"
+                    title={chatType === 'groups' ? 'New group chat' : 'New direct message'}
                 >
                     <BadgePlus className="w-4 h-4" />
                 </button>
             </div>
 
-            {/* Section label */}
-            <div className="hidden lg:block px-4 pt-4 pb-1">
-                <span className="text-[10px] font-semibold uppercase tracking-widest text-base-content/30">
-                    Chats
-                </span>
+            {/* Chat Type Toggle */}
+            <div className="px-2 lg:px-4 pt-3 pb-2">
+                <div className="flex items-center gap-1 p-1 rounded-xl bg-base-content/5">
+                    <button
+                        onClick={() => setChatType('groups')}
+                        className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg
+                            text-xs font-medium transition-all duration-150
+                            ${chatType === 'groups'
+                                ? 'bg-white text-primary shadow-sm'
+                                : 'text-base-content/40 hover:text-base-content/70'}`}
+                        title="Group Chats"
+                    >
+                        <Users className="w-3.5 h-3.5" />
+                        <span className="hidden lg:inline">Group Chats</span>
+                    </button>
+                    <button
+                        onClick={() => setChatType('dms')}
+                        className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg
+                            text-xs font-medium transition-all duration-150
+                            ${chatType === 'dms'
+                                ? 'bg-white text-primary shadow-sm'
+                                : 'text-base-content/40 hover:text-base-content/70'}`}
+                        title="Direct Messages"
+                    >
+                        <User className="w-3.5 h-3.5" />
+                        <span className="hidden lg:inline">DMs</span>
+                    </button>
+                </div>
             </div>
 
-            {/* Chat list */}
+            {/* Group chat list */}
             <div className="flex-1 overflow-y-auto py-1 px-2">
-                {chats.length === 0 ? (
+                {activeList.length === 0 ? (
                     <div className="px-4 py-8 text-center">
-                        <p className="text-xs text-base-content/40 leading-relaxed">
-                            No chats yet.<br />Create one to get started.
-                        </p>
+                        {emptyLabel}
                     </div>
                 ) : (
-                    chats.map((chat) => (
+                    activeList.map((chat) => (
                         <div
                             key={chat.id}
                             onClick={() => handleViewChatClick(chat.chat_id)}
@@ -106,6 +143,7 @@ const SideBar = ({ setSelectedView }) => {
                     ))
                 )}
             </div>
+
 
             {/* User footer */}
             <div

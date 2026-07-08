@@ -11,11 +11,32 @@ export const getGroupChatsForUser = async (userId, db = pool) => {
   return result.rows;
 }
 
+// export const getDirectMessagesForUser = async (userId, db = pool) => {
+//   const query = `
+//       SELECT c.id, chp.user_id
+//       FROM "Chats" c JOIN "Chat Participants" chp
+//       ON (chp.user_id = $1 AND c.id = chp.chat_id AND c.is_group_chat = false)
+//   `;
+//   const result = await db.query(query, [userId]);
+//   return result.rows;
+// }
+
 export const getDirectMessagesForUser = async (userId, db = pool) => {
   const query = `
-      SELECT *
-      FROM "Chats" c JOIN "Chat Participants" chp
-      ON (chp.user_id = $1 AND c.id = chp.chat_id AND c.is_group_chat = false)
+      SELECT
+        c.id                 AS chat_id,
+        chp_other.id         AS id,
+        u.id                 AS other_user_id,
+        u.username           AS name,
+        u.profile_picture_url AS chat_picture_url
+      FROM "Chats" c
+      JOIN "Chat Participants" chp_self
+        ON chp_self.chat_id = c.id AND chp_self.user_id = $1
+      JOIN "Chat Participants" chp_other
+        ON chp_other.chat_id = c.id AND chp_other.user_id != $1
+      JOIN "Users" u
+        ON u.id = chp_other.user_id
+      WHERE c.is_group_chat = false
   `;
   const result = await db.query(query, [userId]);
   return result.rows;
@@ -26,7 +47,7 @@ export const getChatMessages = async (chatId, limit, offset, db = pool) => {
       SELECT *
       FROM "Messages"
       WHERE chat_id = $1
-      ORDER BY created_at DESC
+      ORDER BY sent_at DESC
       LIMIT $2
       OFFSET $3
   `;
@@ -52,7 +73,7 @@ export const createGroupChat = async (chatId, ownerId, title, expiresAt, db = po
       RETURNING *
   `;
   const result = await db.query(query, [chatId, ownerId, title, expiresAt]);
-  return result.rows;
+  return result.rows[0];
 }
 
 export const createDirectMessage = async (chatId, expiresAt, db = pool) => {
@@ -62,7 +83,7 @@ export const createDirectMessage = async (chatId, expiresAt, db = pool) => {
       RETURNING *
   `;
   const result = await db.query(query, [chatId, expiresAt]);
-  return result.rows;
+  return result.rows[0];
 }
 
 export const addChatParticipants = async (chatId, participantIds, db = pool) => {

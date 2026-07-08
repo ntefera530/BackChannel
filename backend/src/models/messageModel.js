@@ -22,6 +22,17 @@ export const deleteChatMessage = async (chatId, messageId, db = pool) => {
     return result.rows;
 } 
 
+export const isUserMessageOwner = async (messageId, userId, db = pool) => {
+  const query = `
+    SELECT 1
+    FROM "Messages"
+    WHERE id = $1
+    AND sender_id = $2
+  `;
+  const result = await db.query(query, [messageId, userId]);
+  return result.rows.length > 0;
+} 
+
 
 
 

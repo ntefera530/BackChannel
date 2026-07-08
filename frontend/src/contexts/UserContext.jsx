@@ -165,7 +165,6 @@ export default function UserProvider({children}){
     )
 }
 
-// Custom hook (named export)
 export function useUser() {
   return useContext(UserContext);
 }

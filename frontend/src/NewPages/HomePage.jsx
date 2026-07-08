@@ -6,6 +6,7 @@ import ChatContainer from '../NewComponents/Chatting/ChatContainer';
 import FriendsContainer from '../NewComponents/Friends/FriendsContainer';
 import SettingsContainer from '../NewComponents/Settings/SettingsContainer';
 import CreateChatContainer from '../NewComponents/CreateChat/CreateChatContainer';
+import CreateDmContainer from '../NewComponents/CreateDM/CreateDmContainer';
 
 const HomePage = () => {
     const { selectedChatId } = useChats();
@@ -14,7 +15,8 @@ const HomePage = () => {
     const renderContent = () => {
         if (selectedView === 'friends') return <FriendsContainer />;
         if (selectedView === 'settings') return <SettingsContainer />;
-        if (selectedView === 'createChat') return <CreateChatContainer />;
+        if (selectedView === 'createGroupChat') return <CreateChatContainer />;
+        if (selectedView === 'createDirectMessage') return <CreateDmContainer />;
         if (!selectedChatId) return <NoChatSelected />;
         return <ChatContainer />;
     };

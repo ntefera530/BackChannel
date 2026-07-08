@@ -11,7 +11,9 @@ export default function ChatsProvider({ children }) {
     const { socketRef: wsRef, wsReady } = useWebSocket();
     const {userId, deleteTimerSeconds} = useUser(); //my User Context
 
-    const [chats, setChats] = useState([]);
+    const [groupChats, setGroupChats] = useState([]);
+    const [directMessages, setDirectMessages] = useState([]);
+
     const [loading, setLoading] = useState(true);
     const [selectedChatId, setSelectedChatId] = useState(null);
 
@@ -38,7 +40,7 @@ export default function ChatsProvider({ children }) {
       }
     }, [selectedChatId]);
 
-    useEffect(() => { handleGetChats(); }, []);
+    useEffect(() => { handleGetChats(); handleGetDirectMessages()}, []);
 
     useEffect(() => {
       selectedChatIdRef.current = selectedChatId;
@@ -150,8 +152,17 @@ export default function ChatsProvider({ children }) {
 
     const handleGetChats = async  () => {
       try {
-        const response = await chatApi.getChats();
-        setChats(response.data);
+        const response = await chatApi.getGroupChats();
+        setGroupChats(response.data);
+      } catch (error) {
+        console.error("Error fetching chats:", error);
+      }
+    }
+
+    const handleGetDirectMessages = async  () => {
+      try {
+        const response = await chatApi.getDirectMessages();
+        setDirectMessages(response.data);
       } catch (error) {
         console.error("Error fetching chats:", error);
       }
@@ -159,7 +170,7 @@ export default function ChatsProvider({ children }) {
 
     const handleGetChatParticipants = async  (selectedChatId) => {
       try {
-        const response = await chatApi.getChatParticipantsByChatId(selectedChatId);
+        const response = await chatApi.getChatParticipants(selectedChatId);
         setParticipants(response.data.participants);
       } catch (error) {
         console.error("Error fetching chat participants:", error);
@@ -169,7 +180,43 @@ export default function ChatsProvider({ children }) {
     const handleCreateGroupChat = async (name) => {
       try {
         const response = await chatApi.createGroupChat(name);
-        setChats(response.data);
+        const createdChat = response.data;
+
+        const newGroupChat = {
+          chat_id: createdChat.id,
+          id: createdChat.id,
+          name: createdChat.name,
+          chat_picture_url: createdChat.chat_picture_url,
+        };
+
+        setGroupChats(prev => [...prev, newGroupChat]);
+
+        setSelectedChatId(newGroupChat.chat_id);
+        return newGroupChat;
+        
+      } catch (error) {
+        console.error("Error creating group chat:", error);
+      }
+    }
+
+    const handleCreateDirectMessage = async (friend) => {
+      try {
+        const response = await chatApi.createDirectMessage(friend.id, null);
+        setGroupChats(response.data);
+        const createdChat = response.data;
+
+        const newDirectMessage = {
+          chat_id: createdChat.id,
+          id: createdChat.id,
+          name: friend.username,
+          chat_picture_url: friend.profile_picture_url,
+          other_user_id: friend.id,
+        };
+
+        setDirectMessages(prev => [...prev, newDirectMessage]);
+        setSelectedChatId(newDirectMessage.chat_id);
+        return newDirectMessage;
+        
       } catch (error) {
         console.error("Error creating group chat:", error);
       }
@@ -177,7 +224,7 @@ export default function ChatsProvider({ children }) {
 
     const handleGetChatMessages = async (selectedChatId, limit, offset) => {
       try {
-        const response = await chatApi.getMessagesByChatId(selectedChatId, limit, offset);
+        const response = await chatApi.getChatMessages(selectedChatId, limit, offset);
         const newMessages = response.data.messages.reverse(); // ← reverse to get oldest first
 
         if(newMessages.length < limit){
@@ -187,7 +234,7 @@ export default function ChatsProvider({ children }) {
           setMessages(newMessages);
         }
         else{
-          setMessages(prev => [...newMessages, ...prev]); // ← prepend older messages
+          setMessages(prev => [...newMessages, ...prev]);
         }
       } catch (error) {
         console.error("Error fetching chat messages:", error);
@@ -197,14 +244,14 @@ export default function ChatsProvider({ children }) {
     }
 
     return (
-      <ChatsContext.Provider value={{ participants, chats, loading, selectedChatId, messages, hasMore, loadingMoreRef,
-                                      handleGetChats, handleGetChatParticipants, handleCreateGroupChat, handleGetChatMessages,
-                                      setSelectedChatId, sendMessage, loadMoreMessages}}>
+      <ChatsContext.Provider value={{ participants, groupChats, directMessages, loading, selectedChatId, messages, hasMore, loadingMoreRef,
+                                      handleGetChats, handleGetDirectMessages, handleGetChatParticipants, handleCreateGroupChat, handleGetChatMessages,
+                                      handleCreateDirectMessage, setSelectedChatId, sendMessage, loadMoreMessages}}>
         {children}
       </ChatsContext.Provider>
     );
 }
-  
+
 // Custom hook (named export)
 export function useChats() {
     return useContext(ChatsContext);
