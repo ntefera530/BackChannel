@@ -6,7 +6,7 @@ import defaultChatImage from '../assets/defaultChat.png';
 import defaultUserImage from '../assets/defaultUser.jpg';
 
 const SideBar = ({ setSelectedView }) => {
-    const { groupChats, directMessages, selectedChatId, setSelectedChatId } = useChats();
+    const { groupChats, directMessages, selectedChatId, setSelectedChatId, handleDeleteGroupChat, handleDeleteDirectMessage } = useChats();
     const { username, profileImageUrl } = useUser();
     const [onlineUsers] = useState([]);
 
@@ -24,10 +24,20 @@ const SideBar = ({ setSelectedView }) => {
         }else{
             setSelectedView('createDirectMessage');
         };
-
-    }    
+    }   
+     
     const handleViewChatClick = (chatId) => { setSelectedView(null); setSelectedChatId(chatId); };
-    const handleDeleteChatClick = (e, chatId) => { e.stopPropagation(); console.log("Delete chat:", chatId); };
+
+    const handleDeleteChatClick = (e, chat) => { 
+        e.stopPropagation(); 
+        console.log("Delete chat:", chat);
+
+        if(chatType === 'groups'){
+            handleDeleteGroupChat(chat)
+        }else{
+            handleDeleteDirectMessage(chat);
+        };
+    };
 
     const activeList = chatType === 'groups' ? groupChats : directMessages;
     const emptyLabel = chatType === 'groups' ? <>No chats yet.<br />Create one to get started.</> : <>No DMs yet.<br />Create one to get started.</>;
@@ -109,7 +119,7 @@ const SideBar = ({ setSelectedView }) => {
                             {/* Avatar */}
                             <div className="relative flex-shrink-0">
                                 <img
-                                    src={chat.chat_picture_url || defaultChatImage}
+                                    src={chat.chat_picture_url || (chatType === 'groups' ? defaultChatImage : defaultUserImage)}
                                     alt={chat.name}
                                     className={`w-10 h-10 rounded-full object-cover mx-auto lg:mx-0
                                         transition-all duration-150
@@ -132,7 +142,7 @@ const SideBar = ({ setSelectedView }) => {
 
                             {/* Delete */}
                             <button
-                                onClick={(e) => handleDeleteChatClick(e, chat.id)}
+                                onClick={(e) => handleDeleteChatClick(e, chat)}
                                 className="hidden lg:flex opacity-0 group-hover:opacity-100 w-6 h-6
                                     items-center justify-center rounded-lg hover:bg-error/10 
                                     text-base-content/20 hover:text-error transition-all flex-shrink-0"

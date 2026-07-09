@@ -1,12 +1,6 @@
 import { useEffect } from 'react';
 import { useContext, createContext, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api/api';
-
-//TODo - delete this
-import axios from 'axios';
-axios.defaults.withCredentials = true;
-//-------------------
 
 import * as userApi from '../api/userApi';
 import * as authApi from '../api/authApi';
@@ -115,7 +109,7 @@ export default function UserProvider({children}){
     const handleProfilePictureUpload = async (file) => {
         try {
             const key = await storageApi.uploadProfilePicture(file);
-            await userApi.updateProfilePicture(key); // ← save key to DB
+            await userApi.updateProfilePictureUrl(key); // ← save key to DB
             await handleProfilePictureDownload();    // ← refresh the displayed picture
         } catch (err) {
             console.error("Profile picture upload failed:", err);

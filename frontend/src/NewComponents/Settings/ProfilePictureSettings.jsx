@@ -5,7 +5,7 @@ import { Camera } from 'lucide-react';
 import defaultUserImage from '../../assets/defaultUser.jpg';
 
 const ProfilePictureSettings = () => {
-    const { handleUploadProfilePicture, profileImageUrl, username } = useUser();
+    const { handleProfilePictureUpload, profileImageUrl, username } = useUser();
     const fileInputRef = useRef(null);
 
     return (
@@ -46,7 +46,7 @@ const ProfilePictureSettings = () => {
                     type="file"
                     accept="image/*"
                     className="hidden"
-                    onChange={(e) => handleUploadProfilePicture(e.target.files[0])}
+                    onChange={(e) => handleProfilePictureUpload(e.target.files[0])}
                 />
             </div>
         </div>

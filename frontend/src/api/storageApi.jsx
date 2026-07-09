@@ -44,7 +44,7 @@ export const getSignedUrl = async (key) => {
 }
 
 export const getProfilePicture = async (userId) => {
-    const response = await api.get(`/api/v1/users/${userId}/profilePicture`);
+    const response = await api.get(`/api/v1/users/${userId}/profile-picture`);
     console.log("getProfilePicture response: ", response.data);
     const key = response.data.profilePictureUrl;
     if (!key) return null;

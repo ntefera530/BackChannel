@@ -17,11 +17,8 @@ export default function ChatsProvider({ children }) {
     const [loading, setLoading] = useState(true);
     const [selectedChatId, setSelectedChatId] = useState(null);
 
-
     const [messages, setMessages] = useState([]);
     const [participants, setParticipants] = useState([]);
-
-
 
     const [offset, setOffset] = useState(0);
     const limit = 10;
@@ -45,25 +42,6 @@ export default function ChatsProvider({ children }) {
     useEffect(() => {
       selectedChatIdRef.current = selectedChatId;
     }, [selectedChatId]);
-
-    //OLD WEBSOCKET
-    // useEffect(() => {
-    //   const ws = wsRef.current;
-    //   if (!ws) return;
-    //   const recieveMessage = (event) => {
-    //     const messageData = JSON.parse(event.data);
-    //     console.log("Received WS message:", messageData);
-    //     if (messageData.chat_id === selectedChatIdRef.current) {
-    //       setMessages(messages => {
-    //         // Prevent duplicates: optimistic message was already added locally by the sender
-    //         if (messages.some(m => m.id === messageData.id)) return messages;
-    //         return [...messages, messageData];
-    //       });
-    //     }
-    //   };
-    //   ws.addEventListener('message', recieveMessage);
-    //   return () => ws.removeEventListener('message', recieveMessage);
-    // }, [wsReady]); // re-subscribe whenever a fresh socket connection opens
 
     useEffect(() => {
       const socket = wsRef.current;
@@ -90,38 +68,6 @@ export default function ChatsProvider({ children }) {
         setOffset(newOffset);
         return handleGetChatMessages(selectedChatId, limit, newOffset);
     }
-
-    //OLD SEND Message
-    // const sendMessage = (content) => {
-    //   const ws = wsRef.current;
-    //   if(!ws){
-    //     console.error("WebSocket not connected");
-    //     return;
-    //   }
-
-    //   // Send formattedTimestamp to your backend API
-
-    //   const message = {
-    //     type: 'sendMessageToUser',
-    //     id: uuidv4(),
-    //     content: content, 
-    //     sender_id: userId,
-    //     chat_id: selectedChatId,
-    //     expire_at: new Date(Date.now() + deleteTimerSeconds * 1000),
-    //     sent_at: new Date()
-    //   }
-
-    //   if(ws.readyState === WebSocket.OPEN) {
-    //     ws.send(JSON.stringify(message));
-
-    //     //Add message locally for instant UI update
-    //     setMessages(messages => [...messages, message]);
-    //   }
-    //   else{
-    //     //TODO: Handle reconnection logic
-    //     console.log("WebSocket not open. Ready state:", ws.readyState);
-    //   }
-    // }
 
     const sendMessage = (content) => {
       const socket = wsRef.current;
@@ -222,6 +168,24 @@ export default function ChatsProvider({ children }) {
       }
     }
 
+    const handleDeleteGroupChat = async (chat) => {
+      try {
+        const response = await chatApi.deleteGroupChat(chat.chat_id);
+        setGroupChats(prevChats => prevChats.filter(c => c.chat_id !== chat.chat_id));
+      } catch (error) {
+        console.error("Error creating group chat:", error);
+      }
+    }
+
+    const handleDeleteDirectMessage = async (chat) => {
+      try {
+        const response = await chatApi.deleteDirectMessage(chat.chat_id);
+        setDirectMessages(prevChats => prevChats.filter(c => c.chat_id !== chat.chat_id));
+      } catch (error) {
+        console.error("Error creating group chat:", error);
+      }
+    }
+
     const handleGetChatMessages = async (selectedChatId, limit, offset) => {
       try {
         const response = await chatApi.getChatMessages(selectedChatId, limit, offset);
@@ -246,7 +210,7 @@ export default function ChatsProvider({ children }) {
     return (
       <ChatsContext.Provider value={{ participants, groupChats, directMessages, loading, selectedChatId, messages, hasMore, loadingMoreRef,
                                       handleGetChats, handleGetDirectMessages, handleGetChatParticipants, handleCreateGroupChat, handleGetChatMessages,
-                                      handleCreateDirectMessage, setSelectedChatId, sendMessage, loadMoreMessages}}>
+                                      handleCreateDirectMessage, setSelectedChatId, sendMessage, loadMoreMessages, handleDeleteGroupChat, handleDeleteDirectMessage}}>
         {children}
       </ChatsContext.Provider>
     );

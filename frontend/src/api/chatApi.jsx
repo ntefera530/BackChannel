@@ -95,17 +95,17 @@ export const addUsersToGroupChat= async (chatId, participants) => {
 
 export const deleteGroupChat = async (chatId) => {
     try {
-        const response = await api.delete(`/api/v1/chats/direct-messages/${chatId}`);
+        const response = await api.delete(`/api/v1/chats/group-chats/${chatId}`);
         return response;
     } catch (err) {
-        console.error("Error deleting direct message:", err);
+        console.error("Error deleting group chat:", err);
         return { success: false, error: err.response?.data?.message || 'Failed to delete Direct Message' };
     }
 }
 
 export const deleteDirectMessage = async (chatId) => {
     try {
-        const response = await api.delete(`/api/v1/chats/group-chats/${chatId}`);
+        const response = await api.delete(`/api/v1/chats/direct-messages/${chatId}`);
         return response;
     } catch (err) {
         console.error("Error deleting direct message:", err);
@@ -123,7 +123,7 @@ export const leaveGroupChat = async (chatId) => {
     }
 }
 
-export const kickUserFromGroupChat = async (chatId) => {
+export const kickUserFromGroupChat = async (chatId, userId) => {
     try {
         const response = await api.delete(`/api/v1/chats/${chatId}/participants/${userId}`);
         return response;

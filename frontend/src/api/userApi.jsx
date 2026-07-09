@@ -90,7 +90,7 @@ export const updateBio = async (bio) => {
 }
 
 
-export const deleteAccount = async (bio) => {
+export const deleteAccount = async () => {
   try{
     const response = await api.delete('/api/v1/users/me');
     return response;
@@ -101,7 +101,7 @@ export const deleteAccount = async (bio) => {
   }
 }
 
-export const deleteAllMessagesFromUser = async (bio) => {
+export const deleteAllMessagesFromUser = async () => {
   try{
     const response = await api.delete('/api/v1/users/me/messages');
     return response;
