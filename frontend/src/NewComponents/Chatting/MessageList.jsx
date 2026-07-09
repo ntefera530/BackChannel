@@ -1,16 +1,32 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useChats } from '../../contexts/ChatContext';
 import { useUser } from '../../contexts/UserContext';
 import { formatMessageTimestamp } from '../../lib/utils';
 import defaultUserImage from '../../assets/defaultUser.jpg';
+import { Trash2 } from 'lucide-react';
 
 const MessageList = () => {
-    const { messages, hasMore, loadMoreMessages, participants } = useChats();
+    const { messages, hasMore, loadMoreMessages, participants,  handleDeleteMessage } = useChats();
     const { userId, profileImageUrl, username } = useUser();
 
     const bottomRef = useRef(null);
     const containerRef = useRef(null);
     const shouldScrollRef = useRef(true);
+
+    const [confirmingMessageId, setConfirmingMessageId] = useState(null);
+    const confirmTimeoutRef = useRef(null);
+
+    const handleDeleteClick = (messageId) => {
+        if (confirmingMessageId !== messageId) {
+            setConfirmingMessageId(messageId);
+            clearTimeout(confirmTimeoutRef.current);
+            confirmTimeoutRef.current = setTimeout(() => setConfirmingMessageId(null), 3000);
+            return;
+        }
+        clearTimeout(confirmTimeoutRef.current);
+        setConfirmingMessageId(null);
+        handleDeleteMessage(messageId);
+    };
 
     const getParticipant = (senderId) => {
         if (senderId === userId) return { username, profile_picture_url: profileImageUrl };
@@ -72,7 +88,7 @@ const MessageList = () => {
                 return (
                     <div
                         key={message.id}
-                        className={`flex gap-3 ${own ? 'flex-row-reverse' : 'flex-row'}`}
+                        className={`group flex gap-3 ${own ? 'flex-row-reverse' : 'flex-row'}`}
                     >
                         {/* Avatar */}
                         <div className="flex-shrink-0 w-8 self-end">
@@ -100,7 +116,8 @@ const MessageList = () => {
                                 </div>
                             )}
 
-                            {/* Bubble */}
+                            {/* Bubble + delete button */}
+                            <div className={`flex items-center gap-1.5 ${own ? 'flex-row-reverse' : 'flex-row'}`}>
                             <div
                                 className={`px-4 py-2.5 text-sm leading-relaxed
                                     ${message.deleted
@@ -129,6 +146,22 @@ const MessageList = () => {
                                     </>
                                 )}
                             </div>
+
+                                {own && !message.deleted && (
+                                    <button
+                                        onClick={() => handleDeleteClick(message.id)}
+                                        title={confirmingMessageId === message.id ? 'Click again to delete' : 'Delete message'}
+                                        className={`opacity-0 group-hover:opacity-100 w-6 h-6 flex-shrink-0
+                                            flex items-center justify-center rounded-lg transition-all
+                                            ${confirmingMessageId === message.id
+                                                ? 'opacity-100 bg-error/15 text-error'
+                                                : 'text-base-content/25 hover:bg-error/10 hover:text-error'}`}
+                                    >
+                                        <Trash2 className="w-3 h-3" />
+                                    </button>
+                                )}
+                            </div>
+
                         </div>
                     </div>
                 );

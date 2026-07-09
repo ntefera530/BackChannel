@@ -87,6 +87,21 @@ export default function ChatsProvider({ children }) {
         }
       };
 
+      const handleParticipantLeft = ({ chatId, userId: leftUserId }) => {
+        if (leftUserId === userId) {
+          setGroupChats(prev => prev.filter(c => c.chat_id !== chatId));
+          if (chatId === selectedChatIdRef.current) {
+            setSelectedChatId(null);
+            setMessages([]);
+          }
+          return;
+        }
+        if (chatId === selectedChatIdRef.current) {
+          handleGetChatParticipants(chatId);
+        }
+      };
+
+      socket.on('participantLeft', handleParticipantLeft);
       socket.on('newMessage', receiveMessage);
       socket.on('messageDeleted', handleMessageDeleted);
       socket.on('userMessagesDeleted', handleUserMessagesDeleted);
@@ -97,6 +112,7 @@ export default function ChatsProvider({ children }) {
         socket.off('messageDeleted', handleMessageDeleted);
         socket.off('userMessagesDeleted', handleUserMessagesDeleted);
         socket.off('chatDeleted', handleChatDeleted);
+        socket.off('participantLeft', handleParticipantLeft);
       };
     }, [wsReady]);
 
@@ -278,10 +294,24 @@ export default function ChatsProvider({ children }) {
       }
     }
 
+    const handleLeaveGroupChat = async (chat, deleteMessages = false) => {
+      try {
+        await chatApi.leaveGroupChat(chat.chat_id, deleteMessages);
+        setGroupChats(prevChats => prevChats.filter(c => c.chat_id !== chat.chat_id));
+        if (chat.chat_id === selectedChatId) {
+          setSelectedChatId(null);
+          setMessages([]);
+        }
+      } catch (error) {
+        console.error("Error leaving group chat:", error);
+      }
+    }
+
     return (
       <ChatsContext.Provider value={{ participants, groupChats, directMessages, loading, selectedChatId, messages, hasMore, loadingMoreRef,
                                       handleGetChats, handleGetDirectMessages, handleGetChatParticipants, handleCreateGroupChat, handleGetChatMessages,
-                                      handleCreateDirectMessage, setSelectedChatId, sendMessage, loadMoreMessages, handleDeleteGroupChat, handleDeleteDirectMessage,handleDeleteMessage, handleClearMyMessages }}>
+                                      handleCreateDirectMessage, setSelectedChatId, sendMessage, loadMoreMessages, handleDeleteGroupChat, 
+                                      handleDeleteDirectMessage,handleDeleteMessage, handleClearMyMessages, handleLeaveGroupChat }}>
         {children}
       </ChatsContext.Provider>
     );

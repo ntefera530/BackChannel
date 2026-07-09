@@ -123,9 +123,11 @@ export const deleteDirectMessage = async (chatId) => {
     }
 }
 
-export const leaveGroupChat = async (chatId) => {
+export const leaveGroupChat = async (chatId, deleteMessages) => {
     try {
-        const response = await api.delete(`/api/v1/chats/${chatId}/participants/me/`);
+        const response = await api.delete(`/api/v1/chats/${chatId}/participants/me/`, {
+            params: { deleteMessages }
+        });
         return response;
     } catch (err) {
         console.error("Error deleting direct message:", err);

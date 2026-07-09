@@ -1,14 +1,17 @@
 import { useState } from 'react';
 import { useChats } from '../contexts/ChatContext';
 import { useUser } from '../contexts/UserContext';
-import { Settings, ContactRound, BadgePlus, Trash2, Users, User } from 'lucide-react';
+import { Settings, ContactRound, BadgePlus, Trash2, Users, User, LogOut } from 'lucide-react';
 import defaultChatImage from '../assets/defaultChat.png';
 import defaultUserImage from '../assets/defaultUser.jpg';
 
+import ChatActionModal from './Chatting/ChatActionModal';
+
 const SideBar = ({ setSelectedView }) => {
-    const { groupChats, directMessages, selectedChatId, setSelectedChatId, handleDeleteGroupChat, handleDeleteDirectMessage } = useChats();
-    const { username, profileImageUrl } = useUser();
+    const { groupChats, directMessages, selectedChatId, setSelectedChatId, handleDeleteGroupChat, handleLeaveGroupChat, handleDeleteDirectMessage } = useChats();
+    const { userId, username, profileImageUrl } = useUser();
     const [onlineUsers] = useState([]);
+    const [actionModalChat, setActionModalChat] = useState(null);
 
     // 'groups' | 'dms' — controls which list is shown and what "create" does
     const [chatType, setChatType] = useState('groups')
@@ -28,21 +31,34 @@ const SideBar = ({ setSelectedView }) => {
      
     const handleViewChatClick = (chatId) => { setSelectedView(null); setSelectedChatId(chatId); };
 
+    const isOwnedGroupChat = (chat) => chatType === 'groups' && chat.owner === userId;
+
     const handleDeleteChatClick = (e, chat) => { 
         e.stopPropagation(); 
-        console.log("Delete chat:", chat);
+        setActionModalChat(chat);
+    };
 
-        if(chatType === 'groups'){
-            handleDeleteGroupChat(chat)
-        }else{
+    const handleConfirmChatAction = (deleteMessages) => {
+        const chat = actionModalChat;
+        setActionModalChat(null);
+        if (!chat) return;
+
+        if (chatType === 'groups') {
+            if (isOwnedGroupChat(chat)) {
+                handleDeleteGroupChat(chat);
+            } else {
+                handleLeaveGroupChat(chat, deleteMessages);
+            }
+        } else {
             handleDeleteDirectMessage(chat);
-        };
+        }
     };
 
     const activeList = chatType === 'groups' ? groupChats : directMessages;
     const emptyLabel = chatType === 'groups' ? <>No chats yet.<br />Create one to get started.</> : <>No DMs yet.<br />Create one to get started.</>;
 
     return (
+        <>
         <aside
             className="h-full w-20 lg:w-72 flex flex-col transition-all duration-200 border-r border-primary/10"
             style={{
@@ -146,8 +162,12 @@ const SideBar = ({ setSelectedView }) => {
                                 className="hidden lg:flex opacity-0 group-hover:opacity-100 w-6 h-6
                                     items-center justify-center rounded-lg hover:bg-error/10 
                                     text-base-content/20 hover:text-error transition-all flex-shrink-0"
+                                title={isOwnedGroupChat(chat) || chatType === 'dms' ? 'Delete' : 'Leave'}
                             >
-                                <Trash2 className="w-3 h-3" />
+                                {chatType === 'groups' && !isOwnedGroupChat(chat)
+                                    ? <LogOut className="w-3 h-3" />
+                                    : <Trash2 className="w-3 h-3" />
+                               }
                             </button>
                         </div>
                     ))
@@ -195,6 +215,15 @@ const SideBar = ({ setSelectedView }) => {
                 </div>
             </div>
         </aside>
+
+       <ChatActionModal
+           open={!!actionModalChat}
+           mode={actionModalChat && chatType === 'groups' && isOwnedGroupChat(actionModalChat) ? 'delete' : chatType === 'dms' ? 'delete' : 'leave'}
+           chatName={actionModalChat?.name}
+           onCancel={() => setActionModalChat(null)}
+           onConfirm={handleConfirmChatAction}
+       />
+       </>
     );
 };
 

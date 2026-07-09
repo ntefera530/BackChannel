@@ -273,6 +273,19 @@ export const leaveGroupChat = async (req, res) => {
             return res.status(404).json({ message: "User is not a participant of this chat" });
         }
 
+        const io = req.app.get("io");
+        const remainingParticipants = await chatRepo.getChatParticipants(chatId);
+
+        if (deleteMessages) {
+            remainingParticipants.forEach(participant => {
+                io.to(participant.id).emit("userMessagesDeleted", { chatId, userId });
+            });
+        }
+        remainingParticipants.forEach(participant => {
+            io.to(participant.id).emit("participantLeft", { chatId, userId });
+        });
+        io.to(userId).emit("participantLeft", { chatId, userId });
+
         return res.status(200).json({ message: "User Left group" });
     }
     catch(error){
@@ -297,6 +310,15 @@ export const kickUserFromGroupChat  = async (req, res) => {
         if (removedUser.length === 0) {
             return res.status(404).json({ message: "User is not a participant of this chat" });
         }
+
+        const io = req.app.get("io");
+        const remainingParticipants = await chatRepo.getChatParticipants(chatId);
+
+        remainingParticipants.forEach(participant => {
+            io.to(participant.id).emit("userMessagesDeleted", { chatId, userId });
+            io.to(participant.id).emit("participantLeft", { chatId, userId });
+        });
+        io.to(userId).emit("participantLeft", { chatId, userId });
 
         return res.status(200).json({ message: "Kicked From Group" });
     }
