@@ -26,6 +26,8 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const backend = process.env.BACKEND_URL || 'http://localhost:5173';
+const websocket = process.env.WEBSOCKET_URL || 'ws://localhost:5173';
 
 app.use(express.json())
 app.use(cookieParser());
@@ -59,6 +61,7 @@ const io = new Server(server, {
     }
 });
 setUpSocketIO(io);
+app.set("io", io);
 
 //Start WebSocket server
 //const wss = new WebSocketServer({server});

@@ -103,22 +103,31 @@ const MessageList = () => {
                             {/* Bubble */}
                             <div
                                 className={`px-4 py-2.5 text-sm leading-relaxed
-                                    ${own
-                                        ? 'bg-primary text-primary-content rounded-2xl rounded-tr-sm shadow-md shadow-primary/20'
-                                        : 'bg-white/90 backdrop-blur-sm text-base-content border border-white rounded-2xl rounded-tl-sm shadow-sm'
+                                    ${message.deleted
+                                        ? 'italic text-base-content/40 bg-base-200/60 border border-base-300 rounded-2xl'
+                                        : own
+                                            ? 'bg-primary text-primary-content rounded-2xl rounded-tr-sm shadow-md shadow-primary/20'
+                                            : 'bg-white/90 backdrop-blur-sm text-base-content border border-white rounded-2xl rounded-tl-sm shadow-sm'
                                     }
-                                    ${isGrouped && own ? 'rounded-tr-2xl' : ''}
-                                    ${isGrouped && !own ? 'rounded-tl-2xl' : ''}
+
+                                    ${!message.deleted && isGrouped && own ? 'rounded-tr-2xl' : ''}
+                                    ${!message.deleted && isGrouped && !own ? 'rounded-tl-2xl' : ''}
                                 `}
                             >
-                                {message.image && (
-                                    <img
-                                        src={message.image}
-                                        alt="Attachment"
-                                        className="max-w-[200px] rounded-lg mb-2"
-                                    />
+                                {message.deleted ? (
+                                    'This message was deleted'
+                                ) : (
+                                    <>
+                                        {message.image && (
+                                            <img
+                                                src={message.image}
+                                                alt="Attachment"
+                                                className="max-w-[200px] rounded-lg mb-2"
+                                            />
+                                        )}
+                                        {message.content}
+                                    </>
                                 )}
-                                {message.content}
                             </div>
                         </div>
                     </div>

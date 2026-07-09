@@ -203,6 +203,14 @@ export const deleteDirectMessage = async (req, res) => {
     try{
         const {chatId} = req.params;
         //TODO - Do i need seperate deletion logic for DMs and Group Chats?
+
+        const participants = await chatRepo.getChatParticipants(chatId);
+        
+        const io = req.app.get("io");
+        participants.forEach(participant => {
+            io.to(participant.id).emit("chatDeleted", { chatId, isGroupChat: false });
+        });
+
         await chatRepo.deleteChat(chatId);
         return res.status(200).json({ message: "Direct Message Deleted" });
     }
@@ -216,6 +224,14 @@ export const deleteGroupChat = async (req, res) => {
     try{
         const {chatId} = req.params;
         //TODO - Do i need seperate deletion logic for DMs and Group Chats?
+
+        const participants = await chatRepo.getChatParticipants(chatId);
+        
+        const io = req.app.get("io");
+        participants.forEach(participant => {
+            io.to(participant.id).emit("chatDeleted", { chatId, isGroupChat: true });
+        });
+
         await chatRepo.deleteChat(chatId);
         return res.status(200).json({ message: "Group Chat Deleted" });
     }
@@ -300,6 +316,13 @@ export const deleteUserChatMessages = async (req, res) => {
         if (deletedMessages.length === 0) {
             return res.status(200).json({ message: "No Messges To Delete" });
         }
+
+        const io = req.app.get("io");
+        const participants = await chatRepo.getChatParticipants(chatId);
+        participants.forEach(participant => {
+            io.to(participant.id).emit("userMessagesDeleted", { chatId, userId });
+        });
+
         return res.status(200).json({ message: "User Messages Deleted" });
     }
     catch(error){
@@ -316,6 +339,12 @@ export const deleteChatMessage = async (req, res) => {
         if (deletedMessages.length === 0) {
             return res.status(404).json({ message: "Message not found" });
         }
+
+        const io = req.app.get("io");
+        const participants = await chatRepo.getChatParticipants(chatId);
+        participants.forEach(participant => {
+            io.to(participant.id).emit("messageDeleted", { chatId, userId });
+        });
 
         return res.status(200).json({ message: "Message Deleted" });
     } catch(error){

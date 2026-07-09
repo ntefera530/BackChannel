@@ -62,9 +62,64 @@ export default function ChatsProvider({ children }) {
           });
         }
       };
+
+      const handleMessageDeleted = ({ chatId, messageId }) => {
+        if (chatId !== selectedChatIdRef.current) return;
+        setMessages(messages => messages.map(m =>
+          m.id === messageId ? { ...m, deleted: true, content: null, image: null } : m
+        ));
+      };
+
+      const handleUserMessagesDeleted = ({ chatId, userId: deletedUserId }) => {
+        if (chatId !== selectedChatIdRef.current) return;
+        setMessages(messages => messages.filter(m => m.sender_id !== deletedUserId));
+      };
+
+      const handleChatDeleted = ({ chatId, isGroupChat }) => {
+        if (isGroupChat) {
+          setGroupChats(prev => prev.filter(c => c.chat_id !== chatId));
+        } else {
+          setDirectMessages(prev => prev.filter(c => c.chat_id !== chatId));
+        }
+        if (chatId === selectedChatIdRef.current) {
+          setSelectedChatId(null);
+          setMessages([]);
+        }
+      };
+
       socket.on('newMessage', receiveMessage);
-      return () => socket.off('newMessage', receiveMessage);
-    }, [wsReady]); // re-subscribe whenever a fresh socket connection opens
+      socket.on('messageDeleted', handleMessageDeleted);
+      socket.on('userMessagesDeleted', handleUserMessagesDeleted);
+      socket.on('chatDeleted', handleChatDeleted);
+
+      return () => {
+        socket.off('newMessage', receiveMessage);
+        socket.off('messageDeleted', handleMessageDeleted);
+        socket.off('userMessagesDeleted', handleUserMessagesDeleted);
+        socket.off('chatDeleted', handleChatDeleted);
+      };
+    }, [wsReady]);
+
+    const handleDeleteMessage = async (messageId) => {
+      try {
+        await chatApi.deleteChatMessage(selectedChatId, messageId);
+        setMessages(messages => messages.map(m =>
+          m.id === messageId ? { ...m, deleted: true, content: null, image: null } : m
+        ));
+      } catch (error) {
+        console.error("Error deleting message:", error);
+      }
+    }
+
+    const handleClearMyMessages = async () => {
+      try {
+        await chatApi.deleteUserChatMessages(selectedChatId);
+        setMessages(messages => messages.filter(m => m.sender_id !== userId));
+      } catch (error) {
+        console.error("Error clearing messages:", error);
+      }
+    }
+
 
     const loadMoreMessages = () => {
         if (!hasMore) return Promise.resolve();
@@ -226,7 +281,7 @@ export default function ChatsProvider({ children }) {
     return (
       <ChatsContext.Provider value={{ participants, groupChats, directMessages, loading, selectedChatId, messages, hasMore, loadingMoreRef,
                                       handleGetChats, handleGetDirectMessages, handleGetChatParticipants, handleCreateGroupChat, handleGetChatMessages,
-                                      handleCreateDirectMessage, setSelectedChatId, sendMessage, loadMoreMessages, handleDeleteGroupChat, handleDeleteDirectMessage}}>
+                                      handleCreateDirectMessage, setSelectedChatId, sendMessage, loadMoreMessages, handleDeleteGroupChat, handleDeleteDirectMessage,handleDeleteMessage, handleClearMyMessages }}>
         {children}
       </ChatsContext.Provider>
     );
