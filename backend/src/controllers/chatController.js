@@ -15,7 +15,15 @@ export const getGroupChatsForUser = async (req, res) => {
         const userId = req.user.userId;
 
         const groupChats = await chatRepo.getGroupChatsForUser(userId);
-        return res.status(200).json(groupChats);
+
+        const signedGroupChats = await Promise.all(
+            groupChats.map(async (chat) => ({
+                ...chat,
+                chat_picture_url: await signUrl(chat.chat_picture_url),
+            }))
+        );
+
+        return res.status(200).json(signedGroupChats);
     } catch(error){
         console.error("Error Getting Group Chats For User:", error);
         res.status(500).json({ message: "Internal server error" });
@@ -27,7 +35,16 @@ export const getDirectMessagesForUser = async (req, res) => {
         const userId = req.user.userId;
         
         const directMessages = await chatRepo.getDirectMessagesForUser(userId);
-        return res.status(200).json(directMessages);
+        
+        //TODO - Change model Alias to fix chat_picture_url name
+        const signedDirectMessages = await Promise.all(
+            directMessages.map(async (chat) => ({
+                ...chat,
+                chat_picture_url: await signUrl(chat.chat_picture_url),
+            }))
+        );
+
+        return res.status(200).json(signedDirectMessages);
     } catch(error){
         console.error("Error Getting Direct Messages for User:", error);
         res.status(500).json({ message: "Internal server error" });
@@ -161,6 +178,20 @@ export const addUsersToGroupChat = async (req, res) => {
         console.error("Error Adding Users To Group Chat:", error);
         res.status(500).json({ message: "Internal server error" });
     }
+}
+
+export const updateGroupChatPicture = async (req, res) => {
+  try {
+    const { chatId } = req.params;
+    const { key } = req.body;
+    if (!key) return res.status(400).json({ message: "Key required" });
+
+    await chatRepo.updateGroupChatPictureUrl(chatId, key);
+    return res.status(200).json({ message: "Group chat picture updated" });
+  } catch (error) {
+    console.error("Error updating group chat picture:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 }
 
 export const deleteDirectMessage = async (req, res) => {

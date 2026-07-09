@@ -131,20 +131,21 @@ export default function UserProvider({children}){
       }
     }
 
-    const deleteAllUserMessages = async () => {
-        console.log("Delete all messages for user: ", userId);
-        try {
-          setLoading(true);
-          const response = await axios.delete('http://localhost:5001/api/v1/users/me/messages', {
-            withCredentials: true
-          });
-          console.log("Delete messages response: ", response.data);
-        } catch (err) {          
-          const errorMessage = err.response?.data?.message || 'Delete messages failed';
-          console.log("ERROR in USER CONTEXT - deleteAllUserMessages: ", errorMessage);
-        } finally {
-          setLoading(false);
-        }
+    const handleDeleteAllUserMessages = async () => {
+        const response = userApi.deleteAllMessagesFromUser();
+        // console.log("Delete all messages for user: ", userId);
+        // try {
+        //   setLoading(true);
+        //   const response = await axios.delete('http://localhost:5001/api/v1/users/me/messages', {
+        //     withCredentials: true
+        //   });
+        //   console.log("Delete messages response: ", response.data);
+        // } catch (err) {          
+        //   const errorMessage = err.response?.data?.message || 'Delete messages failed';
+        //   console.log("ERROR in USER CONTEXT - deleteAllUserMessages: ", errorMessage);
+        // } finally {
+        //   setLoading(false);
+        // }
     }
 
 
@@ -153,7 +154,7 @@ export default function UserProvider({children}){
                                       handleLogin, handleSignup, handleLogout, handleAuthentication, 
                                       handleGetUserSettings, handleUpdateUserSettings, 
                                       handleProfilePictureUpload,  handleProfilePictureDownload,
-                                      setDeleteTimerSeconds, deleteAllUserMessages,}}>
+                                      setDeleteTimerSeconds, handleDeleteAllUserMessages,}}>
             {children}
         </UserContext.Provider>
     )

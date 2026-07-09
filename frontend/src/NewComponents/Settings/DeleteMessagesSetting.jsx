@@ -3,7 +3,7 @@ import { useUser } from '../../contexts/UserContext';
 import { Trash2 } from 'lucide-react';
 
 const DeleteMessagesSetting = () => {
-    const { deleteAllUserMessages } = useUser();
+    const { handleDeleteAllUserMessages } = useUser();
     const [confirming, setConfirming] = useState(false);
 
     const handleClick = () => {
@@ -12,7 +12,7 @@ const DeleteMessagesSetting = () => {
             setTimeout(() => setConfirming(false), 3000); // auto cancel after 3s
             return;
         }
-        deleteAllUserMessages();
+        handleDeleteAllUserMessages();
         setConfirming(false);
     };
 

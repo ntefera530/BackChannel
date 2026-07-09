@@ -3,14 +3,14 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 import s3 from "../lib/s3.js";
 
-const getS3key = (userId, uploadType, extension) => {
+const getS3key = (userId, chatId, uploadType, extension) => {
   switch(uploadType){
     case "profile":
       return `profile-pictures/${userId}/profile.${extension}`;
     case "chat-picture":
-      return `chat-pictures/${userId}/${Date.now()}.${extension}`;
+      return `chat-pictures/${chatId}/${Date.now()}.${extension}`;
     case "chat-media":
-      return `chat-media/${userId}/${Date.now()}.${extension}`;
+      return `chat-media/${chatId}/${Date.now()}.${extension}`;
     default:
       throw new Error("Invalid upload type");
   }
@@ -19,7 +19,7 @@ const getS3key = (userId, uploadType, extension) => {
 export const getUploadUrl = async (req, res) => {
   try {
     const userId = req.user.userId;
-    const { fileType, uploadType } = req.query;
+    const { fileType, uploadType, chatId } = req.query;
 
     if (!fileType) {
         return res.status(400).json({ message: "File type required" });
@@ -29,7 +29,7 @@ export const getUploadUrl = async (req, res) => {
     const extension = fileType.split("/")[1];
     let key;
     try {
-        key = getS3key(userId, uploadType, extension);
+        key = getS3key(userId, chatId, uploadType, extension);
     } catch (err) {
         return res.status(400).json({ message: err.message }); 
     }

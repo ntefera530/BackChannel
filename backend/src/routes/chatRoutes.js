@@ -17,6 +17,7 @@ router.post("/direct-messages",              protectRoute, chatController.create
 router.post("/:chatId/participants/:userId", protectRoute, requireChatOwner, chatController.addUserToGroupChat);
 router.post("/:chatId/participants",         protectRoute, requireChatOwner, chatController.addUsersToGroupChat);
 
+router.put("/:chatId/picture",               protectRoute, requireChatOwner, chatController.updateGroupChatPicture);
 
 router.delete("/direct-messages/:chatId",      protectRoute, requireChatParticipant, chatController.deleteDirectMessage);
 router.delete("/group-chats/:chatId",          protectRoute, requireChatOwner, chatController.deleteGroupChat);

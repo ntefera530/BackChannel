@@ -93,6 +93,16 @@ export const addUsersToGroupChat= async (chatId, participants) => {
     }
 }
 
+export const updateGroupChatPictureUrl = async (chatId, key) => {
+    try {
+        const response = await api.put(`/api/v1/chats/${chatId}/picture`, { key });
+        return response;
+    } catch (err) {
+        console.error("Error updating group chat picture:", err);
+        return { success: false, error: err.response?.data?.message || 'Failed to update chat picture' };
+    }
+}
+
 export const deleteGroupChat = async (chatId) => {
     try {
         const response = await api.delete(`/api/v1/chats/group-chats/${chatId}`);

@@ -2,9 +2,9 @@ import axios from 'axios';
 import api from './api';
 
 // Generic — gets a signed URL for any upload
-const getUploadUrl = async (fileType, uploadType) => {
+const getUploadUrl = async (fileType, uploadType, chatId) => {
     const response = await api.get('/api/v1/uploads/upload-url', {
-        params: { fileType, uploadType } // uploadType = 'profile' | 'chat-picture' | 'chat-media'
+        params: { fileType, uploadType, chatId } // uploadType = 'profile' | 'chat-picture' | 'chat-media'
     });
     return response.data; // { uploadUrl, key }
 }
@@ -23,14 +23,14 @@ export const uploadProfilePicture = async (file) => {
     return key;
 }
 
-export const uploadChatPicture = async (file) => {
-    const { uploadUrl, key } = await getUploadUrl(file.type, 'chat-picture');
+export const uploadChatPicture = async (file, chatId) => {
+    const { uploadUrl, key } = await getUploadUrl(file.type, 'chat-picture', chatId);
     await uploadToS3(uploadUrl, file);
     return key;
 }
 
-export const uploadChatMedia = async (file) => {
-    const { uploadUrl, key } = await getUploadUrl(file.type, 'chat-media');
+export const uploadChatMedia = async (file, chatId) => {
+    const { uploadUrl, key } = await getUploadUrl(file.type, 'chat-media', chatId);
     await uploadToS3(uploadUrl, file);
     return key;
 }

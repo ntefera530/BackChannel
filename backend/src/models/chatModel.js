@@ -109,6 +109,17 @@ export const addChatParticipant = async (chatId, userId, db = pool) => {
   return result.rows;
 }
 
+export const updateGroupChatPictureUrl = async (chatId, pictureUrl, db = pool) => {
+  const query = `
+      UPDATE "Chats"  
+      SET chat_picture_url = $2
+      WHERE id = $1
+  `;
+  const result = await db.query(query, [chatId,pictureUrl]);
+  return result.rows[0];
+}
+
+
 export const getChatParticipantsCount = async (chatId, db = pool) => {
   const query = `
       SELECT COUNT(*) AS participant_count

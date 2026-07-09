@@ -3,7 +3,7 @@ import { useWebSocket } from "./WebSocketContext";
 import {useUser} from '../contexts/UserContext';
 import { v4 as uuidv4 } from 'uuid'; // Import v4 for random UUIDs
 import * as chatApi from '../api/chatApi';
-
+import * as storageApi from '../api/storageApi';
 
 const ChatsContext = createContext();
 
@@ -123,13 +123,13 @@ export default function ChatsProvider({ children }) {
       }
     }
 
-    const handleCreateGroupChat = async (name) => {
+    const handleCreateGroupChat = async (name, participants, chatImage) => {
       try {
         const response = await chatApi.createGroupChat(name);
         const createdChat = response.data;
 
         const newGroupChat = {
-          chat_id: createdChat.id,
+          chat_id: createdChat.chat_id,
           id: createdChat.id,
           name: createdChat.name,
           chat_picture_url: createdChat.chat_picture_url,
@@ -138,6 +138,17 @@ export default function ChatsProvider({ children }) {
         setGroupChats(prev => [...prev, newGroupChat]);
 
         setSelectedChatId(newGroupChat.chat_id);
+
+
+        //Upload photo TODO
+        try {
+            const key = await storageApi.uploadChatPicture(chatImage, newGroupChat.id);
+            await chatApi.updateGroupChatPictureUrl(newGroupChat.id, key); // ← save key to DB
+            //await handleGroupChatDownload();    // ← refresh the displayed picture
+        } catch (err) {
+            console.error("Chat picture upload failed:", err);
+        }
+
         return newGroupChat;
         
       } catch (error) {
