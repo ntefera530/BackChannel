@@ -158,7 +158,7 @@ export default function ChatsProvider({ children }) {
         content: content, 
         sender_id: userId,
         chat_id: selectedChatId,
-        expire_at: new Date(Date.now() + deleteTimerSeconds * 1000),
+        expire_at: deleteTimerSeconds ? new Date(Date.now() + deleteTimerSeconds * 1000) : null,
         sent_at: new Date()
       }
 

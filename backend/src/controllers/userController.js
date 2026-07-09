@@ -5,9 +5,14 @@ import bcrypt from 'bcryptjs';
 export const getDeletionSettings = async (req, res) => {
     try{
         const userId = req.user.userId;
-        const delete_time_seconds = await userRepo.getUserDeletionSettings(userId);
 
-        return res.status(200).json(delete_time_seconds);
+        //TODO - allow for more settings later
+        //const delete_time_seconds = await userRepo.getUserDeletionSettings(userId);
+        //return res.status(200).json(delete_time_seconds);
+
+        const settings = await userRepo.getUserDeletionSettings(userId);
+        return res.status(200).json({ deleteTimerSeconds: row ? row.delete_timer_seconds : null });
+        
     }
     catch(error){
         console.error("Error Getting User Deletion Settings:", error);
@@ -40,7 +45,7 @@ export const updateDeletionSettings = async (req, res) => {
         const delete_time_seconds = req.body.deleteTimerSeconds;
 
         await userRepo.updateUserDeletionSettings(userId, delete_time_seconds);
-        return res.status(200).json({message: "Delete Timer Updated", delete_time_seconds});
+        return res.status(200).json({message: "Delete Timer Updated", deleteTimerSeconds: delete_time_seconds});
     }
     catch(error){
         console.error("Error Updating User Deletion Settings:", error);

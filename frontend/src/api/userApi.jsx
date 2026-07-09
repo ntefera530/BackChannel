@@ -1,6 +1,5 @@
 import api from './api';
 
-
 export const getDeletionSettings = async () => {
   try{
     const response = await api.get('/api/v1/users/me/deletion-settings');
@@ -23,10 +22,10 @@ export const getUserProfile = async (userId) => {
   }
 }
 
-export const updateDeletionSettings = async (deletionSetting) => {
+export const updateDeletionSettings = async (newDeleteTimeSetting) => {
   try{
     const response = await api.put('/api/v1/users/me/deletion-settings', {
-      deletionSetting
+      deleteTimerSeconds: newDeleteTimerSeconds
     });
     return response;
   }
