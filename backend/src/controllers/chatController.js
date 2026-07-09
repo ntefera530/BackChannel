@@ -75,9 +75,14 @@ export const getChatParticipants = async (req, res) => {
 
         const participants = await chatRepo.getChatParticipants(chatId);
 
-        //TODO: get participant profile pictures and sign the urls
-  
-        return res.status(200).json({participants});
+        const signedParticipants = await Promise.all(
+            participants.map(async (p) => ({
+                ...p,
+                profile_picture_url: await signUrl(p.profile_picture_url),
+            }))
+        );
+
+        return res.status(200).json({participants: signedParticipants});
     }
     catch(error){
         console.error("Error Getting Chat Participants:", error);

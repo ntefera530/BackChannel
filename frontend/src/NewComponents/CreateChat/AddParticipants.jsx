@@ -1,77 +1,55 @@
-import { useState } from 'react';
-import { UserPlus, X } from 'lucide-react';
+import { useFriends } from '../../contexts/FriendContext';
+import { Check } from 'lucide-react';
+import defaultUserImage from '../../assets/defaultUser.jpg';
 
 const AddParticipants = ({ participants, setParticipants }) => {
-    const [input, setInput] = useState('');
+    const { friends } = useFriends();
 
-    const addParticipant = () => {
-        const trimmed = input.trim();
-        if (!trimmed || participants.includes(trimmed)) return;
-        setParticipants([...participants, trimmed]);
-        setInput('');
+    const toggleParticipant = (friendId) => {
+        setParticipants(prev =>
+            prev.includes(friendId)
+                ? prev.filter(id => id !== friendId)
+                : [...prev, friendId]
+        );
     };
 
-    const removeParticipant = (username) => {
-        setParticipants(participants.filter(p => p !== username));
-    };
-
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            addParticipant();
-        }
-    };
+    if (friends.length === 0) {
+        return (
+            <div className="px-6 py-4 text-sm text-base-content/40">
+                Add some friends first to invite them to a group chat.
+            </div>
+        );
+    }
 
     return (
         <div className="px-6">
             <label className="block text-xs font-medium uppercase tracking-widest text-base-content/50 mb-2">
                 Participants
             </label>
-
-            {/* Input row */}
-            <div className="flex gap-2 mb-3">
-                <div className="relative flex-1">
-                    <UserPlus className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-base-content/30 pointer-events-none" />
-                    <input
-                        type="text"
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        placeholder="Enter username..."
-                        className="input input-bordered w-full pl-9"
-                    />
-                </div>
-                <button
-                    type="button"
-                    onClick={addParticipant}
-                    className="btn btn-primary btn-square"
-                    disabled={!input.trim()}
-                >
-                    <UserPlus className="w-4 h-4" />
-                </button>
-            </div>
-
-            {/* Participant chips */}
-            {participants.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                    {participants.map((username) => (
-                        <div
-                            key={username}
-                            className="flex items-center gap-1.5 bg-primary/10 text-primary 
-                                text-sm px-3 py-1 rounded-full"
+            <div className="space-y-1">
+                {friends.map(friend => {
+                    const selected = participants.includes(friend.id);
+                    return (
+                        <button
+                            type="button"
+                            key={friend.id}
+                            onClick={() => toggleParticipant(friend.id)}
+                            className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-colors
+                                ${selected ? 'bg-primary/10' : 'hover:bg-base-200'}`}
                         >
-                            <span>{username}</span>
-                            <button
-                                type="button"
-                                onClick={() => removeParticipant(username)}
-                                className="hover:text-error transition-colors"
-                            >
-                                <X className="w-3 h-3" />
-                            </button>
-                        </div>
-                    ))}
-                </div>
-            )}
+                            <img
+                                src={friend.profile_picture_url || defaultUserImage}
+                                alt={friend.username}
+                                className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                            />
+                            <span className="text-sm font-medium text-base-content flex-1 text-left">
+                                {friend.username}
+                            </span>
+                            {selected && <Check className="w-4 h-4 text-primary" />}
+                        </button>
+                    );
+                })}
+            </div>
         </div>
     );
 };

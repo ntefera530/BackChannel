@@ -15,24 +15,38 @@ export const sendMessageToUser = async (id, content, sender_id, chat_id, expire_
 
         console.log("participants: -->", participants);
 
-        participants.forEach(participant =>{
+        // participants.forEach(participant =>{
 
-            const participantId = participant.id;
-            const participantWs = clientsMap.get(participantId);
-            const message = {
-                id: id,
-                content: content,
-                sender_id: sender_id,
-                chat_id: chat_id,
-                expire_at: expire_by,
-                sent_at: sent_at
-            }
+        //     const participantId = participant.id;
+        //     const participantWs = clientsMap.get(participantId);
+        //     const message = {
+        //         id: id,
+        //         content: content,
+        //         sender_id: sender_id,
+        //         chat_id: chat_id,
+        //         expire_at: expire_by,
+        //         sent_at: sent_at
+        //     }
 
-            participants.forEach(participant => {
-                io.to(participant.id).emit("newMessage", message);
-            });
+        //     participants.forEach(participant => {
+        //         io.to(participant.id).emit("newMessage", message);
+        //     });
             
+        // });
+
+        const message = {
+            id: id,
+            content: content,
+            sender_id: sender_id,
+            chat_id: chat_id,
+            expire_at: expire_by,
+            sent_at: sent_at
+        }
+
+        participants.forEach(participant => {
+            io.to(participant.id).emit("newMessage", message);
         });
+
     }
     catch(error){
         console.log("Error in userToUserMessage.js: ", error);

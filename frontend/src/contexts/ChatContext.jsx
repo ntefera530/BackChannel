@@ -37,7 +37,12 @@ export default function ChatsProvider({ children }) {
       }
     }, [selectedChatId]);
 
-    useEffect(() => { handleGetChats(); handleGetDirectMessages()}, []);
+    useEffect(() => {
+      if (userId) {
+        handleGetChats();
+        handleGetDirectMessages();
+      }
+    }, [userId]);
 
     useEffect(() => {
       selectedChatIdRef.current = selectedChatId;
@@ -125,7 +130,7 @@ export default function ChatsProvider({ children }) {
 
     const handleCreateGroupChat = async (name, participants, chatImage) => {
       try {
-        const response = await chatApi.createGroupChat(name);
+        const response = await chatApi.createGroupChat(name, participants);
         const createdChat = response.data;
 
         const newGroupChat = {

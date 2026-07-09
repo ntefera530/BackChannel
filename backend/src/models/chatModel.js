@@ -115,7 +115,7 @@ export const updateGroupChatPictureUrl = async (chatId, pictureUrl, db = pool) =
       SET chat_picture_url = $2
       WHERE id = $1
   `;
-  const result = await db.query(query, [chatId,pictureUrl]);
+  const result = await db.query(query, [chatId, pictureUrl]);
   return result.rows[0];
 }
 

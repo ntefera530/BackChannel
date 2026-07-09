@@ -1,21 +1,25 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import * as friendApi from '../api/friendApi';
+import { useUser } from './UserContext';
 
 const FriendsContext = createContext();
 
 export default function FriendsProvider({ children }) {
     const [friends, setFriends] = useState([]);
     const [loading, setLoading] = useState(true);
-  
+    const { userId } = useUser();
+
     useEffect(() => {
+      if (userId) {
         handleGetFriends();
-    }, []);
+      }
+    }, [userId]);
 
     const handleGetFriends = async () => {
       setLoading(true);
       try {
         const response = await friendApi.getFriends();
-        console.log("Friends fetched:", response.data);
+        //setFriends(response.data ?? []);
         setFriends(response.data);
       } catch (err) {
         console.error("Error fetching friends:", err);
