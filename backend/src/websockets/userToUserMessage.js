@@ -2,6 +2,7 @@ import WebSocket from "ws";
 import pool from '../lib/db.js';
 import { saveMessagesQuery } from "../models/messageModel.js";
 import { getChatParticipants } from "../models/chatModel.js";
+import { signUrl } from "../controllers/uploadController.js";
 
 export const sendMessageToUser = async (id, content, sender_id, chat_id, expire_by, sent_at, io, media_key = null, media_type = null) => {
     console.log(`User ${sender_id} --> Chat "${chat_id}", Content: ${content}, ID: ${id}`);

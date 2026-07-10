@@ -1,15 +1,15 @@
 import api from './api';
 
-export const getDeletionSettings = async () => {
-  try{
-    const response = await api.get('/api/v1/users/me/deletion-settings');
-    return response;
-  }
-  catch(error){
-    console.log('Error getting user settings: ', error);
-    return { success: false, error: error.response?.data?.message || 'Failed to get user settings' };
-  }
-}
+// export const getDeletionSettings = async () => {
+//   try{
+//     const response = await api.get('/api/v1/users/me/deletion-settings');
+//     return response;
+//   }
+//   catch(error){
+//     console.log('Error getting user settings: ', error);
+//     return { success: false, error: error.response?.data?.message || 'Failed to get user settings' };
+//   }
+// }
 
 export const getUserProfile = async (userId) => {
   try{
@@ -22,18 +22,18 @@ export const getUserProfile = async (userId) => {
   }
 }
 
-export const updateDeletionSettings = async (newDeleteTimeSetting) => {
-  try{
-    const response = await api.put('/api/v1/users/me/deletion-settings', {
-      deleteTimerSeconds: newDeleteTimerSeconds
-    });
-    return response;
-  }
-  catch(error){
-    console.log('Error updating deletion settings: ', error);
-    return { success: false, error: error.response?.data?.message || 'Failed to update deletion settings' };
-  }
-}
+// export const updateDeletionSettings = async (newDeleteTimeSetting) => {
+//   try{
+//     const response = await api.put('/api/v1/users/me/deletion-settings', {
+//       deleteTimerSeconds: newDeleteTimerSeconds
+//     });
+//     return response;
+//   }
+//   catch(error){
+//     console.log('Error updating deletion settings: ', error);
+//     return { success: false, error: error.response?.data?.message || 'Failed to update deletion settings' };
+//   }
+// }
 
 export const updateUsername = async (username) => {
   try{

@@ -5,6 +5,7 @@ import * as userController from "../controllers/userController.js";
 const router = express.Router();
 
 router.get("/me/deletion-settings",    protectRoute, userController.getSettings);
+router.get("/me/settings",             protectRoute, userController.getSettings);
 router.get("/:userId/profile-picture", protectRoute, userController.getProfilePictureUrl);
 //router.get("/:userId",                 userController.getUserProfile);
 

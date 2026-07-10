@@ -3,10 +3,8 @@ import express from "express"
 import { WebSocketServer } from 'ws';
 import { Server } from 'socket.io';
 
-//import { startScheduler } from "./lib/scheduler.js";
-//import { setUpWebSocket } from "./websockets/websocket.js";
+import { startScheduler } from "./lib/scheduler.js";
 import { setUpSocketIO } from "./websockets/websocket.js";
-
 
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
@@ -31,16 +29,20 @@ const websocket = process.env.WEBSOCKET_URL || 'ws://localhost:5173';
 
 app.use(express.json())
 app.use(cookieParser());
+
+const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
+  .split(',')
+  .map(origin => origin.trim());
+
+  
 app.use(cors({
-  origin: ['http://localhost:5173', 'ws://localhost:5173'],
+  origin: allowedOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
 app.use(pinoHttp({ logger }));
-// Allow all origins (for development only!)
-//app.use(cors());
 
 //Routes
 app.use("/api/v1/auth", authRoutes);
@@ -56,20 +58,14 @@ const server = http.createServer(app);
 //Start Socket.IO server
 const io = new Server(server, {
     cors: {
-        origin: 'http://localhost:5173',
+        origin: allowedOrigins,
         credentials: true,
     }
 });
 setUpSocketIO(io);
 app.set("io", io);
 
-//Start WebSocket server
-//const wss = new WebSocketServer({server});
-//setUpWebSocket(wss);
-
-//TODO - start worker thread for background tasks like message cleanup, notification sending, etc.
-
 server.listen(PORT, async () => {
-    console.log("Server is Listening on port: " + PORT); //Both HTTP and WebSocket servers are running on the same port - use upgrade header to differentiate between them 
-    //await startScheduler();
+    console.log("Server is Listening on port: " + PORT);
+    await startScheduler();
 });
