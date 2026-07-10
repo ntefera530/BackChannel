@@ -4,7 +4,7 @@ import * as userRepo from "../models/userModel.js"
 
 import { normalizeFriendship } from '../lib/utils.js';
 import { v4 as uuidv4 } from "uuid"; //v4 is the most commonly used random UUID
-import {signUrl} from "./uploadController.js"
+import {signUrl, deleteObject, deleteObjects} from "./uploadController.js"
 
 import { withTransaction } from "../lib/db.js";
 
@@ -212,12 +212,17 @@ export const deleteDirectMessage = async (req, res) => {
 
         const participants = await chatRepo.getChatParticipants(chatId);
         
+        const mediaKeys = await messageRepo.getMediaKeysByChatId(chatId);
+        const chatPictureKey = await chatRepo.getChatPictureKey(chatId);
+
         const io = req.app.get("io");
         participants.forEach(participant => {
             io.to(participant.id).emit("chatDeleted", { chatId, isGroupChat: false });
         });
 
         await chatRepo.deleteChat(chatId);
+        await deleteObjects([...mediaKeys, chatPictureKey]);
+
         return res.status(200).json({ message: "Direct Message Deleted" });
     }
     catch(error){
@@ -233,12 +238,17 @@ export const deleteGroupChat = async (req, res) => {
 
         const participants = await chatRepo.getChatParticipants(chatId);
         
+        const mediaKeys = await messageRepo.getMediaKeysByChatId(chatId);
+        const chatPictureKey = await chatRepo.getChatPictureKey(chatId);
+
         const io = req.app.get("io");
         participants.forEach(participant => {
             io.to(participant.id).emit("chatDeleted", { chatId, isGroupChat: true });
         });
 
         await chatRepo.deleteChat(chatId);
+        await deleteObjects([...mediaKeys, chatPictureKey]);
+
         return res.status(200).json({ message: "Group Chat Deleted" });
     }
     catch(error){
@@ -264,19 +274,23 @@ export const leaveGroupChat = async (req, res) => {
         }
 
 
-        const removedUser = await withTransaction(async (client) => {
-            const user = await chatRepo.removeChatParticipant(chatId, userId, client);
+        const { removedParticipant, deletedMessages } = await withTransaction(async (client) => {
+            const removedParticipant = await chatRepo.removeChatParticipant(chatId, userId, client);
 
-            //User can choose to persist or delete their messages from chat as they leave 
+            let deletedMessages = [];
             if(deleteMessages){
-                await messageRepo.deleteUserChatMessages(chatId, userId, client);
+                deletedMessages = await messageRepo.deleteUserChatMessages(chatId, userId, client);
             }
 
-            return user;
+            return { removedParticipant, deletedMessages };
         });
 
-        if (removedUser.length === 0) {
+        if (removedParticipant.length === 0) {
             return res.status(404).json({ message: "User is not a participant of this chat" });
+        }
+
+        if (deleteMessages) {
+            await deleteObjects(deletedMessages.map(m => m.media_key));
         }
 
         const io = req.app.get("io");
@@ -304,18 +318,20 @@ export const kickUserFromGroupChat  = async (req, res) => {
     try{
         const {chatId, userId} = req.params;
 
-        const removedUser = await withTransaction(async (client) => {
-            const user = await chatRepo.removeChatParticipant(chatId, userId, client);
+        const { removedParticipant, deletedMessages } = await withTransaction(async (client) => {
+            const removedParticipant = await chatRepo.removeChatParticipant(chatId, userId, client);
             
             //Kicked User messages get deleted
-            await messageRepo.deleteUserChatMessages(chatId, userId, client);
+            const deletedMessages = await messageRepo.deleteUserChatMessages(chatId, userId, client);
 
-            return user;
+            return { removedParticipant, deletedMessages };
         });
 
-        if (removedUser.length === 0) {
+        if (removedParticipant.length === 0) {
             return res.status(404).json({ message: "User is not a participant of this chat" });
         }
+
+        await deleteObjects(deletedMessages.map(m => m.media_key));
 
         const io = req.app.get("io");
         const remainingParticipants = await chatRepo.getChatParticipants(chatId);
@@ -345,6 +361,8 @@ export const deleteUserChatMessages = async (req, res) => {
             return res.status(200).json({ message: "No Messges To Delete" });
         }
 
+        await deleteObjects(deletedMessages.map(m => m.media_key));
+
         const io = req.app.get("io");
         const participants = await chatRepo.getChatParticipants(chatId);
         participants.forEach(participant => {
@@ -368,10 +386,12 @@ export const deleteChatMessage = async (req, res) => {
             return res.status(404).json({ message: "Message not found" });
         }
 
+        await deleteObject(deletedMessages[0].media_key);
+
         const io = req.app.get("io");
         const participants = await chatRepo.getChatParticipants(chatId);
         participants.forEach(participant => {
-            io.to(participant.id).emit("messageDeleted", { chatId, userId });
+            io.to(participant.id).emit("messageDeleted", { chatId, messageId });
         });
 
         return res.status(200).json({ message: "Message Deleted" });
@@ -380,3 +400,4 @@ export const deleteChatMessage = async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 }
+

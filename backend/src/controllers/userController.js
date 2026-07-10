@@ -1,5 +1,6 @@
 import * as userRepo from '../models/userModel.js'
 import bcrypt from 'bcryptjs';
+import { deleteObject, deleteObjects } from './uploadController.js';
 
 
 export const getSettings = async (req, res) => {
@@ -121,7 +122,12 @@ export const updateProfilePictureUrl = async (req, res) => {
             return res.status(400).json({ message: "Invalid JWT" });
         }
 
-        await userRepo.updateProfilePictureUrl(userId, newImageUrl);
+        const { old_profile_picture_url } = await userRepo.updateProfilePictureUrl(userId, newImageUrl);
+
+        if (old_profile_picture_url && old_profile_picture_url !== newImageUrl) {
+            await deleteObject(old_profile_picture_url);
+        }
+
         return res.status(200).json({message: "Profile Pic Updated"});
     }
     catch(error){
@@ -157,8 +163,14 @@ export const deleteAccount = async (req, res) => {
             return res.status(400).json({ message: "Invalid JWT" });
         }
 
-        //TODO - verify proper DB cascade deletion setup
+        const { profile_picture_url } = await userRepo.getProfilePictureUrl(userId) ?? {};
+
+        const deletedMessages = await userRepo.deleteAllMessagesFromUser(userId);
+
         await userRepo.deleteUserAccount(userId);
+
+        await deleteObjects([profile_picture_url, ...deletedMessages.map(m => m.media_key)]);
+
         return res.status(200).json({ message: "User Profile Deleted" });
     }
     catch(error){
@@ -176,7 +188,8 @@ export const deleteAllMessagesFromUser = async (req, res) => {
         }
 
         //TOOO verify decision before executing
-        await userRepo.deleteAllMessagesFromUser(userId);
+        const deletedMessages = await userRepo.deleteAllMessagesFromUser(userId);
+        await deleteObjects(deletedMessages.map(m => m.media_key));
 
         return res.status(200).json({ message: "All User Messages Deleted" });
     }

@@ -1,4 +1,5 @@
 import { cleanupExpiredMessagesQuery } from "../models/messageModel.js"
+import { deleteObjects } from "../controllers/uploadController.js"
 import { Worker } from "bullmq";
 import { redisClient } from "../lib/redis.js";
 
@@ -9,6 +10,7 @@ const worker = new Worker(
 
     if (job.name === "delete-expired-messages") {
       const result = await cleanupExpiredMessagesQuery()
+      await deleteObjects(result.map(row => row.media_key));
       console.log(`Deleted ${result.length} expired messages`);
     }
 

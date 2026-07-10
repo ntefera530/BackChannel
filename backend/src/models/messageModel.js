@@ -1,5 +1,17 @@
 import pool from '../lib/db.js';
 
+
+export const getMediaKeysByChatId = async (chatId, db = pool) => {
+  const query = `
+    SELECT media_key
+    FROM "Messages"
+    WHERE chat_id = $1
+    AND media_key IS NOT NULL
+  `;
+  const result = await db.query(query, [chatId]);
+  return result.rows.map(row => row.media_key);
+}
+
 export const deleteUserChatMessages = async (chatId, userId, db = pool) => {
     const query = `
         DELETE FROM "Messages"
@@ -115,6 +127,7 @@ export const cleanupExpiredMessagesQuery = async () => {
     const query = `
         DELETE FROM "Messages" 
         WHERE expire_by <= NOW()
+        RETURNING media_key
     `;
   const result = await pool.query(query, []);
   return result.rows;

@@ -112,3 +112,34 @@ export const signUrl = async (unsignedUrlKey) => {
     return null;
   }
 }
+
+export const deleteObject = async (key) => {
+  if (!key) return;
+  try {
+    await s3.send(new DeleteObjectCommand({
+      Bucket: process.env.AWS_S3_BUCKET_NAME,
+      Key: key,
+    }));
+  } catch (err) {
+    //TODO Run a cleanup check later, dont cancel DB
+    console.error(`Error deleting R2 object "${key}":`, err);
+  }
+}
+
+//Batch Deletion
+export const deleteObjects = async (keys) => {
+  const validKeys = [...new Set((keys || []).filter(Boolean))];
+  if (validKeys.length === 0) return;
+
+  try {
+    for (let i = 0; i < validKeys.length; i += 1000) {
+      const chunk = validKeys.slice(i, i + 1000);
+      await s3.send(new DeleteObjectsCommand({
+        Bucket: process.env.AWS_S3_BUCKET_NAME,
+        Delete: { Objects: chunk.map(Key => ({ Key })) },
+      }));
+    }
+  } catch (err) {
+    console.error("Error batch deleting R2 objects:", err);
+  }
+}

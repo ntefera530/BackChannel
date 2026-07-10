@@ -183,3 +183,13 @@ export const getChatOwner = async (chatId, db = pool) => {
   return result.rows[0]?.owner ?? null;
 }
 
+export const getChatPictureKey = async (chatId, db = pool) => {
+  const query = `
+    SELECT chat_picture_url
+    FROM "Chats"
+    WHERE id = $1
+  `;
+  const result = await db.query(query, [chatId]);
+  return result.rows[0]?.chat_picture_url ?? null;
+}
+

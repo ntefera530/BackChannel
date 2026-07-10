@@ -53,9 +53,11 @@ export const updatePassword = async (userId, password, db = pool) => {
 
 export const updateProfilePictureUrl = async (userId, profilePictureUrl, db = pool) => {
   const query = `
-      UPDATE "Users"  
+      UPDATE "Users" AS u
       SET profile_picture_url = $2
-      WHERE id = $1
+      FROM (SELECT profile_picture_url FROM "Users" WHERE id = $1) AS old
+      WHERE u.id = $1
+      RETURNING old.profile_picture_url AS old_profile_picture_url
   `;
   const result = await db.query(query, [userId, profilePictureUrl]);
   return result.rows[0];
@@ -85,6 +87,7 @@ export const deleteAllMessagesFromUser = async (userId, db = pool) => {
   const query = `
       DELETE FROM "Messages" 
       WHERE sender_id = $1
+      RETURNING media_key
   `;
   const result = await db.query(query, [userId]);
   return result.rows;  
