@@ -93,6 +93,16 @@ export const deleteAllMessagesFromUser = async (userId, db = pool) => {
   return result.rows;  
 }
 
+export const deleteAllFriendshipsForUser = async (userId, db = pool) => {
+  const query = `
+      DELETE FROM "Friendships"
+      WHERE user_id = $1
+      OR friend_id = $1
+  `;
+  const result = await db.query(query, [userId]);
+  return result.rows;
+}
+
 export const getUserProfileByUsername = async (username, db = pool) => {
   const query = `
       SELECT id, username, password, bio, profile_picture_url 

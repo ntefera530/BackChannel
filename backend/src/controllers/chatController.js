@@ -318,6 +318,10 @@ export const kickUserFromGroupChat  = async (req, res) => {
     try{
         const {chatId, userId} = req.params;
 
+        if (userId === req.user.userId) {
+            return res.status(400).json({ message: "Owners cannot kick themselves. Transfer ownership or delete the chat instead." });
+        }
+        
         const { removedParticipant, deletedMessages } = await withTransaction(async (client) => {
             const removedParticipant = await chatRepo.removeChatParticipant(chatId, userId, client);
             
@@ -397,6 +401,40 @@ export const deleteChatMessage = async (req, res) => {
         return res.status(200).json({ message: "Message Deleted" });
     } catch(error){
         console.error("Error Deleting Message:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+export const transferChatOwnership = async (req, res) => {
+    try{
+        const { chatId } = req.params;
+        const { newOwnerId } = req.body;
+        const currentOwnerId = req.user.userId;
+
+        if (!newOwnerId) {
+            return res.status(400).json({ message: "newOwnerId required" });
+        }
+        if (newOwnerId === currentOwnerId) {
+            return res.status(400).json({ message: "You already own this chat" });
+        }
+
+        const isParticipant = await chatRepo.isUserChatParticipant(chatId, newOwnerId);
+        if (!isParticipant) {
+            return res.status(400).json({ message: "New owner must already be a participant of this chat" });
+        }
+
+        await chatRepo.updateChatOwner(chatId, newOwnerId);
+
+        const io = req.app.get("io");
+        const participants = await chatRepo.getChatParticipants(chatId);
+        participants.forEach(participant => {
+            io.to(participant.id).emit("ownerTransferred", { chatId, newOwnerId });
+        });
+
+        return res.status(200).json({ message: "Ownership Transferred" });
+    }
+    catch(error){
+        console.error("Error Transferring Chat Ownership:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 }

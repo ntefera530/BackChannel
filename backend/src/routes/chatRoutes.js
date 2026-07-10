@@ -18,6 +18,8 @@ router.post("/:chatId/participants/:userId", protectRoute, requireChatOwner, cha
 router.post("/:chatId/participants",         protectRoute, requireChatOwner, chatController.addUsersToGroupChat);
 
 router.put("/:chatId/picture",               protectRoute, requireChatOwner, chatController.updateGroupChatPicture);
+router.put("/:chatId/picture",               protectRoute, requireChatOwner, chatController.updateGroupChatPicture);
+router.put("/:chatId/owner",                 protectRoute, requireChatOwner, chatController.transferChatOwnership);
 
 router.delete("/direct-messages/:chatId",      protectRoute, requireChatParticipant, chatController.deleteDirectMessage);
 router.delete("/group-chats/:chatId",          protectRoute, requireChatOwner, chatController.deleteGroupChat);

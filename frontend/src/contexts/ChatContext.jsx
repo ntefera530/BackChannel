@@ -102,11 +102,18 @@ export default function ChatsProvider({ children }) {
         }
       };
 
+      const handleOwnerTransferred = ({ chatId, newOwnerId }) => {
+        setGroupChats(prev => prev.map(c =>
+          c.chat_id === chatId ? { ...c, owner: newOwnerId } : c
+        ));
+      };
+
       socket.on('participantLeft', handleParticipantLeft);
       socket.on('newMessage', receiveMessage);
       socket.on('messageDeleted', handleMessageDeleted);
       socket.on('userMessagesDeleted', handleUserMessagesDeleted);
       socket.on('chatDeleted', handleChatDeleted);
+      socket.on('ownerTransferred', handleOwnerTransferred);
 
       return () => {
         socket.off('newMessage', receiveMessage);
@@ -114,6 +121,7 @@ export default function ChatsProvider({ children }) {
         socket.off('userMessagesDeleted', handleUserMessagesDeleted);
         socket.off('chatDeleted', handleChatDeleted);
         socket.off('participantLeft', handleParticipantLeft);
+        socket.off('ownerTransferred', handleOwnerTransferred);
       };
     }, [wsReady]);
 
@@ -334,13 +342,35 @@ export default function ChatsProvider({ children }) {
       }
     }
 
-    
+    const handleTransferChatOwnership = async (chatId, newOwnerId) => {
+      try {
+        await chatApi.transferChatOwnership(chatId, newOwnerId);
+
+        setGroupChats(prev => prev.map(c =>
+          c.chat_id === chatId ? { ...c, owner: newOwnerId } : c
+        ));
+      } catch (error) {
+        console.error("Error transferring chat ownership:", error);
+      }
+    }
+
+    const handleKickUser = async (chatId, userId) => {
+      try {
+        await chatApi.kickUserFromGroupChat(chatId, userId);
+        // The server also broadcasts 'participantLeft' to everyone remaining in the
+        // chat, which re-fetches the full participants list — this just makes the
+        // removal feel instant for the person who triggered it.
+        setParticipants(prev => prev.filter(p => p.id !== userId));
+      } catch (error) {
+        console.error("Error kicking user:", error);
+      }
+    }
 
     return (
       <ChatsContext.Provider value={{ participants, groupChats, directMessages, loading, selectedChatId, messages, hasMore, loadingMoreRef,selectedView,
                                       handleGetChats, handleGetDirectMessages, handleGetChatParticipants, handleCreateGroupChat, handleGetChatMessages,
                                       handleCreateDirectMessage, setSelectedChatId, setSelectedView, sendMessage, loadMoreMessages, handleDeleteGroupChat, 
-                                      handleDeleteDirectMessage,handleDeleteMessage, handleClearMyMessages, handleLeaveGroupChat }}>
+                                      handleDeleteDirectMessage,handleDeleteMessage, handleClearMyMessages, handleLeaveGroupChat, handleTransferChatOwnership, handleKickUser }}>
         {children}
       </ChatsContext.Provider>
     );

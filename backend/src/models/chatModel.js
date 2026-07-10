@@ -193,3 +193,37 @@ export const getChatPictureKey = async (chatId, db = pool) => {
   return result.rows[0]?.chat_picture_url ?? null;
 }
 
+export const getGroupChatsOwnedByUser = async (userId, db = pool) => {
+  const query = `
+    SELECT id
+    FROM "Chats"
+    WHERE owner = $1
+    AND is_group_chat = true
+  `;
+  const result = await db.query(query, [userId]);
+  return result.rows;
+}
+
+export const getEarliestOtherParticipant = async (chatId, excludeUserId, db = pool) => {
+  const query = `
+    SELECT user_id
+    FROM "Chat Participants"
+    WHERE chat_id = $1
+    AND user_id != $2
+    ORDER BY id ASC
+    LIMIT 1
+  `;
+  const result = await db.query(query, [chatId, excludeUserId]);
+  return result.rows[0]?.user_id ?? null;
+}
+
+export const updateChatOwner = async (chatId, newOwnerId, db = pool) => {
+  const query = `
+    UPDATE "Chats"
+    SET owner = $2
+    WHERE id = $1
+    RETURNING *
+  `;
+  const result = await db.query(query, [chatId, newOwnerId]);
+  return result.rows[0];
+}

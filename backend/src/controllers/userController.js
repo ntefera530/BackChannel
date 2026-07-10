@@ -1,7 +1,10 @@
 import * as userRepo from '../models/userModel.js'
+import * as chatRepo from '../models/chatModel.js'
+import * as messageRepo from '../models/messageModel.js'
+
 import bcrypt from 'bcryptjs';
 import { deleteObject, deleteObjects } from './uploadController.js';
-
+import { withTransaction } from '../lib/db.js';
 
 export const getSettings = async (req, res) => {
     try{
@@ -165,11 +168,51 @@ export const deleteAccount = async (req, res) => {
 
         const { profile_picture_url } = await userRepo.getProfilePictureUrl(userId) ?? {};
 
-        const deletedMessages = await userRepo.deleteAllMessagesFromUser(userId);
+        const { deletedMessages, chatsToCleanUp, ownerTransfers } = await withTransaction(async (client) => {
 
-        await userRepo.deleteUserAccount(userId);
 
-        await deleteObjects([profile_picture_url, ...deletedMessages.map(m => m.media_key)]);
+            const ownedChats = await chatRepo.getGroupChatsOwnedByUser(userId, client);
+
+            const ownerTransfers = [];
+            const chatsToCleanUp = [];
+
+            for (const chat of ownedChats) {
+                const newOwnerId = await chatRepo.getEarliestOtherParticipant(chat.id, userId, client);
+
+                if (newOwnerId) {
+                    await chatRepo.updateChatOwner(chat.id, newOwnerId, client);
+                    ownerTransfers.push({ chatId: chat.id, newOwnerId });
+                } else {
+
+                    const mediaKeys = await messageRepo.getMediaKeysByChatId(chat.id, client);
+                    const chatPictureKey = await chatRepo.getChatPictureKey(chat.id, client);
+                    await chatRepo.deleteChat(chat.id, client);
+                    chatsToCleanUp.push(...mediaKeys, chatPictureKey);
+                }
+            }
+
+            await userRepo.deleteAllFriendshipsForUser(userId, client);
+
+            const deletedMessages = await userRepo.deleteAllMessagesFromUser(userId, client);
+
+            await userRepo.deleteUserAccount(userId, client);
+
+            return { deletedMessages, chatsToCleanUp, ownerTransfers };
+        });
+
+        const io = req.app.get("io");
+        for (const { chatId, newOwnerId } of ownerTransfers) {
+            const participants = await chatRepo.getChatParticipants(chatId);
+            participants.forEach(participant => {
+                io.to(participant.id).emit("ownerTransferred", { chatId, newOwnerId });
+            });
+        }
+
+        await deleteObjects([
+            profile_picture_url,
+            ...deletedMessages.map(m => m.media_key),
+            ...chatsToCleanUp,
+        ]);
 
         return res.status(200).json({ message: "User Profile Deleted" });
     }

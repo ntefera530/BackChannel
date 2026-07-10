@@ -165,3 +165,12 @@ export const deleteChatMessage = async (chatId, messageId) => {
     }
 }
 
+export const transferChatOwnership = async (chatId, newOwnerId) => {
+    try {
+        const response = await api.put(`/api/v1/chats/${chatId}/owner`, { newOwnerId });
+        return response;
+    } catch (err) {
+        console.error("Error transferring chat ownership:", err);
+        return { success: false, error: err.response?.data?.message || 'Failed to transfer chat ownership' };
+    }
+}
