@@ -3,7 +3,7 @@ import * as chatRepo from '../models/chatModel.js'
 import * as messageRepo from '../models/messageModel.js'
 
 import bcrypt from 'bcryptjs';
-import { deleteObject, deleteObjects, DeleteObjectCommand, DeleteObjectsCommand } from './uploadController.js';
+import { deleteObject, deleteObjects} from './uploadController.js';
 import { withTransaction } from '../lib/db.js';
 
 export const getSettings = async (req, res) => {
