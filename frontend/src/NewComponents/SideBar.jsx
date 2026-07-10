@@ -7,8 +7,8 @@ import defaultUserImage from '../assets/defaultUser.jpg';
 
 import ChatActionModal from './Chatting/ChatActionModal';
 
-const SideBar = ({ setSelectedView }) => {
-    const { groupChats, directMessages, selectedChatId, setSelectedChatId, handleDeleteGroupChat, handleLeaveGroupChat, handleDeleteDirectMessage } = useChats();
+const SideBar = () => {
+    const { groupChats, directMessages, selectedChatId, setSelectedChatId, handleDeleteGroupChat, handleLeaveGroupChat, handleDeleteDirectMessage, setSelectedView } = useChats();
     const { userId, username, profileImageUrl } = useUser();
     const [onlineUsers] = useState([]);
     const [actionModalChat, setActionModalChat] = useState(null);

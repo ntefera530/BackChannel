@@ -16,6 +16,7 @@ export default function ChatsProvider({ children }) {
 
     const [loading, setLoading] = useState(true);
     const [selectedChatId, setSelectedChatId] = useState(null);
+    const [selectedView, setSelectedView] = useState(null); 
 
     const [messages, setMessages] = useState([]);
     const [participants, setParticipants] = useState([]);
@@ -205,7 +206,7 @@ export default function ChatsProvider({ children }) {
         const createdChat = response.data;
 
         const newGroupChat = {
-          chat_id: createdChat.chat_id,
+          chat_id: createdChat.id,
           id: createdChat.id,
           name: createdChat.name,
           chat_picture_url: createdChat.chat_picture_url,
@@ -213,8 +214,8 @@ export default function ChatsProvider({ children }) {
 
         setGroupChats(prev => [...prev, newGroupChat]);
 
-        setSelectedChatId(newGroupChat.chat_id);
-
+        setSelectedChatId(newGroupChat.id);
+        setSelectedView(null);
 
         //Upload photo TODO
         try {
@@ -235,7 +236,6 @@ export default function ChatsProvider({ children }) {
     const handleCreateDirectMessage = async (friend) => {
       try {
         const response = await chatApi.createDirectMessage(friend.id, null);
-        setGroupChats(response.data);
         const createdChat = response.data;
 
         const newDirectMessage = {
@@ -248,6 +248,8 @@ export default function ChatsProvider({ children }) {
 
         setDirectMessages(prev => [...prev, newDirectMessage]);
         setSelectedChatId(newDirectMessage.chat_id);
+
+        setSelectedView(null);
         return newDirectMessage;
         
       } catch (error) {
@@ -308,9 +310,9 @@ export default function ChatsProvider({ children }) {
     }
 
     return (
-      <ChatsContext.Provider value={{ participants, groupChats, directMessages, loading, selectedChatId, messages, hasMore, loadingMoreRef,
+      <ChatsContext.Provider value={{ participants, groupChats, directMessages, loading, selectedChatId, messages, hasMore, loadingMoreRef,selectedView,
                                       handleGetChats, handleGetDirectMessages, handleGetChatParticipants, handleCreateGroupChat, handleGetChatMessages,
-                                      handleCreateDirectMessage, setSelectedChatId, sendMessage, loadMoreMessages, handleDeleteGroupChat, 
+                                      handleCreateDirectMessage, setSelectedChatId, setSelectedView, sendMessage, loadMoreMessages, handleDeleteGroupChat, 
                                       handleDeleteDirectMessage,handleDeleteMessage, handleClearMyMessages, handleLeaveGroupChat }}>
         {children}
       </ChatsContext.Provider>

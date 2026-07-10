@@ -9,8 +9,8 @@ import CreateChatContainer from '../NewComponents/CreateChat/CreateChatContainer
 import CreateDmContainer from '../NewComponents/CreateDM/CreateDmContainer';
 
 const HomePage = () => {
-    const { selectedChatId } = useChats();
-    const [selectedView, setSelectedView] = useState();
+    const { selectedChatId, selectedView } = useChats();
+    //const [selectedView, setSelectedView] = useState();
 
     const renderContent = () => {
         if (selectedView === 'friends') return <FriendsContainer />;
@@ -41,7 +41,7 @@ const HomePage = () => {
                 }}
             >
                 <div className="flex h-full rounded-2xl overflow-hidden">
-                    <Sidebar setSelectedView={setSelectedView} />
+                    <Sidebar/>
                     {renderContent()}
                 </div>
             </div>

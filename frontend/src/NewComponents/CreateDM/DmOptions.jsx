@@ -7,17 +7,17 @@ import defaultUserImage from '../../assets/defaultUser.jpg';
 
 const DmOptions = () => {
     const { friends } = useFriends();
-    const { directMessages, handleCreateDirectMessage, setSelectedChatId } = useChats();
+    const { directMessages, handleCreateDirectMessage, setSelectedChatId, setSelectedView } = useChats();
 
     const handleFriendClick = async (friend) => {
         //prevent dups
         const existing = directMessages.find(dm => dm.other_user_id === friend.id);
         if (existing) {
             setSelectedChatId(existing.chat_id);
+            setSelectedView(null);
         } else {
             await handleCreateDirectMessage(friend);
-        }
-        //TODO go to DM       
+        }      
     }
 
     if (friends.length === 0) {
