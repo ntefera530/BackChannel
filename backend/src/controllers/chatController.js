@@ -60,7 +60,13 @@ export const getChatMessages = async (req, res) => {
         const offset = parseInt(req.query.offset) || 0;
 
         const messages = await chatRepo.getChatMessages(chatId, limit, offset);
-        return res.status(200).json({ messages });
+        const signedMessages = await Promise.all(
+            messages.map(async ({ media_key, ...message }) => ({
+                ...message,
+                media_url: media_key ? await signUrl(media_key) : null,
+            }))
+        );
+        return res.status(200).json({ messages: signedMessages });
     }
     catch(error){
         console.error("Error Getting Chat Messages:", error);

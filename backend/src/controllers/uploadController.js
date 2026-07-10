@@ -16,6 +16,9 @@ const getS3key = (userId, chatId, uploadType, extension) => {
   }
 }
 
+const ALLOWED_CHAT_MEDIA_TYPES = /^(image|video)\//;
+const ALLOWED_PICTURE_TYPES = /^image\//;
+
 export const getUploadUrl = async (req, res) => {
   try {
     const userId = req.user.userId;
@@ -26,6 +29,14 @@ export const getUploadUrl = async (req, res) => {
     }
     if (!uploadType) return res.status(400).json({ message: "Upload type required" });
     
+    if (uploadType === "chat-media" && !ALLOWED_CHAT_MEDIA_TYPES.test(fileType)) {
+        return res.status(400).json({ message: "Only image or video files are allowed" });
+    }
+    if ((uploadType === "profile" || uploadType === "chat-picture") && !ALLOWED_PICTURE_TYPES.test(fileType)) {
+        return res.status(400).json({ message: "Only image files are allowed" });
+    }    
+
+
     const extension = fileType.split("/")[1];
     let key;
     try {

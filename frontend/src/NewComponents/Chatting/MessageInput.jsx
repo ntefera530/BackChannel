@@ -1,30 +1,82 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useChats } from '../../contexts/ChatContext';
-import { X, ImagePlus, Send } from 'lucide-react';
+import { X, ImagePlus, Send, Loader2 } from 'lucide-react';
+
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024; // 10MB
+const MAX_VIDEO_BYTES = 50 * 1024 * 1024; // 50MB
 
 const MessageInput = () => {
     const [text, setText] = useState("");
-    const [imagePreview, setImagePreview] = useState(null);
+    const [mediaFile, setMediaFile] = useState(null);
+    const [mediaPreviewUrl, setMediaPreviewUrl] = useState(null);
+    const [mediaType, setMediaType] = useState(null); // 'image' | 'video'
+    const [fileError, setFileError] = useState(null);
+    const [sending, setSending] = useState(false);
+
     const { sendMessage } = useChats();
     const fileInputRef = useRef(null);
 
-    const handleImageChange = (e) => {
+    // Clean up the object URL when it's replaced or the component unmounts.
+    useEffect(() => {
+        return () => {
+            if (mediaPreviewUrl) URL.revokeObjectURL(mediaPreviewUrl);
+        };
+    }, [mediaPreviewUrl]);
+
+    const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (!file) return;
-        setImagePreview(URL.createObjectURL(file));
+
+        setFileError(null);
+
+        const isVideo = file.type.startsWith('video/');
+        const isImage = file.type.startsWith('image/');
+
+        if (!isVideo && !isImage) {
+            setFileError("Only images or videos are supported");
+            fileInputRef.current.value = '';
+            return;
+        }
+
+        const maxBytes = isVideo ? MAX_VIDEO_BYTES : MAX_IMAGE_BYTES;
+        if (file.size > maxBytes) {
+            setFileError(`File too large — max ${isVideo ? '50MB' : '10MB'}`);
+            fileInputRef.current.value = '';
+            return;
+        }
+
+        if (mediaPreviewUrl) URL.revokeObjectURL(mediaPreviewUrl);
+        setMediaFile(file);
+        setMediaType(isVideo ? 'video' : 'image');
+        setMediaPreviewUrl(URL.createObjectURL(file));
     };
 
-    const removeImage = () => {
-        setImagePreview(null);
-        fileInputRef.current.value = '';
+    const removeMedia = () => {
+        if (mediaPreviewUrl) URL.revokeObjectURL(mediaPreviewUrl);
+        setMediaFile(null);
+        setMediaPreviewUrl(null);
+        setMediaType(null);
+        setFileError(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
     const handleSendMessage = async (e) => {
         e.preventDefault();
-        if (!text.trim() && !imagePreview) return;
-        sendMessage(text);
-        setText("");
-        setImagePreview(null);
+        if (sending) return;
+        if (!text.trim() && !mediaFile) return;
+
+        setSending(true);
+        try {
+            await sendMessage(text.trim(), mediaFile);
+            setText("");
+            // Don't revoke here — ChatContext's optimistic message is now using this same blob URL.
+            setMediaFile(null);
+            setMediaPreviewUrl(null);
+            setMediaType(null);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        } finally {
+            setSending(false);
+        }
     };
 
     const handleKeyDown = (e) => {
@@ -37,18 +89,27 @@ const MessageInput = () => {
     return (
         <div className="border-t border-base-300 px-4 py-3 bg-base-100">
 
-            {/* Image preview */}
-            {imagePreview && (
+            {/* Media preview */}
+            {mediaPreviewUrl && (
                 <div className="mb-2 flex items-center gap-2">
                     <div className="relative inline-block">
-                        <img
-                            src={imagePreview}
-                            alt="Preview"
-                            className="w-16 h-16 object-cover rounded-lg border border-base-300"
-                        />
+                        {mediaType === 'video' ? (
+                            <video
+                                src={mediaPreviewUrl}
+                                className="w-16 h-16 object-cover rounded-lg border border-base-300"
+                                muted
+                            />
+                        ) : (
+                            <img
+                                src={mediaPreviewUrl}
+                                alt="Preview"
+                                className="w-16 h-16 object-cover rounded-lg border border-base-300"
+                            />
+                        )}
                         <button
-                            onClick={removeImage}
+                            onClick={removeMedia}
                             type="button"
+                            disabled={sending}
                             className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-neutral 
                                 text-neutral-content flex items-center justify-center"
                         >
@@ -58,15 +119,20 @@ const MessageInput = () => {
                 </div>
             )}
 
+            {fileError && (
+                <div className="mb-2 text-xs text-error">{fileError}</div>
+            )}
+
             <form onSubmit={handleSendMessage} className="flex items-center gap-2">
 
-                {/* Image button */}
+                {/* Media button */}
                 <button
                     type="button"
                     onClick={() => fileInputRef.current.click()}
+                    disabled={sending}
                     className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-xl
                         transition-colors
-                        ${imagePreview
+                        ${mediaPreviewUrl
                             ? 'text-primary bg-primary/10'
                             : 'text-base-content/30 hover:text-base-content/60 hover:bg-base-200'
                         }`}
@@ -76,10 +142,10 @@ const MessageInput = () => {
 
                 <input
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     className="hidden"
                     ref={fileInputRef}
-                    onChange={handleImageChange}
+                    onChange={handleFileChange}
                 />
 
                 {/* Text input */}
@@ -92,18 +158,19 @@ const MessageInput = () => {
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                     onKeyDown={handleKeyDown}
+                    disabled={sending}
                 />
 
                 {/* Send button */}
                 <button
                     type="submit"
-                    disabled={!text.trim() && !imagePreview}
+                    disabled={(!text.trim() && !mediaFile) || sending}
                     className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-xl
                         bg-primary text-primary-content
                         disabled:opacity-30 disabled:cursor-not-allowed
                         hover:bg-primary/90 transition-colors"
                 >
-                    <Send className="w-4 h-4" />
+                    {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 </button>
 
             </form>

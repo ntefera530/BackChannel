@@ -66,7 +66,7 @@ const SideBar = () => {
             }}
         >
             {/* Header */}
-            <div className="px-4 py-4 border-b border-primary/10 flex items-center justify-between">
+            <div className="px-4 h-16 border-b border-primary/10 flex items-center justify-between">
                 <span
                     className="hidden lg:block text-lg font-semibold text-base-content tracking-tight"
                     style={{ fontFamily: "'Fraunces', serif" }}

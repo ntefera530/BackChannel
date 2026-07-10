@@ -1,7 +1,7 @@
 import pool from '../lib/db.js';
 
 
-export const getUserDeletionSettings = async (userId, db = pool) => {
+export const getUserSettings = async (userId, db = pool) => {
   const query = `
       SELECT delete_timer_seconds 
       FROM "Users" 
@@ -21,7 +21,7 @@ export const getProfilePictureUrl = async (userId, db = pool) => {
   return result.rows[0];
 }
 
-export const updateUserDeletionSettings = async (userId, delete_time_seconds, db = pool) => {
+export const updateUserSettings = async (userId, delete_time_seconds, db = pool) => {
   const query = `
       UPDATE "Users"  
       SET delete_timer_seconds = $2

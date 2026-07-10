@@ -67,7 +67,7 @@ export default function ChatsProvider({ children }) {
       const handleMessageDeleted = ({ chatId, messageId }) => {
         if (chatId !== selectedChatIdRef.current) return;
         setMessages(messages => messages.map(m =>
-          m.id === messageId ? { ...m, deleted: true, content: null, image: null } : m
+          m.id === messageId ? { ...m, deleted: true, content: null, media_url: null, media_type: null } : m
         ));
       };
 
@@ -121,7 +121,7 @@ export default function ChatsProvider({ children }) {
       try {
         await chatApi.deleteChatMessage(selectedChatId, messageId);
         setMessages(messages => messages.map(m =>
-          m.id === messageId ? { ...m, deleted: true, content: null, image: null } : m
+          m.id === messageId ? { ...m, deleted: true, content: null, media_url: null, media_type: null } : m
         ));
       } catch (error) {
         console.error("Error deleting message:", error);
@@ -146,31 +146,50 @@ export default function ChatsProvider({ children }) {
         return handleGetChatMessages(selectedChatId, limit, newOffset);
     }
 
-    const sendMessage = (content) => {
+    const sendMessage = async (content, file = null) => {
       const socket = wsRef.current;
       if(!socket){
         console.error("Socket.IO not connected");
         return;
       }
 
+      if(!socket.connected){
+        //TODO: Handle reconnection logic
+        console.log("Socket.IO not connected");
+        return;
+      }
+      
 
+      const messageId = uuidv4();
+      let mediaKey = null;
+      let mediaType = null;
+      let localMediaUrl = null;
+
+      if (file) {
+        mediaType = file.type.startsWith('video/') ? 'video' : 'image';
+        localMediaUrl = URL.createObjectURL(file);
+
+        try {
+          mediaKey = await storageApi.uploadChatMedia(file, selectedChatId);
+        } catch (err) {
+          console.error("Error uploading chat media:", err);
+          URL.revokeObjectURL(localMediaUrl);
+          return;
+        }
+      }
       const message = {
-        id: uuidv4(),
+        id: messageId,
         content: content, 
         sender_id: userId,
         chat_id: selectedChatId,
         expire_at: deleteTimerSeconds ? new Date(Date.now() + deleteTimerSeconds * 1000) : null,
-        sent_at: new Date()
+        sent_at: new Date(),
+        media_key: mediaKey,
+        media_type: mediaType,
       }
 
-      if(socket.connected) {
-        socket.emit('sendMessageToUser', message);
-        setMessages(messages => [...messages, message]); // Optimistic UI update
-      }
-      else{
-        //TODO: Handle reconnection logic
-        console.log("Socket.IO not connected");
-      }
+      socket.emit('sendMessageToUser', message);
+      setMessages(messages => [...messages, { ...message, media_url: localMediaUrl }]);
     }
 
     const handleGetChats = async  () => {
@@ -278,6 +297,12 @@ export default function ChatsProvider({ children }) {
     const handleGetChatMessages = async (selectedChatId, limit, offset) => {
       try {
         const response = await chatApi.getChatMessages(selectedChatId, limit, offset);
+
+        if (!response?.data?.messages) {
+          console.error("Error fetching chat messages:", response?.error || response);
+          return;
+        }
+
         const newMessages = response.data.messages.reverse(); // ← reverse to get oldest first
 
         if(newMessages.length < limit){
@@ -308,6 +333,8 @@ export default function ChatsProvider({ children }) {
         console.error("Error leaving group chat:", error);
       }
     }
+
+    
 
     return (
       <ChatsContext.Provider value={{ participants, groupChats, directMessages, loading, selectedChatId, messages, hasMore, loadingMoreRef,selectedView,

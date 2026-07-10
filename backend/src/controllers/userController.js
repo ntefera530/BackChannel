@@ -2,7 +2,7 @@ import * as userRepo from '../models/userModel.js'
 import bcrypt from 'bcryptjs';
 
 
-export const getDeletionSettings = async (req, res) => {
+export const getSettings = async (req, res) => {
     try{
         const userId = req.user.userId;
 
@@ -10,8 +10,8 @@ export const getDeletionSettings = async (req, res) => {
         //const delete_time_seconds = await userRepo.getUserDeletionSettings(userId);
         //return res.status(200).json(delete_time_seconds);
 
-        const settings = await userRepo.getUserDeletionSettings(userId);
-        return res.status(200).json({ deleteTimerSeconds: row ? row.delete_timer_seconds : null });
+        const settings = await userRepo.getUserSettings(userId);
+        return res.status(200).json({ deleteTimerSeconds: settings ? settings.delete_timer_seconds : null });
         
     }
     catch(error){
@@ -39,12 +39,12 @@ export const getProfilePictureUrl = async (req, res) => {
 }
 
 
-export const updateDeletionSettings = async (req, res) => {
+export const updateSettings = async (req, res) => {
     try{
         const userId = req.user.userId;
         const delete_time_seconds = req.body.deleteTimerSeconds;
 
-        await userRepo.updateUserDeletionSettings(userId, delete_time_seconds);
+        await userRepo.updateUserSettings(userId, delete_time_seconds);
         return res.status(200).json({message: "Delete Timer Updated", deleteTimerSeconds: delete_time_seconds});
     }
     catch(error){

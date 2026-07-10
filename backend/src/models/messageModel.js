@@ -31,7 +31,16 @@ export const isUserMessageOwner = async (messageId, userId, db = pool) => {
   `;
   const result = await db.query(query, [messageId, userId]);
   return result.rows.length > 0;
-} 
+}
+
+export const saveMessagesQuery = async (messageId, senderId, chatId, content, expireBy, mediaKey = null, mediaType = null) => {
+    const query = `
+        INSERT INTO "Messages" (id, sender_id, chat_id, content, expire_by, media_key, media_type)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+    `;
+  const result = await pool.query(query, [messageId, senderId, chatId, content, expireBy, mediaKey, mediaType]);
+  return result.rows;
+}
 
 
 
@@ -99,15 +108,6 @@ export const deleteAllMessageQuery = async (userId) => {
     WHERE sender_id = $1 
   `;
   const result = await pool.query(query, [userId]);
-  return result.rows;
-}
-
-export const saveMessagesQuery = async (messageId, senderId, chatId, content, expireBy) => {
-    const query = `
-        INSERT INTO "Messages" (id, sender_id, chat_id, content, expire_by)
-        VALUES ($1, $2, $3, $4, $5)
-    `;
-  const result = await pool.query(query, [messageId, senderId, chatId, content, expireBy]);
   return result.rows;
 }
 

@@ -113,20 +113,6 @@ export const deleteAllMessagesFromUser = async () => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const getUserSettings = async () => {
   try{
     const response = await api.get('/api/v1/users/me/settings');

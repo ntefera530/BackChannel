@@ -4,11 +4,11 @@ import * as userController from "../controllers/userController.js";
 
 const router = express.Router();
 
-router.get("/me/deletion-settings",    protectRoute, userController.getDeletionSettings);
+router.get("/me/deletion-settings",    protectRoute, userController.getSettings);
 router.get("/:userId/profile-picture", protectRoute, userController.getProfilePictureUrl);
 //router.get("/:userId",                 userController.getUserProfile);
 
-router.put("/me/deletion-settings",  protectRoute, userController.updateDeletionSettings);
+router.put("/me/settings",  protectRoute, userController.updateSettings);
 router.put("/me/username",           protectRoute, userController.updateUsername);
 router.put("/me/password",           protectRoute, userController.updatePassword);
 router.put("/me/profile-picture",    protectRoute, userController.updateProfilePictureUrl);

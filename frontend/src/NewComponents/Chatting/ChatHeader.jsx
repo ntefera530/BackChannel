@@ -21,7 +21,7 @@ const ChatHeader = () => {
 
     return (
         <div
-            className="border-b border-primary/15 px-5 py-3 flex items-center gap-4"
+            className="border-b border-primary/15 px-5 h-16 flex items-center gap-4"
             style={{
                 background: 'linear-gradient(135deg, oklch(94% 0.04 290 / 0.5) 0%, oklch(97% 0.01 80) 100%)',
             }}

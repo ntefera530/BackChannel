@@ -118,34 +118,41 @@ const MessageList = () => {
 
                             {/* Bubble + delete button */}
                             <div className={`flex items-center gap-1.5 ${own ? 'flex-row-reverse' : 'flex-row'}`}>
-                            <div
-                                className={`px-4 py-2.5 text-sm leading-relaxed
-                                    ${message.deleted
-                                        ? 'italic text-base-content/40 bg-base-200/60 border border-base-300 rounded-2xl'
-                                        : own
-                                            ? 'bg-primary text-primary-content rounded-2xl rounded-tr-sm shadow-md shadow-primary/20'
-                                            : 'bg-white/90 backdrop-blur-sm text-base-content border border-white rounded-2xl rounded-tl-sm shadow-sm'
-                                    }
+                                <div
+                                    className={`px-4 py-2.5 text-sm leading-relaxed
+                                        ${message.deleted
+                                            ? 'italic text-base-content/40 bg-base-200/60 border border-base-300 rounded-2xl'
+                                            : own
+                                                ? 'bg-primary text-primary-content rounded-2xl rounded-tr-sm shadow-md shadow-primary/20'
+                                                : 'bg-white/90 backdrop-blur-sm text-base-content border border-white rounded-2xl rounded-tl-sm shadow-sm'
+                                        }
 
-                                    ${!message.deleted && isGrouped && own ? 'rounded-tr-2xl' : ''}
-                                    ${!message.deleted && isGrouped && !own ? 'rounded-tl-2xl' : ''}
-                                `}
-                            >
-                                {message.deleted ? (
-                                    'This message was deleted'
-                                ) : (
-                                    <>
-                                        {message.image && (
-                                            <img
-                                                src={message.image}
-                                                alt="Attachment"
-                                                className="max-w-[200px] rounded-lg mb-2"
-                                            />
-                                        )}
-                                        {message.content}
-                                    </>
-                                )}
-                            </div>
+                                        ${!message.deleted && isGrouped && own ? 'rounded-tr-2xl' : ''}
+                                        ${!message.deleted && isGrouped && !own ? 'rounded-tl-2xl' : ''}
+                                    `}
+                                >
+                                    {message.deleted ? (
+                                        'This message was deleted'
+                                    ) : (
+                                        <>
+                                            {message.media_url && message.media_type === 'video' && (
+                                                <video
+                                                    src={message.media_url}
+                                                    controls
+                                                    className="max-w-[240px] rounded-lg mb-2"
+                                                />
+                                            )}
+                                            {message.media_url && message.media_type !== 'video' && (
+                                                <img
+                                                    src={message.media_url}
+                                                    alt="Attachment"
+                                                    className="max-w-[240px] rounded-lg mb-2"
+                                                />
+                                            )}
+                                            {message.content}
+                                        </>
+                                    )}
+                                </div>
 
                                 {own && !message.deleted && (
                                     <button

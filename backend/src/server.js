@@ -4,7 +4,7 @@ import { WebSocketServer } from 'ws';
 import { Server } from 'socket.io';
 
 //import { startScheduler } from "./lib/scheduler.js";
-import { setUpWebSocket } from "./websockets/websocket.js";
+//import { setUpWebSocket } from "./websockets/websocket.js";
 import { setUpSocketIO } from "./websockets/websocket.js";
 
 
