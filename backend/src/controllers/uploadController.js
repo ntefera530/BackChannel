@@ -46,7 +46,7 @@ export const getUploadUrl = async (req, res) => {
     }
 
     const command = new PutObjectCommand({
-      Bucket: process.env.AWS_S3_BUCKET_NAME,
+      Bucket: process.env.R2_BUCKET_NAME,
       Key: key,
       ContentType: fileType,
     });
@@ -72,7 +72,7 @@ export const getDownloadUrl = async (req, res) => {
     }
 
     const command = new GetObjectCommand({
-      Bucket: process.env.AWS_S3_BUCKET_NAME,
+      Bucket: process.env.R2_BUCKET_NAME,
       Key: key,
     });
 
@@ -97,7 +97,7 @@ export const signUrl = async (unsignedUrlKey) => {
     }
 
     const command = new GetObjectCommand({
-      Bucket: process.env.AWS_S3_BUCKET_NAME,
+      Bucket: process.env.R2_BUCKET_NAME,
       Key: unsignedUrlKey,
     });
 
@@ -117,7 +117,7 @@ export const deleteObject = async (key) => {
   if (!key) return;
   try {
     await s3.send(new DeleteObjectCommand({
-      Bucket: process.env.AWS_S3_BUCKET_NAME,
+      Bucket: process.env.R2_BUCKET_NAME,
       Key: key,
     }));
   } catch (err) {
@@ -135,7 +135,7 @@ export const deleteObjects = async (keys) => {
     for (let i = 0; i < validKeys.length; i += 1000) {
       const chunk = validKeys.slice(i, i + 1000);
       await s3.send(new DeleteObjectsCommand({
-        Bucket: process.env.AWS_S3_BUCKET_NAME,
+        Bucket: process.env.R2_BUCKET_NAME,
         Delete: { Objects: chunk.map(Key => ({ Key })) },
       }));
     }
