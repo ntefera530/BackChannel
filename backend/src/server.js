@@ -3,7 +3,7 @@ import express from "express"
 import { WebSocketServer } from 'ws';
 import { Server } from 'socket.io';
 
-import { startScheduler } from "./lib/scheduler.js";
+//import { startScheduler } from "./lib/scheduler.js";
 import { setUpSocketIO } from "./websockets/websocket.js";
 
 import authRoutes from "./routes/authRoutes.js";
@@ -44,6 +44,10 @@ app.use(cors({
 
 app.use(pinoHttp({ logger }));
 
+app.get("/", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
+
 //Routes
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);
@@ -63,9 +67,9 @@ const io = new Server(server, {
     }
 });
 setUpSocketIO(io);
-app.set("io", io);
+app.set("io", io);  
 
 server.listen(PORT, async () => {
     console.log("Server is Listening on port: " + PORT);
-    await startScheduler();
+    //await startScheduler();
 });
