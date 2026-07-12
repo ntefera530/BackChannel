@@ -3,6 +3,7 @@ import { useChats } from '../../contexts/ChatContext';
 import { useUser } from '../../contexts/UserContext';
 import { Crown, X, UserMinus } from 'lucide-react';
 import defaultUserImage from '../../assets/defaultUser.jpg';
+import Avatar from '../Avatar';
 
 const ParticipantsModal = ({ open, onClose }) => {
     const { participants, selectedChatId, groupChats, handleTransferChatOwnership, handleKickUser } = useChats();
@@ -71,11 +72,12 @@ const ParticipantsModal = ({ open, onClose }) => {
                                 key={p.id}
                                 className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-base-200/50 transition-colors"
                             >
-                                <img
-                                    src={p.profile_picture_url || defaultUserImage}
+                                <Avatar
+                                    pictureKey={p.profile_picture_url}
                                     alt={p.username}
                                     className="w-8 h-8 rounded-full object-cover flex-shrink-0"
                                 />
+
 
                                 <div className="flex-1 min-w-0 flex items-center gap-1.5">
                                     <p className="text-sm font-medium text-base-content truncate">

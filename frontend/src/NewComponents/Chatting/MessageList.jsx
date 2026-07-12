@@ -4,6 +4,7 @@ import { useUser } from '../../contexts/UserContext';
 import { formatMessageTimestamp } from '../../lib/utils';
 import defaultUserImage from '../../assets/defaultUser.jpg';
 import { Trash2 } from 'lucide-react';
+import Avatar from '../Avatar';
 
 const MessageList = () => {
     const { messages, hasMore, loadMoreMessages, participants,  handleDeleteMessage } = useChats();
@@ -93,8 +94,8 @@ const MessageList = () => {
                         {/* Avatar */}
                         <div className="flex-shrink-0 w-8 self-end">
                             {!isGrouped && (
-                                <img
-                                    src={sender.profile_picture_url || defaultUserImage}
+                                <Avatar
+                                    pictureKey={sender.profile_picture_url}
                                     alt={sender.username}
                                     className="w-8 h-8 rounded-full object-cover ring-2 ring-white/80"
                                 />

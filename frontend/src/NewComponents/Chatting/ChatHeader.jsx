@@ -5,6 +5,7 @@ import { Users } from 'lucide-react';
 import defaultUserImage from '../../assets/defaultUser.jpg';
 import defaultChatImage from '../../assets/defaultChat.png';
 import ParticipantsModal from './ParticipantsModal';
+import Avatar from '../Avatar';
 
 const ChatHeader = () => {
     const { participants, selectedChatId, handleGetChatParticipants, groupChats, directMessages } = useChats();
@@ -30,11 +31,13 @@ const ChatHeader = () => {
                 background: 'linear-gradient(135deg, oklch(94% 0.04 290 / 0.5) 0%, oklch(97% 0.01 80) 100%)',
             }}
         >
-            <img
-                src={currentChat.chat_picture_url || (isGroup ? defaultChatImage : defaultUserImage)}
+            <Avatar
+                pictureKey={currentChat.chat_picture_url}
                 alt={currentChat.name}
+                fallback={isGroup ? defaultChatImage : defaultUserImage}
                 className="w-9 h-9 rounded-full object-cover flex-shrink-0"
             />
+
 
             <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm text-base-content truncate">

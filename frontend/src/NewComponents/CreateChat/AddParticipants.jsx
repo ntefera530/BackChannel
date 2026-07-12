@@ -1,6 +1,9 @@
 import { useFriends } from '../../contexts/FriendContext';
 import { Check } from 'lucide-react';
 import defaultUserImage from '../../assets/defaultUser.jpg';
+import { useFriends } from '../../contexts/FriendContext';
+import { Check } from 'lucide-react';
+import Avatar from '../Avatar';
 
 const AddParticipants = ({ participants, setParticipants }) => {
     const { friends } = useFriends();
@@ -37,8 +40,8 @@ const AddParticipants = ({ participants, setParticipants }) => {
                             className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-colors
                                 ${selected ? 'bg-primary/10' : 'hover:bg-base-200'}`}
                         >
-                            <img
-                                src={friend.profile_picture_url || defaultUserImage}
+                            <Avatar
+                                pictureKey={friend.profile_picture_url}
                                 alt={friend.username}
                                 className="w-8 h-8 rounded-full object-cover flex-shrink-0"
                             />

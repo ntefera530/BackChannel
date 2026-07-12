@@ -4,6 +4,7 @@ import { useUser } from '../contexts/UserContext';
 import { Settings, ContactRound, BadgePlus, Trash2, Users, User, LogOut } from 'lucide-react';
 import defaultChatImage from '../assets/defaultChat.png';
 import defaultUserImage from '../assets/defaultUser.jpg';
+import Avatar from './Avatar';
 
 import ChatActionModal from './Chatting/ChatActionModal';
 
@@ -134,9 +135,10 @@ const SideBar = () => {
                         >
                             {/* Avatar */}
                             <div className="relative flex-shrink-0">
-                                <img
-                                    src={chat.chat_picture_url || (chatType === 'groups' ? defaultChatImage : defaultUserImage)}
+                                <Avatar
+                                    pictureKey={chat.chat_picture_url}
                                     alt={chat.name}
+                                    fallback={chatType === 'groups' ? defaultChatImage : defaultUserImage}
                                     className={`w-10 h-10 rounded-full object-cover mx-auto lg:mx-0
                                         transition-all duration-150
                                         ${selectedChatId === chat.chat_id

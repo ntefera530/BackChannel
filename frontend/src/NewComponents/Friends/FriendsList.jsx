@@ -1,6 +1,10 @@
 import { useFriends } from '../../contexts/FriendContext';
 import { Trash2, Users } from 'lucide-react';
 import defaultUserImage from '../../assets/defaultUser.jpg';
+import { useFriends } from '../../contexts/FriendContext';
+import { Trash2, Users } from 'lucide-react';
+import Avatar from '../Avatar';
+
 
 const FriendsList = () => {
     const { friends, handleDeleteFriend } = useFriends();
@@ -24,8 +28,8 @@ const FriendsList = () => {
                     key={friend.id}
                     className="group flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-base-200 transition-colors"
                 >
-                    <img
-                        src={friend.profile_picture_url || defaultUserImage}
+                    <Avatar
+                        pictureKey={friend.profile_picture_url}
                         alt={friend.username}
                         className="w-9 h-9 rounded-full object-cover flex-shrink-0"
                     />
