@@ -42,7 +42,7 @@ export default function UserProvider({children}){
 
     const handleSignup = async (username, password) => {
       const response = await authApi.signup(username, password);
-      if(!response.success){
+      if(!response.status || response.status !== 200){
         console.log("Signup failed: ", response.error);
         return;
       }
