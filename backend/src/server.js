@@ -71,5 +71,5 @@ app.set("io", io);
 
 server.listen(PORT, async () => {
     console.log("Server is Listening on port: " + PORT);
-    //await startScheduler();
+    await startScheduler();
 });
