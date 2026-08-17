@@ -3,7 +3,7 @@ import express from "express"
 import { WebSocketServer } from 'ws';
 import { Server } from 'socket.io';
 
-//import { startScheduler } from "./lib/scheduler.js";
+import { startScheduler } from "./lib/scheduler.js";
 import { setUpSocketIO } from "./websockets/websocket.js";
 
 import authRoutes from "./routes/authRoutes.js";
