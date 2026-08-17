@@ -16,7 +16,7 @@ const worker = new Worker(
 
   },
   {
-    connection: redisClient,
+    connection: createRedisConnection(),
   }
 );
 
