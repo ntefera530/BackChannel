@@ -1,8 +1,6 @@
 import { useFriends } from '../../contexts/FriendContext';
 import { Check } from 'lucide-react';
 import defaultUserImage from '../../assets/defaultUser.jpg';
-import { useFriends } from '../../contexts/FriendContext';
-import { Check } from 'lucide-react';
 import Avatar from '../Avatar';
 
 const AddParticipants = ({ participants, setParticipants }) => {
