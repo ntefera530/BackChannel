@@ -14,7 +14,8 @@ createRoot(document.getElementById('root')).render(
         <WebSocketProvider>
           <FriendsProvider>
             <ChatsProvider>   
-              <App />   
+              <App />
+              <Toaster position="top-center" />   
             </ChatsProvider>
           </FriendsProvider>   
         </WebSocketProvider>
