@@ -1,7 +1,7 @@
 import { cleanupExpiredMessagesQuery } from "../models/messageModel.js"
 import { deleteObjects } from "../controllers/uploadController.js"
 import { Worker } from "bullmq";
-import { redisClient } from "../lib/redis.js";
+import { createRedisConnection } from "../lib/redis.js";
 
 const worker = new Worker(
   "message-deletion",

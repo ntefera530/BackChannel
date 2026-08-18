@@ -5,6 +5,7 @@ import { Server } from 'socket.io';
 
 import { startScheduler } from "./lib/scheduler.js";
 import { setUpSocketIO } from "./websockets/websocket.js";
+import "./workers/messageDeletionWorker.js";
 
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
