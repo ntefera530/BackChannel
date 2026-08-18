@@ -6,6 +6,8 @@ import * as userApi from '../api/userApi';
 import * as authApi from '../api/authApi';
 import * as storageApi from '../api/storageApi';
 
+import toast from 'react-hot-toast';
+
 const UserContext = createContext();
 
 export default function UserProvider({children}){
@@ -32,6 +34,7 @@ export default function UserProvider({children}){
 
       if(!response.status || response.status !== 200){
         console.log("Login failed: ", response.error);
+        toast.error("Login failed - " + response.error);
         return;
       }
 
@@ -44,6 +47,7 @@ export default function UserProvider({children}){
       const response = await authApi.signup(username, password);
       if(!response.status || response.status !== 200){
         console.log("Signup failed: ", response.error);
+        toast.error("Signup failed - " + response.error);
         return;
       }
       setUsername(response.data.username);
